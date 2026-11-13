@@ -22,9 +22,9 @@ Gates referenced below: `./gradlew :androidApp:assembleDebug testAndroidHostTest
 
 ## 3. Result wrapper and data errors (`:core:domain`)
 
-- [ ] 3.1 Add `Error`, `Result`, `EmptyResult`, `map`, `onSuccess`, `onFailure`, `asEmptyResult` and `DataError.Network` with the entries from design §5. Verify: `:core:domain` compiles for Android and iOS.
-- [ ] 3.2 List the break vectors (wrong-branch side effects, chaining order, `Unit` mapping, nullable data, mapper throwing), then write `ResultTest` in `commonTest`, one test per distinct vector. Verify: `./gradlew :core:domain:testAndroidHostTest :core:domain:iosSimulatorArm64Test` passes.
-- [ ] 3.3 Run all gates. Verify they pass, then commit `feat(core): add result wrapper and data errors`.
+- [x] 3.1 Add `Error`, `Result`, `EmptyResult`, `map`, `onSuccess`, `onFailure`, `asEmptyResult` and `DataError.Network` with the entries from design §5. Verify: `:core:domain` compiles for Android and iOS.
+- [x] 3.2 List the break vectors (wrong-branch side effects, chaining order, `Unit` mapping, nullable data, mapper throwing), then write `ResultTest` in `commonTest`, one test per distinct vector. Verify: `./gradlew :core:domain:testAndroidHostTest :core:domain:iosSimulatorArm64Test` passes.
+- [x] 3.3 Run all gates. Verify they pass, then commit `feat(core): add result wrapper and data errors`.
 
 ## 4. UiText and ObserveAsEvents (`:core:presentation`)
 
