@@ -43,11 +43,11 @@ Gates referenced below: `./gradlew :androidApp:assembleDebug testAndroidHostTest
 
 ## 6. Koin startup
 
-- [ ] 6.1 Add `coreDataModule` and `expect`/`actual coreDataPlatformModule` (OkHttp / Darwin engine) in `:core:data`, and `initKoin(config)` in `:composeApp` `commonMain`. Verify: `:composeApp` compiles for Android and iOS.
-- [ ] 6.2 Add `CardiganApplication` in `:androidApp` that calls `initKoin { androidContext(...) }` and register it in the manifest. Call `InitKoinKt.doInitKoin(config: nil)` in `iOSApp.init()`. Verify: `./gradlew :androidApp:assembleDebug` and the `xcodebuild` build succeed.
-- [ ] 6.3 Add a `commonTest` in `:core:data` that starts Koin with `coreDataModule` plus a test module overriding the engine with `MockEngine`, resolves `HttpClient`, sends one `get<Unit>("/ping")` through it, and asserts the `MockEngine` recorded exactly one request to `${BuildKonfig.BASE_URL}/ping`. `stopKoin()` runs in `@AfterTest`. Verify: it passes on Android host and iOS simulator.
-- [ ] 6.4 Launch the app on an Android emulator and an iOS simulator. Verify: both start to a blank screen without a crash (Koin starts once).
-- [ ] 6.5 Run all gates and the `xcodebuild` build. Verify they pass, then commit `feat: start koin on android and ios`.
+- [x] 6.1 Add `coreDataModule` and `expect`/`actual coreDataPlatformModule` (OkHttp / Darwin engine) in `:core:data`, and `initKoin(config)` in `:composeApp` `commonMain`. Verify: `:composeApp` compiles for Android and iOS.
+- [x] 6.2 Add `CardiganApplication` in `:androidApp` that calls `initKoin { androidContext(...) }` and register it in the manifest. Call `InitKoinKt.doInitKoin(config: nil)` in `iOSApp.init()`. Verify: `./gradlew :androidApp:assembleDebug` and the `xcodebuild` build succeed.
+- [x] 6.3 Add a `commonTest` in `:core:data` that starts Koin with `coreDataModule` plus a test module overriding the engine with `MockEngine`, resolves `HttpClient`, sends one `get<Unit>("/ping")` through it, and asserts the `MockEngine` recorded exactly one request to `${BuildKonfig.BASE_URL}/ping`. `stopKoin()` runs in `@AfterTest`. Verify: it passes on Android host and iOS simulator.
+- [x] 6.4 Launch the app on an Android emulator and an iOS simulator. Verify: both start to a blank screen without a crash (Koin starts once).
+- [x] 6.5 Run all gates and the `xcodebuild` build. Verify they pass, then commit `feat: start koin on android and ios`.
 
 ## 7. Documentation
 
