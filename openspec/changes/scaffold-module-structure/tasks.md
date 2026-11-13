@@ -28,9 +28,9 @@ Gates referenced below: `./gradlew :androidApp:assembleDebug testAndroidHostTest
 
 ## 4. UiText and ObserveAsEvents (`:core:presentation`)
 
-- [ ] 4.1 Add `UiText` (design §6) and `ObserveAsEvents` (lifecycle-aware, `Dispatchers.Main.immediate`). Verify: `:core:presentation` compiles for Android and iOS.
-- [ ] 4.2 Write `UiTextTest` in `commonTest` for `DynamicString.asStringAsync()`: empty, emoji/combining characters, and `%s`/`%1$d` passed through unchanged. Verify: `./gradlew :core:presentation:testAndroidHostTest :core:presentation:iosSimulatorArm64Test` passes.
-- [ ] 4.3 Run all gates. Verify they pass, then commit `feat(core): add ui text and observe-as-events`.
+- [x] 4.1 Add `UiText` (design §6) and `ObserveAsEvents` (lifecycle-aware, `Dispatchers.Main.immediate`). Verify: `:core:presentation` compiles for Android and iOS.
+- [x] 4.2 Write `UiTextTest` in `commonTest` for `DynamicString.asStringAsync()`: empty, emoji/combining characters, and `%s`/`%1$d` passed through unchanged. Verify: `./gradlew :core:presentation:testAndroidHostTest :core:presentation:iosSimulatorArm64Test` passes.
+- [x] 4.3 Run all gates. Verify they pass, then commit `feat(core): add ui text and observe-as-events`.
 
 ## 5. HttpClient and safe calls (`:core:data`)
 
