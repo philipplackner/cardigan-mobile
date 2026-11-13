@@ -1,6 +1,8 @@
 rootProject.name = "CardiganApp"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -28,4 +30,15 @@ dependencyResolutionManagement {
 }
 
 include(":androidApp")
-include(":shared")
+include(":composeApp")
+
+include(":core:domain")
+include(":core:data")
+include(":core:presentation")
+include(":core:designsystem")
+
+listOf("auth", "boards", "cards", "labels", "transfer").forEach { feature ->
+    include(":feature:$feature:domain")
+    include(":feature:$feature:data")
+    include(":feature:$feature:presentation")
+}
