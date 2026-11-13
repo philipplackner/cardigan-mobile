@@ -28,7 +28,9 @@ This file is the project's system prompt. The `kmp-*` skills in `.claude/skills/
 | Lint / format | None for now. `kotlin.code.style=official` and the IDE formatter. |
 | Tests | `kotlin.test`, AssertK, Turbine, kotlinx-coroutines-test, Ktor `MockEngine`, Compose `ui-test` (`runComposeUiTest`) |
 
-**Current state:** the repo is still the KMP wizard scaffold: one `:shared` module with `App.kt`, `Greeting`, `Platform`, and the `:androidApp` shell. There is no `build-logic`, no Koin, no Ktor, no navigation, no theme. Build the layout from `kmp-module-structure` (with the changes listed under [Architecture](#architecture)) before building features. Add each dependency in the change that first needs it, and ask before adding one that isn't in the table above.
+**Current state:** the module skeleton is in place: `build-logic` convention plugins, `:composeApp`, the four core modules, and `domain`/`data`/`presentation` modules for all five features. Feature modules contain only build files. The core modules have `Result`/`DataError`, `UiText`, `ObserveAsEvents`, the `HttpClientFactory` and safe call helpers, and Koin starts on both platforms. There is no navigation, no theme and no screen yet. `App()` is empty.
+
+Add each dependency in the change that first needs it, and ask before adding one that isn't in the table above. Exceptions, already wired by the convention plugins: `cmp.feature` brings Koin, navigation-compose, lifecycle and savedstate to every feature presentation module; `kmp.library` brings kotlinx-serialization-json and the test stack; `:core:data` and every feature `data` module have Ktor (core, content negotiation, JSON, auth, logging, OkHttp, Darwin) and Koin core.
 
 ---
 
@@ -60,7 +62,7 @@ iosApp/                         thin SwiftUI shell: hosts MainViewController, st
 - Rename the scaffold's `:shared` module to `:composeApp`.
 - Drop the desktop target and `iosX64` from every convention plugin and example.
 - No `room` convention plugin, no database modules, no DataStore for tokens (see [Local data](#local-data) and [Authentication](#authentication)).
-- The `buildkonfig` convention plugin reads `BASE_URL`, not `API_KEY`.
+- The `buildkonfig` convention plugin reads `BASE_URL_ANDROID` and `BASE_URL_IOS`, not `API_KEY`, and exposes them as one `BuildKonfig.BASE_URL` per platform.
 - Package root is `com.plcoding.cardiganapp`. Convention plugin IDs use `com.plcoding.cardiganapp.convention.*`.
 
 ### Features
@@ -142,7 +144,7 @@ Icons are exported from Figma as SVG and converted to vector drawable XML in `co
 ### Backend and environments
 
 - The API base path is `/api/v1`. All routes are `/api/v1/<plural-resource>`.
-- The base URL comes from BuildKonfig, read from `local.properties`. For now there is only local development: the Android emulator reaches the backend at `http://10.0.2.2:8080`, the iOS simulator at `http://localhost:8080`. A physical device needs the dev machine's LAN address in `local.properties`.
+- The base URL comes from BuildKonfig, read from `BASE_URL_ANDROID` and `BASE_URL_IOS` in `local.properties`. Both include `/api/v1`, and the build fails if either is missing or doesn't end in `/api/v1`. For now there is only local development: `BASE_URL_ANDROID=http://10.0.2.2:8080/api/v1` for the emulator, `BASE_URL_IOS=http://localhost:8080/api/v1` for the simulator. A physical device needs the dev machine's LAN address. Data sources pass routes without the prefix, e.g. `/boards`.
 - Plain HTTP is allowed for local development only: an Android network security config in the debug build, and `NSAllowsLocalNetworking` on iOS. Release builds stay HTTPS-only.
 - The production URL and any staging environment are open (see [Open Items](#open-items)).
 
@@ -171,7 +173,7 @@ Scope is **register, login, refresh, logout only**. No email verification, no pa
 - Logout is triggered from menus in other features, so the logout call and session clearing sit behind an interface in `:core:domain`, implemented in `:core:data`.
 - On logout or a failed refresh: clear both tokens, clear the Ktor bearer token cache, clear in-memory feature data, go to login. The "Session expired" state in Figma is shown when the session ended without an explicit logout.
 - **Backend dependency:** the body-based refresh token for mobile needs a backend change. Until the spec shows it, don't build the refresh flow against a guessed contract. Ask.
-- Public auth endpoints are rate limited per email. A `429` comes with code `RATE_LIMIT_EXCEEDED` and a `Retry-After` header. There is no design for this state yet, so ask before building its UI.
+- Rate limiting follows the shared `api-auth-tokens` and `api-errors` specs. Login, register and refresh are rate limited, counted per client IP, and login also per email. A request over the limit gets `429` with code `RATE_LIMITED` and a `Retry-After` header in whole seconds. Use only `Retry-After` to decide when to try again. There is no design for this state yet, so ask before building its UI.
 
 ### Local data
 
@@ -274,7 +276,7 @@ Ask before building anything that depends on these:
 - The backend's OpenAPI snapshot. The backend is still the Spring Initializr skeleton and doesn't have the snapshot folder yet. Until it exists, there is no contract to generate from.
 - The backend change for the body-based refresh token for mobile.
 - Designs for: rate limit (`429`), network error, offline.
-- Whether refresh and logout get a rate limit (still open on the backend).
+- Whether logout gets a rate limit. The shared spec rate limits only login, register and refresh.
 - Production URL and any staging environment.
 - How ProblemDetail `code` values reach feature error types.
 - Drag & drop implementation (Compose foundation or a library).

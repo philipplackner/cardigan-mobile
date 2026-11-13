@@ -51,8 +51,8 @@ Gates referenced below: `./gradlew :androidApp:assembleDebug testAndroidHostTest
 
 ## 7. Documentation
 
-- [ ] 7.1 Update `AGENTS.md`: `BASE_URL_ANDROID` / `BASE_URL_IOS` (with `/api/v1`) instead of `BASE_URL`, the current-state paragraph (scaffold done), and the exceptions to "add each dependency in the change that first needs it" from D2/D3. Show the user the diff before committing. Verify: the user approves and all gates pass, then commit `docs: update agents.md for module skeleton`.
-- [ ] 7.2 Tell the user about the conflicts found, without editing anything: the skill's `*IntegrationTest` host exclusion, the skill's `API_KEY` buildkonfig example, and CLAUDE.md's `RATE_LIMIT_EXCEEDED` vs the shared spec's `RATE_LIMITED`. Verify: they are mentioned in the apply summary.
+- [x] 7.1 Update `AGENTS.md`: `BASE_URL_ANDROID` / `BASE_URL_IOS` (with `/api/v1`) instead of `BASE_URL`, the current-state paragraph (scaffold done), and the exceptions to "add each dependency in the change that first needs it" from D2/D3. Show the user the diff before committing. Verify: the user approves and all gates pass, then commit `docs: update agents.md for module skeleton`.
+- [x] 7.2 Tell the user about the conflicts found, without editing anything: the skill's `*IntegrationTest` host exclusion, the skill's `API_KEY` buildkonfig example, and CLAUDE.md's `RATE_LIMIT_EXCEEDED` vs the shared spec's `RATE_LIMITED`. Verify: they are mentioned in the apply summary.
 
 ## Workflow follow-up
 
