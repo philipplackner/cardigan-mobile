@@ -22,16 +22,16 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 - [x] 3.1 Export all 27 icons from the Icons section of `9:3` as SVG and convert them to vector drawables with `figma-to-android-vector`, with hard-coded colors replaced so `tint` applies. Add them to `CardiganIcons`. Verify: all 27 are on `CardiganIcons` with no hard-coded colors left, and a preview grid of all 27, tinted with `text/primary`, exists in light and dark.
 - [x] 3.2 Add Logo (drawn in code) and Brand (Sidebar, App bar, Auth). Verify: previews per size in light and dark, then the preview check.
-- [ ] 3.3 Run all gates. Verify they pass, then commit `feat(designsystem): add icons and brand`.
+- [x] 3.3 Run all gates. Verify they pass, then commit `feat(designsystem): add icons and brand`.
 
 ## 4. Interaction base
 
-- [ ] 4.1 Add the shared interaction helpers: hover-or-focus state from an `InteractionSource`, the focus ring modifier (`Focus/Accent`, `Focus/Danger`), and the size mapping helper (semantic size → Touch counterpart in the phone class). Containers that hold components smaller than 48dp draw their shape with `background`/`border` and don't clip their content (design "Touch area"); this applies to every later group. Verify: used in group 5, and `:core:designsystem` compiles for Android and iOS.
+- [x] 4.1 Add the shared interaction helpers: hover-or-focus state from an `InteractionSource`, the focus ring modifier (`Focus/Accent`, `Focus/Danger`), and the size mapping helper (semantic size → Touch counterpart in the phone class). Containers that hold components smaller than 48dp draw their shape with `background`/`border` and don't clip their content (design "Touch area"); this applies to every later group. Verify: used in group 5, and `:core:designsystem` compiles for Android and iOS.
 
 ## 5. Actions
 
-- [ ] 5.1 Button: 5 styles × Small/Medium (Touch small/Touch in the phone class) × Default/Disabled, optional leading icon, loading spinner. Disabled and loading aren't clickable. Danger styles have no hover change. Primary and Danger provide a `text/on-accent` ripple. Verify: previews for every style × state × class, the loading state, and font scale 2×, then the preview check.
-- [ ] 5.2 Icon button: Ghost/Boxed × Default/Selected × Small/Medium/Large, optional badge, content description required. Filter button: Default/Active with count. Verify: previews per variant, then the preview check.
+- [x] 5.1 Button: 5 styles × Small/Medium (Touch small/Touch in the phone class) × Default/Disabled, optional leading icon, loading spinner. Disabled and loading aren't clickable. Danger styles have no hover change. Primary and Danger provide a `text/on-accent` ripple. Verify: previews for every style × state × class, the loading state, and font scale 2×, then the preview check.
+- [x] 5.2 Icon button: Ghost/Boxed × Default/Selected × Small/Medium/Large, optional badge, content description required. Filter button: Default/Active with count. Verify: previews per variant, then the preview check.
 - [ ] 5.3 Run all gates. Verify they pass, then commit `feat(designsystem): add buttons`.
 
 ## 6. Inputs
