@@ -176,6 +176,13 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Why**: User choice. Touch devices already get press feedback from the ripple.
 - **Depends on**: D3, D15
 
+### D25 — Previews aren't rendered by the agent
+- **Question**: How are the `commonMain` previews checked against Figma, given `android studio render-compose-preview` can't render them?
+- **Decision**: Previews stay in `commonMain` next to their components and are for the user to look at in the IDE. The agent doesn't render them with the Android CLI or the `android-preview-figma-verify` skill. It checks each component against its Figma variant in code (`get_design_context` values: tokens, sizes, spacing, text, icons, states). The Material `Typography` that task 1.4 names is built in 2.2, once the text styles exist.
+- **Alternatives**: Move previews to `androidMain` so the Android CLI can render them.
+- **Why**: User choice, 2026-11-15, after rendering failed during apply. KMP previews in `commonMain` aren't renderable by the Android CLI, and the user doesn't want previews in `androidMain`.
+- **Depends on**: D6, D7, D22
+
 ## Facts
 
 - Foundations lists the Page title phone size as "26–28". The frames use 28 (`Sans/28 SemiBold/120% · -2% LS`) for the phone auth titles. 26 (`Sans/26 SemiBold/110% · -2.5% LS`) is only the large "Boards" title on the phone board list — source: Figma pages `9:4` and `9:5`, text style usage

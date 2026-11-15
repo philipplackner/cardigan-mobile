@@ -228,6 +228,7 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 - Fakes, not mocks. No MockK or Mockito in `commonTest`.
 - No tests against a running backend or any deployed environment.
 - A test is done when it's green on Android and iOS.
+- `@Preview`s live in `commonMain` next to their composables and are for the user to look at in the IDE. Don't render them with the Android CLI (`android studio render-compose-preview`) or the `android-preview-figma-verify` skill: those only work for `androidMain`, and previews don't go there. Check a component against Figma in code instead (values from `get_design_context`).
 
 ### Commands
 
