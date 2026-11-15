@@ -169,6 +169,13 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Why**: The user chose to add real Figma variables, so the code follows the same naming as every other token. Web uses the same names. update-figma-foundations is applied first, and this change stops if the variables are missing (no fallback to the breakpoint table).
 - **Depends on**: D10
 
+### D24 — No button hover
+- **Question**: Should primary buttons use `accent/hover` on pointer hover, as the web client does?
+- **Decision**: No. Buttons show only the ripple on press. Hover stays limited to components with a Highlighted state (D3). The app doesn't use `accent/hover` for now; the token is still mirrored (D10).
+- **Alternatives**: Primary button hover with `accent/hover` for trackpad and mouse users.
+- **Why**: User choice. Touch devices already get press feedback from the ripple.
+- **Depends on**: D3, D15
+
 ## Facts
 
 - Foundations lists the Page title phone size as "26–28". The frames use 28 (`Sans/28 SemiBold/120% · -2% LS`) for the phone auth titles. 26 (`Sans/26 SemiBold/110% · -2.5% LS`) is only the large "Boards" title on the phone board list — source: Figma pages `9:4` and `9:5`, text style usage
