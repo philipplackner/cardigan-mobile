@@ -21,18 +21,33 @@ When the user chooses to export a board, the app SHALL show the Exporting progre
 When the export succeeds, the app SHALL close the progress dialog and open the system share sheet with the export file. The file SHALL carry the exported bytes unchanged and SHALL be named with the server's suggested file name. The app SHALL NOT show a toast after the share sheet closes, whether the user shared the file or not.
 
 #### Scenario: Successful export
-- **WHEN** the export of the board with the key `CRD` succeeds on 4 November 2026 UTC
-- **THEN** the share sheet opens with a file named `CRD-2026-11-04.json`
+- **WHEN** the export returns the file name `CRD-2026-11-04.json` and its bytes
+- **THEN** the share sheet opens with a file of exactly that name and those bytes, byte for byte
 
 #### Scenario: User closes the share sheet
 - **WHEN** the user closes the share sheet without choosing a target
 - **THEN** the board view shows again and no toast appears
 
+### Requirement: Save to device on Android
+On Android, the export share sheet SHALL offer a "Save to device" entry. Choosing it SHALL open the system "Save to…" screen with the export's file name, for a file of the JSON type. Saving SHALL write the exported bytes unchanged and show the success toast "Saved “{fileName}”.". A failed save SHALL show the error toast "Couldn't save “{fileName}”. Try again.". Cancelling the "Save to…" screen SHALL show nothing.
+
+#### Scenario: Save the export locally
+- **WHEN** the user chooses "Save to device" in the share sheet for `CRD-2026-11-04.json` and saves it to Downloads
+- **THEN** Downloads holds `CRD-2026-11-04.json` with the exported bytes and the toast "Saved “CRD-2026-11-04.json”." shows
+
+#### Scenario: Save cancelled
+- **WHEN** the user chooses "Save to device" and closes the "Save to…" screen without saving
+- **THEN** no file is written and no toast appears
+
 ### Requirement: Export file name fallback
-When the export response has no usable suggested file name, the app SHALL name the file with the file's `board.key`, a hyphen, the UTC date of `exportedAt` as `yyyy-MM-dd`, and `.json`. When the key or a valid `exportedAt` is missing too, the file SHALL be named `board-export.json`.
+When the export response has no usable suggested file name, the app SHALL name the file with the file's `board.key`, a hyphen, the UTC date of `exportedAt` as `yyyy-MM-dd`, and `.json`. When the key or a valid `exportedAt` is missing too, the file SHALL be named `board-export.json`. A suggested name that contains a path separator or doesn't match the allowed characters SHALL be treated as missing.
 
 #### Scenario: Missing suggested name
 - **WHEN** an export response for the key `CRD` has no file name and `exportedAt` is `2026-11-04T23:30:00Z`
+- **THEN** the shared file is named `CRD-2026-11-04.json`
+
+#### Scenario: Suggested name with a path
+- **WHEN** an export response for the key `CRD` suggests the file name `../x.json` and `exportedAt` is `2026-11-04T23:30:00Z`
 - **THEN** the shared file is named `CRD-2026-11-04.json`
 
 #### Scenario: Nothing to build a name from
@@ -109,6 +124,10 @@ File sizes SHALL be shown in base 1024: in KB as a whole number, or in MB with o
 - **WHEN** a picked file has 1,535 bytes
 - **THEN** its size is shown as "1 KB"
 
+#### Scenario: Exactly half a kilobyte
+- **WHEN** a picked file has 2,560 bytes
+- **THEN** its size is shown as "3 KB"
+
 #### Scenario: One byte over the limit
 - **WHEN** a picked file has 5,242,881 bytes
 - **THEN** its size is shown as "5.1 MB"
@@ -118,7 +137,7 @@ File sizes SHALL be shown in base 1024: in KB as a whole number, or in MB with o
 - **THEN** its size is shown as "5.0 MB"
 
 ### Requirement: Non-Cardigan files are rejected on the device
-A picked file within the size limit SHALL be parsed as JSON before uploading. It SHALL be rejected without uploading when it isn't a JSON object, its `format` isn't the string `cardigan.board`, or its `formatVersion` isn't the integer `1`. The Import dialog SHALL open in its error state with the file row and "This file isn't a Cardigan board export. Choose a .json file that was exported from Cardigan."
+A picked file within the size limit SHALL be parsed as JSON before uploading. It SHALL be rejected without uploading when it isn't a JSON object, its `format` isn't the string `cardigan.board`, or its `formatVersion` isn't the JSON number literal `1` (`1.0`, `1e0` and `"1"` are rejected). The Import dialog SHALL open in its error state with the file row and "This file isn't a Cardigan board export. Choose a .json file that was exported from Cardigan."
 
 #### Scenario: Plain JSON file
 - **WHEN** the user picks `notes.json` holding `{"todo": []}`
@@ -126,6 +145,10 @@ A picked file within the size limit SHALL be parsed as JSON before uploading. It
 
 #### Scenario: Future version
 - **WHEN** the user picks an export with `"formatVersion": 2`
+- **THEN** nothing is uploaded and the dialog shows the invalid-file error
+
+#### Scenario: Version as a decimal
+- **WHEN** the user picks a file with `"formatVersion": 1.0`
 - **THEN** nothing is uploaded and the dialog shows the invalid-file error
 
 #### Scenario: Version as a string
@@ -171,6 +194,10 @@ When an upload returns 409 with the field error `key`/`ALREADY_USED`, the app SH
 - **WHEN** the file's key is `CRD` and no loaded board has that key
 - **THEN** the dialog says "One of your boards already uses the key CRD. Enter another key for the imported board."
 
+#### Scenario: Lowercase key in the file
+- **WHEN** the file's key is `crd` and the upload returns 409 with `key`/`ALREADY_USED`
+- **THEN** the field holds `CRD`, the body names the loaded board with the key `CRD`, and "Import" is disabled
+
 ### Requirement: Import is disabled for used keys
 In the key dialog, "Import" SHALL be disabled while the entered key, with `a`–`z` converted to uppercase, equals a key that came back as already used during this import.
 
@@ -183,7 +210,7 @@ In the key dialog, "Import" SHALL be disabled while the entered key, with `a`–
 - **THEN** "Import" is disabled
 
 ### Requirement: Retry with another key
-Choosing "Import" in the key dialog SHALL convert lowercase letters `a`–`z` to uppercase and check the key: 2 to 5 letters from `A` to `Z`. An invalid key SHALL show the New board key field's error for that rule and SHALL NOT upload. A valid key SHALL upload the same file again with that key and show the Importing progress dialog.
+Choosing "Import" in the key dialog SHALL convert lowercase letters `a`–`z` to uppercase and check the key: 2 to 5 letters from `A` to `Z`. An invalid key SHALL show the New board key field's error for that rule and SHALL NOT upload. When a key breaks more than one rule, the field SHALL show the error the New board key field shows for that key. Until that order exists, length rules come first. A valid key SHALL upload the same file again with that key and show the Importing progress dialog.
 
 #### Scenario: Valid new key
 - **WHEN** the user enters `crdb` and chooses "Import"
@@ -209,8 +236,12 @@ A retry that returns 409 `ALREADY_USED` or 400 for the `key` field SHALL return 
 - **THEN** the key dialog shows the New board key field's invalid-format error under the field
 
 ### Requirement: Cancel import closes everything
-"Cancel import" in the key dialog SHALL close all import dialogs without uploading again. "Cancel" in the Import dialog SHALL close it and end the import.
+"Cancel import" in the key dialog SHALL close all import dialogs without uploading again. "Cancel" in the Import dialog SHALL close it and end the import. Back, Escape and a scrim tap on the Import dialog SHALL do the same as "Cancel". On the key dialog they SHALL do the same as "Cancel import".
 
 #### Scenario: Cancel after a clash
 - **WHEN** the key dialog shows and the user chooses "Cancel import"
 - **THEN** all import dialogs close, no board is created, and no toast shows
+
+#### Scenario: Back on the error dialog
+- **WHEN** the Import dialog shows an error and the user does the Android back gesture
+- **THEN** it closes and nothing is uploaded

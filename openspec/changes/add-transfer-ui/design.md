@@ -63,21 +63,24 @@ interface BoardTransferRepository {
 }
 data class ExportedFile(val fileName: String, val bytes: ByteArray)
 sealed interface ExportError : Error { BoardNotFound; Failed }
-sealed interface ImportError : Error { FileTooLarge; InvalidFile; KeyAlreadyUsed; KeyInvalid; Failed }
+sealed interface ImportError : Error { FileTooLarge; InvalidFile; KeyAlreadyUsed; data class KeyInvalid(val rule: BoardKeyError); Failed }
+enum class BoardKeyError { TooShort, TooLong, InvalidFormat }
 ```
 
 - These are the domain errors the spec needs, and no more. `Failed` covers network, unknown outcome, 5xx and every unmapped code (D13, D14).
 - How ProblemDetail codes reach these types is the connect chunk's open item (D29).
-- `KeyAlreadyUsed` means 409 with `key`/`ALREADY_USED`. `KeyInvalid` means 400 with a `key` field error.
+- `KeyAlreadyUsed` means 409 with `key`/`ALREADY_USED`. `KeyInvalid(rule)` means 400 with a `key` field error of `TOO_SHORT`, `TOO_LONG` or `INVALID_FORMAT`. A 400 `key` error with any other code maps to `Failed`.
+- `BoardKeyError` is also the result type of `BoardKeyRule`'s validation, so client and server key errors map to the same `UiText`.
 
 ### Device-side checks (D9, D11, D12)
 
 In order, in the ViewModel, before any upload:
 1. **Size.** The picked file arrives with its byte size. Size > 5,242,880 → `FileTooLarge`.
 2. **Format.** `ExportFileChecker.check(bytes)`:
+   - A leading UTF-8 BOM (`EF BB BF`) is removed before decoding.
    - Parses with `Json.parseToJsonElement` after UTF-8 decoding.
    - Requires a JSON object, `format` as the string `cardigan.board`, and `formatVersion` as the integer literal `1`. `1.0`, `"1"`, `2` and a missing value all fail.
-   - On success it returns `CheckedFile(key: String?)`: the file's `board.key` when it is a string, for the clash prefill (D16). A file without a usable key passes the check, and the server rejects it with 422.
+   - On success it returns `CheckedFile(key: String?)`: the file's `board.key` passed through `BoardKeyRule.normalize` when it is a string, for the clash prefill (D16). A file without a usable key passes the check, and the server rejects it with 422.
 
 The 5,242,880-byte limit and the format literals are the only rules duplicated from the shared spec. The server stays the full validator.
 
@@ -89,6 +92,8 @@ The 5,242,880-byte limit and the format literals are the only rules duplicated f
 - The decimal separator is a dot. English only for now (CLAUDE.md).
 
 `ExportFileName.fallback(key, exportedAt)` gives `KEY-yyyy-MM-dd.json` from the UTC date, or `board-export.json` when the key is missing or `exportedAt` can't be parsed. The connect chunk uses it when `Content-Disposition` is missing. It is built and tested here because it is pure logic the user decided on.
+
+`ExportFileName.sanitize(name)` keeps the last path segment only, and accepts it only if it matches `[A-Za-z0-9._-]{1,100}\.json` and is not `.`/`..`. Otherwise the fallback name is used. Both `actual` sharers write only sanitized names, because the name comes from a server header and becomes a file path.
 
 ### Key rule (D18)
 
@@ -122,9 +127,11 @@ The ViewModel keeps the picked bytes in memory to re-upload with a key (at most 
 
 On `Failed` it also emits `BoardListChanged`, so the list reloads (D13). One `onBoardListChanged` callback serves both cases. `:composeApp` maps it to the boards reload hook.
 
-`clashKey` comes from `CheckedFile.key` on the first clash and from the entered key on a retry. Every key that comes back as used goes into `usedKeys`. The dialog opens with the "already used" field error, and "Import" is disabled while the normalized entered key is in `usedKeys` (D30). The "already used" error stays under the field until the key changes. `boardName` comes from `BoardKeyOwnerLookup(key)`. `:composeApp` implements it over the board list data the boards chunk has already loaded (D17), and it returns `null` when unknown.
+`clashKey` comes from `CheckedFile.key` on the first clash and from the entered key on a retry. `clashKey`, `usedKeys` and the `BoardKeyOwnerLookup` argument always hold normalized keys. Every key that comes back as used goes into `usedKeys`. The dialog opens with the "already used" field error, and "Import" is disabled while the normalized entered key is in `usedKeys` (D30). The "already used" error stays under the field until the key changes. `boardName` comes from `BoardKeyOwnerLookup(key)`. `:composeApp` implements it over the board list data the boards chunk has already loaded (D17), and it returns `null` when unknown.
 
 `SavedStateHandle` keeps the dialog phase and the entered key. The picked bytes are not saved. After process death in `Uploading` or `ChoosingKey`, the dialog returns to `ErrorShown` with the import-failed error (without a file row, since the name and size aren't saved) and the list reloads, the same as an unknown outcome. That error is the only safe statement after the request's result is lost.
+
+`SavedStateHandle` also keeps `pickerOpened: Boolean`. `OpenPicker` is emitted on route open only when it is false. After restore in `Picking`, or in `ErrorShown` with the picker open, the ViewModel waits for the launcher's result: a pick runs the normal checks, and a cancel behaves like `PickerCancelled`.
 
 ### Export flow
 
@@ -138,9 +145,9 @@ There is no state beyond "exporting", because the progress dialog is the whole U
 
 ### Navigation and hosting (D24, D25)
 
-`NavGraphBuilder.transferGraph(onImported: (Board) -> Unit, onBoardListChanged: () -> Unit, onDone: () -> Unit)` registers both routes as `dialog<...>` destinations with `DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)` while a Progress dialog shows. The Import dialog itself keeps the normal dismiss behavior (design-system "Progress dialog can't be dismissed").
+`NavGraphBuilder.transferGraph(onImported: (Board) -> Unit, onBoardListChanged: () -> Unit, onDone: () -> Unit)` registers both routes as `dialog<...>` destinations with fixed `DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)` and no window dim. Dismiss behavior per state comes only from the design-system dialog drawn inside it: `CardiganDialog`'s `onDismissRequest` sends `Cancel` (Import dialog) or `CancelImport` (key dialog), and `ProgressDialog` ignores dismiss (design-system "Progress dialog can't be dismissed"). Only one scrim is drawn. If two dialog windows can't be avoided this way, the apply stops and asks, since D24 names dialog destinations.
 
-The boards chunks expose callbacks such as `onImportClick()` and `onExportClick(board)`. `:composeApp` navigates to the routes and maps `onImported` / `onBoardListChanged` to the board list's reload hook. The exact names of the boards-side hooks are agreed with those chunks. This change only adds what `transfer` exposes, plus the `:composeApp` wiring once both sides exist.
+The boards chunks expose callbacks such as `onImportClick()` and `onExportClick(board)`. `:composeApp` navigates to both routes with `launchSingleTop = true`, so a double tap starts one flow, and maps `onImported` / `onBoardListChanged` to the board list's reload hook. The exact names of the boards-side hooks are agreed with those chunks. This change only adds what `transfer` exposes, plus the `:composeApp` wiring once both sides exist.
 
 ### Toasts (D26)
 
@@ -173,14 +180,16 @@ data class PickedFile(val name: String, val sizeBytes: Long, val bytes: ByteArra
 - Picking uses `rememberLauncherForActivityResult(OpenDocument())` with `arrayOf("application/json")`.
 - `OpenableColumns.DISPLAY_NAME` and `SIZE` come from `ContentResolver.query`. The stream is read with a cap of 5,242,880 + 1 bytes.
 - If `SIZE` is unknown, the stream is counted to the end without keeping more than the cap, so the error can show the real size.
+- Reading runs on `Dispatchers.IO`. The size used for the check and the file row is the number of bytes read, capped at 5,242,881 for the check. `SIZE` is used only when it is larger than that, since some providers report 0 or a wrong value.
 - Sharing:
   - The file is written to `cacheDir/exports/<fileName>`, replacing any earlier file in that folder.
   - It is shared through `FileProvider` (authority `${applicationId}.fileprovider`, declared in `:androidApp`'s manifest with an `exports/` cache path).
   - It goes through `Intent.createChooser(ACTION_SEND, type application/json, FLAG_GRANT_READ_URI_PERMISSION)`.
+  - No app accepts a shared file to save it locally, so the chooser gets the app's own "Save to device" entry through `EXTRA_INITIAL_INTENTS` (D36). It starts the non-exported `SaveExportActivity` (translucent, no UI of its own), which opens `CreateDocument("application/json")` with the file name, copies the cached file to the chosen URI on `Dispatchers.IO`, sends the result toast through `ToastController` and finishes. The activity only reads sanitized names from the `exports/` cache folder.
 
 **iOS:**
 - Picking uses `UIDocumentPickerViewController(forOpeningContentTypes: [UTTypeJSON], asCopy: true)`, presented from the top view controller of the key window, with a retained delegate.
-- The size comes from `NSFileManager` attributes, and the bytes from `NSData` with the same cap. The copied temp file is deleted after reading.
+- The size comes from `NSFileManager` attributes, and the bytes from `NSData` with the same cap, read off the main thread. The copied temp file is deleted after reading.
 - Sharing:
   - The file is written to `NSTemporaryDirectory()/exports/<fileName>` and shared with `UIActivityViewController`.
   - On iPad, `popoverPresentationController` is anchored to the center of the presenting view, with no arrow, since there is no anchor element in the design.
@@ -200,10 +209,11 @@ Used only in the Import dialog's error state.
 ### Testing
 
 **Unit (`commonTest`):**
-- `FileSizeFormatter`. Break vectors: 0, 1, 1023, 1024, 1,048,575, 1,048,576, 5,242,880, 5,242,881, 7,549,747, `Long.MAX_VALUE`.
+- `FileSizeFormatter`. Break vectors: 0, 1, 1023, 1024, 1,535, 1,536, 2,560, 1,048,575, 1,048,576, 5,242,880, 5,242,881, 7,549,747, `Long.MAX_VALUE`.
 - `BoardKeyRule`: `crd`, `CRD`, `C`, `CRDBXY`, `CR1`, ` CRD`, `ÄBC`, `ǅAB`, an emoji, empty.
 - `ExportFileName.fallback`: a UTC date across midnight in a pinned non-UTC zone.
-- `JsonExportFileChecker`: not JSON, BOM, array root, `null` root, wrong `format` case, `formatVersion` `"1"`/`1.0`/`2`/missing/huge, missing `board`, non-string key, unknown fields, invalid UTF-8.
+- `ExportFileName.sanitize`: `../x.json`, `a/b.json`, `a\\b.json`, `x.txt`, `.json`, an empty name, a 101-character name, `CRD-2026-11-04.json`.
+- `JsonExportFileChecker`: not JSON, BOM, array root, `null` root, wrong `format` case, `formatVersion` `"1"`/`1.0`/`1e0`/`2`/missing/huge, lowercase `board.key` (normalized), missing `board`, non-string key, unknown fields, invalid UTF-8.
 - Both ViewModels with a fake repository, fake checker, fake lookup and fake toast controller. Every transition in the state machine above, including retry errors, cancel paths and process-death restore.
 - `AppToastController`.
 
@@ -241,7 +251,7 @@ How A is built:
 - `FixtureBoardTransferRepository` lives in `:feature:transfer:data` `commonMain`, with the fixture export built in code from the shared format's exact fields.
   - Export returns that file under `FIX-2026-11-04.json`, or `BoardNotFound` when the board id is a fixed "missing" UUID.
   - Import returns a Board built from the file, or `KeyAlreadyUsed` when the key is `CRD` or any key in a small fixed set, so the clash flow and the retry error can be driven from a real file.
-- "Debug-only" binding: `initKoin` takes `isDebug` (`BuildConfig.DEBUG` from `:androidApp`, `Platform.isDebugBinary` on iOS). It binds the fixture only when `isDebug` is true. Release builds bind nothing for `BoardTransferRepository`, and the routes are unreachable there because the debug screen is the only entry point.
+- "Debug-only" binding: `initKoin` takes `isDebug` (on Android `(applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0`, read in `CardiganApplication`, because AGP 9 doesn't generate `BuildConfig` by default; `Platform.isDebugBinary` on iOS). It binds the fixture only when `isDebug` is true. Release builds bind nothing for `BoardTransferRepository`, and the routes are unreachable there because the debug screen is the only entry point.
 - `TransferDebugScreen` in `:composeApp` has two buttons: "Import board" and "Export fixture board". The labels are hard-coded on purpose and the screen is temporary, with no design. It is shown only when `isDebug` is true, as the start of the NavHost when no other start destination exists yet (task 8.1 still asks first).
 - Both are removed by the last task group before the branch is pushed. Then nothing binds the repository until `mob-import-export-connect`. The Koin `verify()` test supplies it from a test module, so the gates stay green.
 
@@ -256,8 +266,10 @@ How A is built:
 - [iPad share sheet anchor] No anchor element exists. → A centered popover with no arrow. Check on an iPad simulator during the manual check.
 - [Process death during upload] The outcome is unknown after restore. → Shows import-failed and reloads the list, the same as a lost response (shared "Retries after a lost response").
 - [Annotations not returned by the MCP read tools] `get_metadata`/`get_design_context` don't return frame annotations, which hid the app-only note behind D31 in the first round. → Read `node.annotations` with a read-only `use_figma` call on each page before building its UI (Figma workflow in tasks.md).
-- [Temporary debug code gets pushed] The fixture repository and debug screen must not reach the remote branch. → The last task group removes them, and the user pushes only after it is done. The fixture binding is debug-only even before removal.
+- [Temporary debug code gets pushed] The fixture repository and debug screen must not be in the branch tip when it's pushed. Their commits stay in history (CLAUDE.md forbids rewriting). → The last task group removes them, and the user pushes only after it is done. The fixture binding is debug-only even before removal.
 
 ## Open Questions
+
+- What shows while a picked file is read (a slow cloud file can take seconds behind the empty dialog window), and whether counting an unknown-size file stops at a bound. No design exists. Ask the user before task 4.1.
 
 - The names of the boards chunks' reload hook and loaded-board accessor. Settled with those chunks at wiring time. It doesn't change this change's specs or tasks.

@@ -239,6 +239,41 @@ Build the mobile import and export UI for chunk `mob-import-export-ui` in the `t
 - **Why**: Figma is the source of truth for UI. The annotation was missed in the first round because the MCP read tools don't return annotations. Supersedes D4.
 - **Depends on**: D3, D4, D5
 
+### D32 — While a picked file is read
+- **Question**: What shows while a picked file is read, and does counting an unknown-size file stop at a bound?
+- **Decision**: Nothing is drawn while the file is read. An unknown-size stream is counted to the end (keeping at most the cap in memory), so the size error shows the real size.
+- **Alternatives**: Show the Importing dialog early; stop counting at the cap.
+- **Why**: User choice during apply (task 4.1).
+- **Depends on**: D29
+
+### D33 — Key length error copy
+- **Question**: What do `TOO_SHORT` and `TOO_LONG` show, since `mob-board-list-ui` hasn't defined them yet?
+- **Decision**: Both show the `INVALID_FORMAT` sentence "Use 2–5 letters from A to Z." The strings live in `:core:presentation` for the board list to reuse.
+- **Alternatives**: Separate sentences per rule.
+- **Why**: User choice during apply (task 5.1).
+- **Depends on**: D18
+
+### D34 — App shell
+- **Question**: `App()` has no NavHost and no `AppTheme`. How does group 8 proceed?
+- **Decision**: This change adds `AppTheme` and a minimal NavHost to `App()`, with `TransferDebugScreen` as the start destination until group 10 removes it.
+- **Alternatives**: Stop before group 8 and wait for the boards chunk.
+- **Why**: User choice during apply (task 8.1).
+- **Depends on**: D28
+
+### D35 — Koin module check
+- **Question**: How are the Koin modules checked, given `verify()` is JVM-only and `koin-test` isn't in the stack?
+- **Decision**: A `commonTest` test starts a `koinApplication` with the modules plus a test module and resolves every definition, on Android host and iOS. No new dependency.
+- **Alternatives**: Add `koin-test` and use `verify()` in an Android host test.
+- **Why**: User choice during apply (tasks 7.1, 9.1).
+- **Depends on**: —
+
+### D36 — Saving an export locally on Android
+- **Question**: Android's share sheet has no "Save to Files" target, because no installed app (Files included) accepts a shared file for saving. How does a user save an export to the device?
+- **Decision**: Keep the share sheet and add the app's own "Save to device" entry to it. It opens the system "Save to…" screen (`ACTION_CREATE_DOCUMENT`) with the export's file name. A successful save shows the success toast "Saved “{fileName}”.", a failed one the error toast "Couldn't save “{fileName}”. Try again.", and cancelling shows nothing. iOS is unchanged.
+- **Alternatives**: Open the "Save to…" screen instead of the share sheet on Android; ask the user to choose Save or Share (needs a design).
+- **Why**: Found in the manual check (task 9.3): the share sheet only offered Drive, Gmail, Chat and Quick Share. User choice during apply, including the copy. Extends D6 and refines D7, which still holds for share targets.
+- **Depends on**: D6, D7
+
 ## Facts
 
 - Figma 9:9 has 17 frames: Export (menu D/P, Exporting D/P, Export done D) and Import (dialog D/P, dragging D, phone menu P, Importing D/P, Not a Cardigan export D, File larger than 5 MB D, Key already used D/P, Imported D/P). There are no tablet frames — source: `get_metadata` 9:9.
@@ -267,6 +302,12 @@ Build the mobile import and export UI for chunk `mob-import-export-ui` in the `t
 
 ## Deferred
 
+- None. The key error strings were settled by D33 and the app shell by D34 during apply.
 
-- The `TOO_SHORT` and `TOO_LONG` key error strings, if `mob-board-list-ui` hasn't defined them when task 5.1 runs. — settle before: implementation of task 5.1.
-- Whether a NavHost and theme wrapper exist in `:composeApp` when this change is applied. They may come from a parallel chunk. — settle before: implementation of task group 8.
+## Pending hooks (from apply, task 8.3)
+
+The boards chunks haven't landed, so `:composeApp` wires placeholders. `mob-board-list-ui` replaces them:
+- `BoardKeyOwnerLookup` in `appModule` returns `null`, so the key clash dialog always uses the sentence without a board name.
+- `onImported` and `onBoardListChanged` in `AppNavHost` are no-ops. They should call the board list reload hook.
+- `AppStartRoute` is an empty start destination. The board list replaces it.
+- The Import and Export entry points call `navigateToImport()` / `navigateToExport(boardId, boardName)` in `AppNavHost.kt`.

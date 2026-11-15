@@ -47,6 +47,11 @@ Shared, agreed with web-import-export-ui:
 - Import failed: "Couldn't import the board. Check your connection and try again."
 - Key clash, board name unknown: "One of your boards already uses the key {key}. Enter another key for the imported board."
 
+App-only, Android share sheet (D36):
+- Entry: "Save to device"
+- Saved: "Saved “{fileName}”."
+- Save failed: "Couldn't save “{fileName}”. Try again."
+
 App-only, shown only in the Import dialog's error state (added to Figma page 9:9 as an app-only note):
 - Drop zone title: "Choose a board export"
 - Drop zone hint: "Tap to browse files" (the "browse files" part in the accent color, as in Figma)
