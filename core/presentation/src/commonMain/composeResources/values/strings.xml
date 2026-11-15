@@ -1,0 +1,6 @@
+<resources>
+    <string name="board_key_error_too_short">Use 2–5 letters from A to Z.</string>
+    <string name="board_key_error_too_long">Use 2–5 letters from A to Z.</string>
+    <string name="board_key_error_invalid_format">Use 2–5 letters from A to Z.</string>
+    <string name="board_key_error_already_used">You already have a board with the key %1$s.</string>
+</resources>

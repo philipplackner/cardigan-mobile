@@ -1,0 +1,25 @@
+<resources>
+    <string name="import_dialog_title">Import board</string>
+    <string name="import_dialog_description">Choose a .json file exported from Cardigan. It’s added as a new board; your other boards don’t change.</string>
+    <string name="import_dialog_limit">JSON exports up to 5 MB</string>
+    <string name="import_dialog_cancel">Cancel</string>
+    <string name="import_drop_zone_title">Choose a board export</string>
+    <string name="import_drop_zone_hint">Tap to browse files</string>
+    <string name="import_drop_zone_hint_accent">browse files</string>
+    <string name="import_drop_zone_description">Choose a board export file</string>
+    <string name="import_error_invalid_file">This file isn’t a Cardigan board export. Choose a .json file that was exported from Cardigan.</string>
+    <string name="import_error_too_large">This file is %1$s. Board exports can be up to 5 MB.</string>
+    <string name="import_error_failed">Couldn't import the board. Check your connection and try again.</string>
+    <string name="importing_title">Importing %1$s</string>
+    <string name="importing_description">This creates the board with all its columns, cards and labels.</string>
+    <string name="import_key_title">Choose a different key</string>
+    <string name="import_key_description_known">Your board “%1$s” already uses the key %2$s. Enter another key for the imported board.</string>
+    <string name="import_key_description_unknown">One of your boards already uses the key %1$s. Enter another key for the imported board.</string>
+    <string name="import_key_label">Key</string>
+    <string name="import_key_help">2–5 uppercase letters. Can’t be changed later.</string>
+    <string name="import_key_cancel">Cancel import</string>
+    <string name="import_key_confirm">Import</string>
+    <string name="import_success">Imported “%1$s” with the key %2$s.</string>
+    <string name="file_size_kb">%1$s KB</string>
+    <string name="file_size_mb">%1$s MB</string>
+</resources>
