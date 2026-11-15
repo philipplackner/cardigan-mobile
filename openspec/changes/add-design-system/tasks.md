@@ -72,8 +72,8 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 ## 11. Navigation
 
 - [x] 11.1 Nav item (Default/Selected/Dim, key), Sidebar (Boards slot), Page header (Actions slot, key, meta), App bar (Brand/Title/Centered × Raised). Verify: previews per variant, then the preview check.
-- [ ] 11.2 Run all gates. Verify they pass, then commit `feat(designsystem): add navigation components`.
+- [x] 11.2 Run all gates. Verify they pass, then commit `feat(designsystem): add navigation components`.
 
 ## 12. Integration check
 
-- [ ] 12.1 Go through every component on page `9:3` (except Drop zone) and confirm it has a composable and a preview per Figma variant. Run `grep -rn "Color(0x" core/designsystem/src/commonMain/kotlin --include=*.kt` and confirm hex values appear only in the token files. Verify: a checklist with no gaps, and the grep result.
+- [x] 12.1 Go through every component on page `9:3` (except Drop zone) and confirm it has a composable and a preview per Figma variant. Run `grep -rn "Color(0x" core/designsystem/src/commonMain/kotlin --include=*.kt` and confirm hex values appear only in the token files. Verify: a checklist with no gaps, and the grep result.
