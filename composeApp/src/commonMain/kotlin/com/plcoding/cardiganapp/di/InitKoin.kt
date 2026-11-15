@@ -1,6 +1,8 @@
 package com.plcoding.cardiganapp.di
 
 import com.plcoding.cardiganapp.core.data.di.coreDataModule
+import com.plcoding.cardiganapp.feature.transfer.data.di.transferDataModule
+import com.plcoding.cardiganapp.feature.transfer.presentation.di.transferPresentationModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
@@ -8,6 +10,11 @@ import org.koin.dsl.KoinAppDeclaration
 fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
         config?.invoke(this)
-        modules(coreDataModule)
+        modules(
+            coreDataModule,
+            appModule,
+            transferDataModule,
+            transferPresentationModule,
+        )
     }
 }
