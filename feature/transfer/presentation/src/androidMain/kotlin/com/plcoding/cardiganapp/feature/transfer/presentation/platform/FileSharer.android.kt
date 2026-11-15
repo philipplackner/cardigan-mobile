@@ -2,18 +2,19 @@ package com.plcoding.cardiganapp.feature.transfer.presentation.platform
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LabeledIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
+import cardiganapp.feature.transfer.presentation.generated.resources.Res
+import cardiganapp.feature.transfer.presentation.generated.resources.export_save_to_device
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileName
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportedFile
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-private const val EXPORTS_DIR = "exports"
-private const val JSON_MIME_TYPE = "application/json"
+import org.jetbrains.compose.resources.getString
 
 @Composable
 actual fun rememberFileSharer(): FileSharer {
@@ -26,7 +27,7 @@ private class AndroidFileSharer(private val context: Context) : FileSharer {
     override suspend fun share(file: ExportedFile) {
         val name = ExportFileName.sanitize(file.fileName) ?: ExportFileName.LAST_RESORT
         val target = withContext(Dispatchers.IO) {
-            val dir = File(context.cacheDir, EXPORTS_DIR)
+            val dir = exportsDir(context)
             dir.deleteRecursively()
             dir.mkdirs()
             File(dir, name).apply { writeBytes(file.bytes) }
@@ -37,6 +38,17 @@ private class AndroidFileSharer(private val context: Context) : FileSharer {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(send, name).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+        // No app takes a shared file to save it locally (Files only offers the "Save to…" screen),
+        // so the sheet gets our own entry that opens that screen.
+        val saveToDevice = LabeledIntent(
+            SaveExportActivity.intent(context, name),
+            context.packageName,
+            getString(Res.string.export_save_to_device),
+            0,
+        )
+        val chooser = Intent.createChooser(send, name)
+            .putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf<Intent>(saveToDevice))
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        context.startActivity(chooser)
     }
 }

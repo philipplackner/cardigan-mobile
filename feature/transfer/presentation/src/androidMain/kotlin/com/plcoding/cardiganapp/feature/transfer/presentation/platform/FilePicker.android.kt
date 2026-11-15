@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val JSON_MIME_TYPE = "application/json"
 private const val BUFFER_SIZE = 64 * 1024
 
 @Composable

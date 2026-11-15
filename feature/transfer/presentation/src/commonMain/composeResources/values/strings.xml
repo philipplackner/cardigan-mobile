@@ -26,4 +26,7 @@
     <string name="exporting_description">When the file is ready, the share sheet opens so you can save or send it.</string>
     <string name="export_error_failed">Couldn't export “%1$s”. Check your connection and try again.</string>
     <string name="export_error_not_found">“%1$s” no longer exists, so it can't be exported.</string>
+    <string name="export_save_to_device">Save to device</string>
+    <string name="export_saved">Saved “%1$s”.</string>
+    <string name="export_save_failed">Couldn't save “%1$s”. Try again.</string>
 </resources>
