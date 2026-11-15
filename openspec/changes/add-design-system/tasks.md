@@ -32,13 +32,13 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 - [x] 5.1 Button: 5 styles × Small/Medium (Touch small/Touch in the phone class) × Default/Disabled, optional leading icon, loading spinner. Disabled and loading aren't clickable. Danger styles have no hover change. Primary and Danger provide a `text/on-accent` ripple. Verify: previews for every style × state × class, the loading state, and font scale 2×, then the preview check.
 - [x] 5.2 Icon button: Ghost/Boxed × Default/Selected × Small/Medium/Large, optional badge, content description required. Filter button: Default/Active with count. Verify: previews per variant, then the preview check.
-- [ ] 5.3 Run all gates. Verify they pass, then commit `feat(designsystem): add buttons`.
+- [x] 5.3 Run all gates. Verify they pass, then commit `feat(designsystem): add buttons`.
 
 ## 6. Inputs
 
-- [ ] 6.1 Input on `BasicTextField`: Default/Focus/Error/Read-only/Disabled × Default/Touch × Value/Placeholder, leading and trailing icon, focus ring. Verify: previews for every state × size × content, then the preview check.
-- [ ] 6.2 Text area: Multi-line/Title/Description × Default/Focus/Error × Default/Touch, growing with content and no `maxLines`. Verify: previews per variant plus a 5-line preview, then the preview check.
-- [ ] 6.3 Checkbox, Password rule (Met true/false), Error message, Field (label above, Control slot, Default/Touch), Option (Default/Highlighted on hover/focus, Default/Touch). Verify: previews per variant, then the preview check.
+- [x] 6.1 Input on `BasicTextField`: Default/Focus/Error/Read-only/Disabled × Default/Touch × Value/Placeholder, leading and trailing icon, focus ring. Verify: previews for every state × size × content, then the preview check.
+- [x] 6.2 Text area: Multi-line/Title/Description × Default/Focus/Error × Default/Touch, growing with content and no `maxLines`. Verify: previews per variant plus a 5-line preview, then the preview check.
+- [x] 6.3 Checkbox, Password rule (Met true/false), Error message, Field (label above, Control slot, Default/Touch), Option (Default/Highlighted on hover/focus, Default/Touch). Verify: previews per variant, then the preview check.
 - [ ] 6.4 Run all gates. Verify they pass, then commit `feat(designsystem): add inputs`.
 
 ## 7. Feedback

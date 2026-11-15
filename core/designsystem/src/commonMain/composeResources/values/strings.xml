@@ -1,3 +1,5 @@
 <resources>
     <string name="brand_wordmark">Cardigan</string>
+    <string name="password_rule_met">Met</string>
+    <string name="password_rule_not_met">Not met</string>
 </resources>
