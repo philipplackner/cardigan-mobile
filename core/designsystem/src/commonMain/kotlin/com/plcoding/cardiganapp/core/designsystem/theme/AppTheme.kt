@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.Dp
 
 internal val LocalAppColors = staticCompositionLocalOf { LightColors }
 internal val LocalAppShadows = staticCompositionLocalOf { appShadows(LightColors) }
+internal val LocalAppTextStyles = staticCompositionLocalOf<AppTextStyles> { error("No AppTheme around this composable") }
+internal val LocalAppTypography = staticCompositionLocalOf<AppTypography> { error("No AppTheme around this composable") }
 
 /**
  * The app theme. Every screen and preview is wrapped in it.
@@ -38,11 +40,16 @@ fun AppTheme(
     val shadows = remember(colors) { appShadows(colors) }
     val colorScheme = remember(colors, darkTheme) { colors.toColorScheme(darkTheme) }
     val resolvedWindowClass = windowClass ?: measuredWindowClass()
+    val textStyles = rememberAppTextStyles()
+    val typography = remember(textStyles, resolvedWindowClass) { appTypography(textStyles, resolvedWindowClass) }
+    val materialTypography = remember(typography) { typography.toMaterialTypography() }
 
-    MaterialTheme(colorScheme = colorScheme) {
+    MaterialTheme(colorScheme = colorScheme, typography = materialTypography) {
         CompositionLocalProvider(
             LocalAppColors provides colors,
             LocalAppShadows provides shadows,
+            LocalAppTextStyles provides textStyles,
+            LocalAppTypography provides typography,
             LocalWindowClass provides resolvedWindowClass,
             // Keeps Figma visual sizes; the 48dp touch area comes from hit testing instead.
             LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
@@ -65,6 +72,12 @@ object AppTheme {
 
     val shadows: AppShadows
         @Composable @ReadOnlyComposable get() = LocalAppShadows.current
+
+    val textStyles: AppTextStyles
+        @Composable @ReadOnlyComposable get() = LocalAppTextStyles.current
+
+    val typography: AppTypography
+        @Composable @ReadOnlyComposable get() = LocalAppTypography.current
 
     val windowClass: WindowClass
         @Composable @ReadOnlyComposable get() = LocalWindowClass.current
