@@ -187,7 +187,14 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Question**: Which text color goes on `accent/default` in the dark theme?
 - **Decision**: White (`#FFFFFF`), not Figma's `#0B0E16`. It's the token, so it applies to everything on an accent fill: Primary button text and ripple, the Checkbox check mark, Icon button badges and the Filter button count.
 - **Alternatives**: Keep Figma's `#0B0E16`. Change only the Primary button.
-- **Why**: User choice, 2026-11-15, after reviewing the dark Primary button. The Figma variable still says `#0B0E16` and should be updated there.
+- **Why**: User choice, 2026-11-15, after reviewing the dark Primary button. The Figma variable `text/on-accent` (Dark) was changed to white to match.
+- **Depends on**: D10
+
+### D27 — Badge position on the Small icon button
+- **Question**: Where does the badge sit on the Small (28dp) icon button?
+- **Decision**: It overhangs the top end corner by 3dp, so it covers less of the 16dp icon. Medium and Large keep the 3dp inset from the top and end edges. Changed in the Figma component too.
+- **Alternatives**: Keep the 3dp inset on every size.
+- **Why**: User choice, 2026-11-15. With the inset, the badge covered most of the Small button's icon.
 - **Depends on**: D10
 
 ## Facts

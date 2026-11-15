@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -109,12 +110,17 @@ fun CardiganIconButton(
             )
         }
         if (badge != null) {
-            val inset = if (style == IconButtonStyle.Boxed) AppTheme.space.s2 else AppTheme.space.s3
+            val inset = AppTheme.space.s3
+            val badgePosition = if (size == IconButtonSize.Small) {
+                Modifier.offset(x = inset, y = -inset)
+            } else {
+                Modifier.padding(top = inset, end = inset)
+            }
             Text(
                 text = badge,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = inset, end = inset)
+                    .then(badgePosition)
                     .widthIn(min = BadgeMinWidth)
                     .background(colors.accent.default, RoundedCornerShape(AppTheme.radius.r7))
                     .padding(horizontal = AppTheme.space.s3),
