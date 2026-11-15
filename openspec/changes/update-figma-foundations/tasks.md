@@ -63,30 +63,35 @@ Type and other text:
 ## 1. Preparation
 
 - [x] 1.1 Confirm the user approved the usage-text list (decisions.md D4) and that G1 and G2 are answered. Copy the approved list and answers into this file under "Approved text". Verify: the section exists and every item from the list is there.
-- [ ] 1.2 Run `get_metadata` on `9:2` and record the current node IDs of the main frame, the Color tokens panels, Type, Space & shape and Breakpoints. Verify: the IDs are listed in the task notes.
+- [x] 1.2 Run `get_metadata` on `9:2` and record the current node IDs of the main frame, the Color tokens panels, Type, Space & shape and Breakpoints. Verify: the IDs are listed in the task notes.
+  - Notes (2026-11-15, `get_metadata` on `9:2`): main frame `58:2`; Color tokens `58:6` (Light panel `58:11`, swatches `58:13`; Dark panel `58:92`, swatches `58:94`); Label palette `58:173`; Type `58:258` (specimens `58:262`); Space & shape `58:291` (Spacing `58:296`, Radius `58:320`); Breakpoints `58:347` (table `58:350`).
 
 ## 2. Variables
 
-- [ ] 2.1 Load `figma:figma-generate-library`. Add `width/sidebar-tablet` 224, `width/sidebar-desktop` 248, `width/panel-tablet` 420 and `width/panel-desktop` 452 to the Size collection, scope `WIDTH_HEIGHT` only. Verify: a read-only call lists 12 Size variables with these values and scopes.
+- [x] 2.1 Load `figma:figma-generate-library`. Add `width/sidebar-tablet` 224, `width/sidebar-desktop` 248, `width/panel-tablet` 420 and `width/panel-desktop` 452 to the Size collection, scope `WIDTH_HEIGHT` only. Verify: a read-only call lists 12 Size variables with these values and scopes.
 
 ## 3. Color tokens
 
-- [ ] 3.1 Add swatch cards for the 13 missing colors to the Light and Dark panels, cloned from an existing card, fills bound to the variable, meta text "name · hex" from the variable values, usage text from the approved list. Verify: screenshot of the Color tokens section, and both panels show 26 swatches.
+- [x] 3.1 Add swatch cards for the 13 missing colors to the Light and Dark panels, cloned from an existing card, fills bound to the variable, meta text "name · hex" from the variable values, usage text from the approved list. Verify: screenshot of the Color tokens section, and both panels show 26 swatches.
 
 ## 4. Space and shape
 
-- [ ] 4.1 Add the 16 missing spacing steps and the 5 missing radii (with approved usage text) to the existing scales, sizes and radii bound to their variables. Verify: screenshot of Space & shape; 23 spacing steps and 11 radius tiles.
-- [ ] 4.2 Add the Size section with all 8 `height/*` and 4 `width/*` variables, bars bound to the variables, usage text from the approved list. Bind the width numbers in the Breakpoints table to the new `width/*` variables. Verify: screenshot of Size and Breakpoints.
+- [x] 4.1 Add the 16 missing spacing steps and the 5 missing radii (with approved usage text) to the existing scales, sizes and radii bound to their variables. Verify: screenshot of Space & shape; 23 spacing steps and 11 radius tiles.
+- [x] 4.2 Add the Size section with all 8 `height/*` and 4 `width/*` variables, bars bound to the variables, usage text from the approved list. Bind the width numbers in the Breakpoints table to the new `width/*` variables. Verify: screenshot of Size and Breakpoints.
+  - Notes: the Breakpoints numbers stay plain text, because Figma can't bind FLOAT variables to text (decisions.md D11). Size section is `321:2`.
 
 ## 5. Effects and type
 
-- [ ] 5.1 Add the Effects section: one card per effect style (7) with light and dark sample tiles, layer values, shadow color variables with light and dark values, and usage text. Verify: screenshot of Effects.
-- [ ] 5.2 In Type, change the Page title spec text to "phone 28" and add the "Large title (phone board list)" specimen with `Sans/26 SemiBold/110% · -2.5% LS`. Add the Text styles table with every text style, specimen bound to the style, values read from the style. Verify: screenshot of Type and Text styles; the table row count equals the number of local text styles.
+- [x] 5.1 Add the Effects section: one card per effect style (7) with light and dark sample tiles, layer values, shadow color variables with light and dark values, and usage text. Verify: screenshot of Effects.
+- [x] 5.2 In Type, change the Page title spec text to "phone 28" and add the "Large title (phone board list)" specimen with `Sans/26 SemiBold/110% · -2.5% LS`. Add the Text styles table with every text style, specimen bound to the style, values read from the style. Verify: screenshot of Type and Text styles; the table row count equals the number of local text styles.
+  - Notes: the file has 59 local text styles (decisions.md Facts said 60). The table has 59 rows. Text styles section is `323:6`, Large title row `323:2`, Effects section `322:2`.
 
 ## 6. Fixes outside Foundations
 
-- [ ] 6.1 On Overview (`0:1`), change the Design System page card count to the approved wording (G1). On the Design System page (`9:3`), change the Icons doc text "1.6 stroke" to the approved text. Verify: screenshots of both cards.
+- [x] 6.1 On Overview (`0:1`), change the Design System page card count to the approved wording (G1). On the Design System page (`9:3`), change the Icons doc text "1.6 stroke" to the approved text. Verify: screenshots of both cards.
+  - Notes: Overview count text `59:35`; the title row now wraps and all 8 page cards are 126px tall (decisions.md D12). Icons doc text `22:505` now wraps to two lines and ends 2px above the first icon row, no overlap.
 
 ## 7. Final check
 
-- [ ] 7.1 Read-only check over `9:2`: every swatch fill, scale size, bar and sample in the new and changed nodes is bound to a variable or style, and no `placeholder` is left on. Take one screenshot of the whole page in light. Verify: the check returns no unbound values, and the screenshot is attached to the summary sent to the orchestrator.
+- [x] 7.1 Read-only check over `9:2`: every swatch fill, scale size, bar and sample in the new and changed nodes is bound to a variable or style, and no `placeholder` is left on. Take one screenshot of the whole page in light. Verify: the check returns no unbound values, and the screenshot is attached to the summary sent to the orchestrator.
+  - Notes: audit of 1,250 nodes under `58:2` found no unbound fills or strokes, no unstyled text, no placeholder. 52 swatches, 23 spacing steps, 11 radius tiles, 12 size bars, 14 effect tiles, 59 text style rows. Full-page screenshot (light): `foundations-final.png` in this change folder.

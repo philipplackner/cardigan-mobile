@@ -78,6 +78,20 @@ Bring the Figma Foundations page (`9:2`) in line with the full token set that bo
 - **Why**: User choice. Keeps both clients' tokens tied to real Figma variables.
 - **Depends on**: D8
 
+### D11 — Breakpoints table binding
+- **Question**: Figma can't bind FLOAT variables to text content (`variable of resolved type 'FLOAT' cannot be bound to 'characters'`). How should the width numbers in the Breakpoints table be handled?
+- **Decision**: Leave them as plain text. The Size section is the bound source for the four `width/*` variables. No new variables.
+- **Alternatives**: Bound bars in the table cells; STRING variables holding the numbers.
+- **Why**: User choice during apply, 2026-11-15.
+- **Depends on**: D8
+
+### D12 — Overview count pill layout
+- **Question**: "44 components · 27 icons" doesn't fit next to the Design System card title (needs 296px, has 278px). How should it fit?
+- **Decision**: The card's title row wraps, so the pill sits under the title. All 8 page cards on Overview get the same new fixed height (126px).
+- **Alternatives**: Shorter text; tighter pill on this card only.
+- **Why**: User choice during apply, 2026-11-15. Keeps the approved text and an even grid.
+- **Depends on**: D9
+
 ## Facts
 
 - Foundations today shows 13 of 33 non-label colors per mode, 7 of 23 spacing steps, 6 of 11 radii, no sizes, no effects, and 7 type roles out of 60 text styles. The 20 label colors and the breakpoints table are complete — source: `get_metadata` on `9:2`, variable and style dump
