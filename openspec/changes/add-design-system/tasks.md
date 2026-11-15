@@ -39,14 +39,14 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 - [x] 6.1 Input on `BasicTextField`: Default/Focus/Error/Read-only/Disabled × Default/Touch × Value/Placeholder, leading and trailing icon, focus ring. Verify: previews for every state × size × content, then the preview check.
 - [x] 6.2 Text area: Multi-line/Title/Description × Default/Focus/Error × Default/Touch, growing with content and no `maxLines`. Verify: previews per variant plus a 5-line preview, then the preview check.
 - [x] 6.3 Checkbox, Password rule (Met true/false), Error message, Field (label above, Control slot, Default/Touch), Option (Default/Highlighted on hover/focus, Default/Touch). Verify: previews per variant, then the preview check.
-- [ ] 6.4 Run all gates. Verify they pass, then commit `feat(designsystem): add inputs`.
+- [x] 6.4 Run all gates. Verify they pass, then commit `feat(designsystem): add inputs`.
 
 ## 7. Feedback
 
-- [ ] 7.1 Spinner (Small/Large). Skeleton with the 1.2s shimmer and `expect`/`actual` `rememberReduceMotion()` (Android animator duration scale, iOS `UIAccessibilityIsReduceMotionEnabled`). Verify: previews of the shimmering and the reduced-motion (static) skeleton, then the preview check.
-- [ ] 7.2 Banner (Error/Info), Empty state (Default/Error, Actions slot). Verify: previews per variant, then the preview check.
-- [ ] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success 4s (Android lengthened by the accessibility recommended timeout), error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
-- [ ] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator`, container `background/surface`, spinner `accent/default`. Verify: a preview of the indicator in light and dark.
+- [x] 7.1 Spinner (Small/Large). Skeleton with the 1.2s shimmer and `expect`/`actual` `rememberReduceMotion()` (Android animator duration scale, iOS `UIAccessibilityIsReduceMotionEnabled`). Verify: previews of the shimmering and the reduced-motion (static) skeleton, then the preview check.
+- [x] 7.2 Banner (Error/Info), Empty state (Default/Error, Actions slot). Verify: previews per variant, then the preview check.
+- [x] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success 4s (Android lengthened by the accessibility recommended timeout), error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
+- [x] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator`, container `background/surface`, spinner `accent/default`. Verify: a preview of the indicator in light and dark.
 - [ ] 7.5 Run all gates. Verify they pass, then commit `feat(designsystem): add feedback components`.
 
 ## 8. Overlays
