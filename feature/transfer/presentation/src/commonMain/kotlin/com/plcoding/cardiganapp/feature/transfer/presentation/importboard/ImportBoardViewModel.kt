@@ -11,7 +11,7 @@ import com.plcoding.cardiganapp.core.presentation.toast.ToastMessage
 import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.core.presentation.util.UiText
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyOwnerLookup
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyRule
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyRule
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
 import com.plcoding.cardiganapp.feature.transfer.domain.ImportError

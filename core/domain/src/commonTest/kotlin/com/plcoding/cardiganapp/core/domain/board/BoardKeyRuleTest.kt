@@ -1,4 +1,4 @@
-package com.plcoding.cardiganapp.feature.transfer.domain
+package com.plcoding.cardiganapp.core.domain.board
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -8,7 +8,7 @@ import kotlin.test.Test
 /*
  * Break vectors: lowercase input, the length edges (1, 2, 5, 6), digits, surrounding spaces (no
  * trimming), non-ASCII letters that uppercase to letters outside A–Z (Ä, the titlecase ǅ), an
- * emoji made of surrogate pairs, and the empty string.
+ * emoji made of surrogate pairs, the empty string and a lone space.
  */
 class BoardKeyRuleTest {
 
@@ -34,8 +34,13 @@ class BoardKeyRuleTest {
     }
 
     @Test
-    fun emptyIsTooShort() {
-        assertThat(check("")).isEqualTo(BoardKeyError.TooShort)
+    fun emptyIsRequired() {
+        assertThat(check("")).isEqualTo(BoardKeyError.Required)
+    }
+
+    @Test
+    fun singleSpaceIsTooShortNotRequired() {
+        assertThat(check(" ")).isEqualTo(BoardKeyError.TooShort)
     }
 
     @Test

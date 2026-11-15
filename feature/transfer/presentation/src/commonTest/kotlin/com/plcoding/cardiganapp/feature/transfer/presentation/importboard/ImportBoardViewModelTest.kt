@@ -17,7 +17,7 @@ import cardiganapp.feature.transfer.presentation.generated.resources.import_succ
 import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.core.presentation.util.UiText
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyError
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
 import com.plcoding.cardiganapp.feature.transfer.domain.CheckedFile
 import com.plcoding.cardiganapp.feature.transfer.domain.ImportError
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeBoardKeyOwnerLookup
@@ -342,6 +342,16 @@ class ImportBoardViewModelTest {
         vm.onAction(ImportBoardAction.KeyChange("C"))
         vm.onAction(ImportBoardAction.ImportWithKey)
         assertThat((vm.phase as ImportPhase.ChoosingKey).fieldError).isEqualTo(KeyFieldError.Rule(BoardKeyError.TooShort))
+        assertThat(repository.importCalls).hasSize(1)
+    }
+
+    @Test
+    fun emptyKeyShowsTheRequiredErrorWithoutUpload() = runTest {
+        val vm = viewModel()
+        vm.clash()
+        vm.onAction(ImportBoardAction.KeyChange(""))
+        vm.onAction(ImportBoardAction.ImportWithKey)
+        assertThat((vm.phase as ImportPhase.ChoosingKey).fieldError).isEqualTo(KeyFieldError.Rule(BoardKeyError.Required))
         assertThat(repository.importCalls).hasSize(1)
     }
 

@@ -211,7 +211,7 @@ class ImportBoardUiTest {
 
         onNode(hasSetTextAction()).performTextReplacement("CR1")
         onNodeWithText(import).performClick()
-        awaitText("Use 2–5 letters from A to Z.")
+        awaitText("Use only the letters A–Z.")
         assertThat(repository.importCalls.size).isEqualTo(1)
     }
 

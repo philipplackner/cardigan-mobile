@@ -1,7 +1,7 @@
 package com.plcoding.cardiganapp.feature.transfer.presentation.importboard
 
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyError
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyRule
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyRule
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

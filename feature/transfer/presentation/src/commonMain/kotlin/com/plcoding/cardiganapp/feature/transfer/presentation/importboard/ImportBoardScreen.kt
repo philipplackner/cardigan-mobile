@@ -45,7 +45,7 @@ import com.plcoding.cardiganapp.core.designsystem.components.transfer.DropZone
 import com.plcoding.cardiganapp.core.designsystem.components.transfer.FileRow
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyError
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
 import com.plcoding.cardiganapp.feature.transfer.presentation.util.fileSizeText
 import com.plcoding.cardiganapp.feature.transfer.presentation.util.toUiText
 import org.jetbrains.compose.resources.stringResource

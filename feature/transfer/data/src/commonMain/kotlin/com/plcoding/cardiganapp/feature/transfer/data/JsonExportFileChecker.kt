@@ -1,6 +1,6 @@
 package com.plcoding.cardiganapp.feature.transfer.data
 
-import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyRule
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyRule
 import com.plcoding.cardiganapp.feature.transfer.domain.CheckedFile
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
 import kotlinx.serialization.json.Json
