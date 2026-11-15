@@ -111,7 +111,7 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Decision**: No hover change for danger buttons and no new token.
 - **Alternatives**: A new danger hover token.
 - **Why**: User choice.
-- **Depends on**: D10
+- **Depends on**: D3
 
 ### D16 — Large system font sizes
 - **Question**: How do components behave when the system font size is large?
