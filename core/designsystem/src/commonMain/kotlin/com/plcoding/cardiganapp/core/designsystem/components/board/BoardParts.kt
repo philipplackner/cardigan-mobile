@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -54,6 +55,8 @@ fun DropIndicator(modifier: Modifier = Modifier) {
     ) {
         Box(
             modifier = Modifier
+                // The 3dp bar would otherwise clamp the knob's height.
+                .wrapContentSize(Alignment.TopStart, unbounded = true)
                 .offset(x = (-4).dp, y = (-3).dp)
                 .size(DropKnobSize)
                 .background(AppTheme.colors.accent.default, CircleShape),

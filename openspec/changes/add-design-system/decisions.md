@@ -111,7 +111,7 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Decision**: No hover change for danger buttons and no new token.
 - **Alternatives**: A new danger hover token.
 - **Why**: User choice.
-- **Depends on**: D3
+- **Depends on**: D10
 
 ### D16 — Large system font sizes
 - **Question**: How do components behave when the system font size is large?
@@ -182,6 +182,13 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 - **Alternatives**: Move previews to `androidMain` so the Android CLI can render them.
 - **Why**: User choice, 2026-11-15, after rendering failed during apply. KMP previews in `commonMain` aren't renderable by the Android CLI, and the user doesn't want previews in `androidMain`.
 - **Depends on**: D6, D7, D22
+
+### D26 — Dark `text/on-accent` is white
+- **Question**: Which text color goes on `accent/default` in the dark theme?
+- **Decision**: White (`#FFFFFF`), not Figma's `#0B0E16`. It's the token, so it applies to everything on an accent fill: Primary button text and ripple, the Checkbox check mark, Icon button badges and the Filter button count.
+- **Alternatives**: Keep Figma's `#0B0E16`. Change only the Primary button.
+- **Why**: User choice, 2026-11-15, after reviewing the dark Primary button. The Figma variable still says `#0B0E16` and should be updated there.
+- **Depends on**: D10
 
 ## Facts
 

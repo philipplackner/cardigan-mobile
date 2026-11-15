@@ -189,7 +189,7 @@ internal val DarkColors = AppColors(
         primary = Color(0xFFE7E9EF),
         muted = Color(0xFF8C93A3),
         faint = Color(0xFF5D6474),
-        onAccent = Color(0xFF0B0E16),
+        onAccent = Color(0xFFFFFFFF),
         onDanger = Color(0xFFFFFFFF),
         toast = Color(0xFF0D0F14),
     ),
