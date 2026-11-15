@@ -46,10 +46,10 @@ The Logo is drawn in code as a tile in `text/primary` with three columns. It has
 Components with Default/Touch variants read `LocalWindowClass` and use Touch in Phone. Where Figma has two sizes per class (Button Small/Medium ↔ Touch small/Touch), the caller passes the semantic size (`Small` or `Medium`) and the component maps it to the Touch counterpart in Phone.
 
 ### Touch area
-Components keep their Figma visual size. `AppTheme` sets `LocalMinimumInteractiveComponentSize` to `Dp.Unspecified`, so Material components don't grow their layout to 48dp. The 48dp hit area comes from Compose's hit testing instead: pointer input regions smaller than `ViewConfiguration.minimumTouchTargetSize` (48dp) get an extended touch area, and overlapping extended areas go to the nearest node. That matches D4 without changing spacing. Alternative: `Modifier.minimumInteractiveComponentSize()`. Rejected, because it grows the layout size and breaks Figma spacing.
+Components keep their Figma visual size. `AppTheme` sets `LocalMinimumInteractiveComponentSize` to `Dp.Unspecified`, so Material components don't grow their layout to 48dp. The 48dp hit area comes from Compose's hit testing instead: pointer input regions smaller than `ViewConfiguration.minimumTouchTargetSize` (48dp) get an extended touch area, and overlapping extended areas go to the nearest node. That matches D4 without changing spacing. The extension doesn't pass a clipping parent (`Modifier.clip`, `graphicsLayer(clip = true)`, a clipping `Surface`). Containers that hold components smaller than 48dp (Column, Card, Panel, Dialog, Popover, App bar, Page header) draw their shape with `background(color, shape)` and `border(..., shape)` and don't clip their content. Where a container must clip, the small component gets an invisible 48dp hit box instead (the fallback in Risks). Alternative: `Modifier.minimumInteractiveComponentSize()`. Rejected, because it grows the layout size and breaks Figma spacing.
 
 ### Interaction feedback
-- Press: a ripple from `ripple()` whose color comes from `LocalRippleConfiguration`, set in `AppTheme` to a theme token (`text/primary` on neutral surfaces, `text/on-accent` on accent and danger fills).
+- Press: a ripple from `ripple()` whose color comes from `LocalRippleConfiguration`. `AppTheme` sets it to `text/primary`. Components with accent or danger fills (Primary and Danger buttons, Selected icon buttons where the fill is accent) provide `LocalRippleConfiguration` with `text/on-accent` around their content.
 - Hover and keyboard focus: components with a Highlighted or Hover state collect `collectIsHoveredAsState()` and `collectIsFocusedAsState()` from their `MutableInteractionSource` and show the Figma Highlighted look while either is true (D3). Danger buttons have no hover change (D15).
 
 ### Font scaling
@@ -80,16 +80,16 @@ Material 3 bases first, as in `kmp-compose-components`:
 Card takes a `state` prop (Default, Selected, Dragging, Placeholder). Dragging applies a 2.2° `graphicsLayer` rotation and `Shadow/Drag`. Placeholder and Drop indicator are plain visuals. No gesture handling in this change (D21).
 
 ### Toast host
-A design-system `ToastHostState` wraps `SnackbarHostState`. `show(message, type)` dismisses the current toast before showing the new one, so there's never a queue (D13). Success uses a ~4s duration. Error uses an indefinite duration and closes through the close icon. The host sits at the bottom of the screen. Screens own the state and place the host.
+A design-system `ToastHostState` wraps `SnackbarHostState`. `show(message, type)` dismisses the current toast before showing the new one, so there's never a queue (D13). Success uses a 4s duration. On Android the duration goes through `AccessibilityManager.calculateRecommendedTimeoutMillis`, as Material's `SnackbarHost` already does, so the "Time to take action" setting can lengthen it. iOS uses 4s. Error uses an indefinite duration and closes through the close icon. The host sits at the bottom of the screen. Screens own the state and place the host.
 
 ### Skeleton shimmer and reduced motion
-The shimmer is an infinite transition of a linear gradient from `background/skeleton` to `background/skeleton-highlight`, about 1.2s per loop (D14). An `expect fun rememberReduceMotion(): Boolean` reads the OS setting: on Android, the animator duration scale is 0 ("Remove animations"); on iOS, `UIAccessibilityIsReduceMotionEnabled()`. When true, the skeleton draws the static color.
+The shimmer is an infinite transition of a linear gradient from `background/skeleton` to `background/skeleton-highlight`, 1.2s per loop (D14). An `expect fun rememberReduceMotion(): Boolean` reads the OS setting: on Android, the animator duration scale is 0 ("Remove animations"); on iOS, `UIAccessibilityIsReduceMotionEnabled()`. When true, the skeleton draws the static color.
 
 ### Label palette
 `LabelColor` in `:core:designsystem` lists the 20 shared-spec color names, and each maps to its `colors.label.*` token. Feature modules map their domain color to it (D9).
 
 ### Previews
-Every component gets one `@Preview` per distinct state in `commonMain`, in light and dark, plus phone and tablet widths where the size variant changes (`widthDp = 390` and `834`). The tablet preview sets a window class override through `LocalWindowClass`. Previews are checked against their Figma frames with the `android-preview-figma-verify` skill. There are no component tests (D6).
+Every component gets one `@Preview` per distinct state in `commonMain`, in light and dark, plus phone and tablet widths where the size variant changes (`widthDp = 390` and `834`). `AppTheme` takes `windowClass: WindowClass? = null`. When set, it replaces the measured class for both `LocalWindowClass` and the phone switch in `AppTheme.typography`. Tablet and desktop previews pass it explicitly. Previews are checked against their Figma frames with the `android-preview-figma-verify` skill. There are no component tests (D6).
 
 ### Package layout
 `com.plcoding.cardiganapp.core.designsystem` with `theme/` (colors, tokens, type, shadows, window class, AppTheme), `icons/`, and `components/<section>/`, using the Figma section names (`actions`, `inputs`, `overlays`, `feedback`, `labels`, `board`, `boards`, `navigation`, `brand`, `datadisplay`, `carddetail`, `transfer`).

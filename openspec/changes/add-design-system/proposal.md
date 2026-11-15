@@ -30,6 +30,8 @@ This change implements or depends on:
 - cardigan-shared-specs `domain-label`, "Label color is a palette name": the 20 palette names the label palette is keyed by.
 - cardigan-shared-specs `domain-board`, "Board key format": the Key badge shows a key of 2 to 5 uppercase letters.
 
+Toast timing, the Progress dialog, text area growth and the window classes are agreed with the web client but have no shared spec yet. They are specified here until a shared UI spec exists.
+
 ## Impact
 
 - `:core:designsystem`: new theme, tokens, fonts, icons, window classes and components. Window classes are computed from the window size Compose already provides, so no new library is needed.

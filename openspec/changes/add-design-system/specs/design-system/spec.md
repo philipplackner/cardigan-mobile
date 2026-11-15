@@ -89,11 +89,15 @@ Every interactive component SHALL accept touches in an area of at least 48dp by 
 - **THEN** exactly one item activates: the one whose visible bounds are nearest to the touch
 
 ### Requirement: Press feedback
-Every interactive component SHALL show a ripple tinted from the theme colors while pressed, in both themes.
+Every interactive component SHALL show a ripple while pressed. The ripple color SHALL be `text/primary` on neutral surfaces and `text/on-accent` on accent and danger fills, from the active theme.
 
 #### Scenario: Pressing a ghost button in dark mode
 - **WHEN** the user presses a Ghost button in the dark theme
-- **THEN** a ripple tinted from the dark theme colors shows while the finger is down
+- **THEN** a ripple in the dark `text/primary` color shows while the finger is down
+
+#### Scenario: Pressing a primary button in light mode
+- **WHEN** the user presses a Primary button in the light theme
+- **THEN** the ripple uses the light `text/on-accent` color
 
 ### Requirement: Hover and keyboard highlight
 Components with a Highlighted state in Figma SHALL show it while a pointer hovers over them or while they have keyboard focus. They SHALL NOT show it for touch input alone.
@@ -125,11 +129,15 @@ The Page title, Card title and Body text roles SHALL use their larger phone size
 - **THEN** it is 14.5 in size, and 13.5 in the tablet class
 
 ### Requirement: Toast timing
-A success toast SHALL close on its own after about 4 seconds. An error toast SHALL stay until the user closes it. Every toast SHALL offer a close control. Only one toast SHALL show at a time, and a new toast SHALL replace the one showing.
+A success toast SHALL close on its own 4 seconds (±0.5s) after it appears, or after the longer timeout the platform's accessibility settings recommend (Android "Time to take action"). On iOS it SHALL close after 4 seconds (±0.5s). An error toast SHALL stay until the user closes it. Every toast SHALL offer a close control. Only one toast SHALL show at a time, and a new toast SHALL replace the one showing.
 
 #### Scenario: Success toast
 - **WHEN** a success toast appears and the user does nothing
-- **THEN** it closes after about 4 seconds
+- **THEN** it closes 4 seconds (±0.5s) after it appeared
+
+#### Scenario: Android accessibility timeout
+- **WHEN** Android's "Time to take action" is set to 1 minute and a success toast appears
+- **THEN** it stays for 1 minute
 
 #### Scenario: Error toast
 - **WHEN** an error toast appears and the user does nothing for a minute
@@ -141,10 +149,10 @@ A success toast SHALL close on its own after about 4 seconds. An error toast SHA
 
 #### Scenario: Second toast while one shows
 - **WHEN** an error toast is showing and a success toast is triggered
-- **THEN** the error toast is replaced by the success toast, and the success toast closes after about 4 seconds
+- **THEN** the error toast is replaced by the success toast, and the success toast closes 4 seconds (±0.5s) after it appeared
 
 ### Requirement: Skeleton shimmer
-Skeleton placeholders SHALL shimmer between the skeleton and skeleton-highlight colors in a loop of about 1.2 seconds. When the OS setting to reduce motion (Android "Remove animations", iOS "Reduce Motion") is on, skeletons SHALL show the skeleton color without motion.
+Skeleton placeholders SHALL shimmer between the skeleton and skeleton-highlight colors in a loop of 1.2 seconds (±0.1s). When the OS setting to reduce motion (Android "Remove animations", iOS "Reduce Motion") is on, skeletons SHALL show the skeleton color without motion.
 
 #### Scenario: Default motion
 - **WHEN** a list is loading and reduced motion is off
@@ -173,7 +181,7 @@ Where a screen offers pull to refresh, the indicator SHALL use the Material pull
 - **THEN** the indicator shows on a dark theme surface with the accent color
 
 ### Requirement: Accessible names from string resources
-Every interactive component that shows only an icon SHALL expose a content description to TalkBack and VoiceOver, taken from string resources.
+Every interactive component that shows only an icon SHALL take a non-null `contentDescription` parameter and expose it as its accessibility label to TalkBack and VoiceOver. Callers pass a string resource.
 
 #### Scenario: Icon button with screen reader
 - **WHEN** TalkBack or VoiceOver focuses an icon button

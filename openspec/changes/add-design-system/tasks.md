@@ -6,15 +6,15 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 ## 1. Tokens and theme
 
-- [ ] 1.1 Dump all Color (light and dark), Spacing, Radius and Size variables, the 7 effect styles and all text styles from Figma with one read-only `use_figma` call, and save the dump in the scratchpad. Verify: the dump has 53 colors with two modes, 23 spacing, 11 radius, 8 size, 7 effects and every text style.
-- [ ] 1.2 Add the color tokens (nested groups after the Figma paths, light and dark instances), spacing, radius, height and shadow tokens per design "Theme structure", plus the width tokens `width.sidebarTablet`, `sidebarDesktop`, `panelTablet`, `panelDesktop` from the Figma `width/*` variables (D23). If the dump from 1.1 doesn't contain all four `width/*` variables, stop and report that update-figma-foundations hasn't been applied. Don't fall back to the breakpoint table. Verify: a count of the properties matches the dump from 1.1, and a spot check of 5 colors per mode against Figma matches.
+- [ ] 1.1 Dump all Color (light and dark), Spacing, Radius and Size variables, the 7 effect styles and all text styles from Figma with one read-only `use_figma` call, and save the dump in the scratchpad. Verify: the dump has 53 colors with two modes, 23 spacing, 11 radius, 12 size (8 `height/*` and the 4 `width/*` from update-figma-foundations), 7 effects and every text style.
+- [ ] 1.2 Add the color tokens (nested groups after the Figma paths, light and dark instances), spacing, radius, height and shadow tokens per design "Theme structure", plus the width tokens `width.sidebarTablet`, `sidebarDesktop`, `panelTablet`, `panelDesktop` from the Figma `width/*` variables (D23). If the dump from 1.1 doesn't contain all four `width/*` variables, stop and report that update-figma-foundations hasn't been applied. Don't fall back to the breakpoint table. Verify: `AppTheme.height` plus `AppTheme.width` together match the 12 Size variables, the other counts match the dump from 1.1, and a spot check of 5 colors per mode against Figma matches.
 - [ ] 1.3 Add the window class (`LocalWindowClass`, one phone condition: width < 600dp or height < 480dp; tablet 600–839dp; desktop ≥ 840dp) with the breakpoints as constants in one file. Add a pure function from width and height to class. List its break vectors (each boundary value on both sides, height rule overriding width, zero size) and unit test it in `commonTest`. Verify: `./gradlew :core:designsystem:testAndroidHostTest :core:designsystem:iosSimulatorArm64Test` passes. This is the only test in the change; it covers logic, not a component (D6).
-- [ ] 1.4 Add `AppTheme`: `isSystemInDarkTheme()` picks the colors, a Material 3 `ColorScheme` and `Typography` built from the tokens, the CompositionLocals, `LocalMinimumInteractiveComponentSize = Dp.Unspecified`, and `LocalRippleConfiguration` from theme tokens. Verify: a preview of a plain surface with text renders Figma colors in light and dark.
+- [ ] 1.4 Add `AppTheme`: `isSystemInDarkTheme()` picks the colors, a Material 3 `ColorScheme` and `Typography` built from the tokens, the CompositionLocals, `LocalMinimumInteractiveComponentSize = Dp.Unspecified`, `LocalRippleConfiguration` with `text/primary`, and an optional `windowClass` parameter that overrides the measured class for `LocalWindowClass` and typography. Verify: a preview of a plain surface with text renders Figma colors in light and dark.
 - [ ] 1.5 Run all gates. Verify they pass, then commit `feat(designsystem): add theme tokens and window classes`.
 
 ## 2. Fonts and type
 
-- [ ] 2.1 Download the static TTFs from the official vercel/geist-font GitHub release (Geist 400/500/600/700, Geist Mono 400/500/600) and the OFL license into a new empty directory in the scratchpad. Copy the fonts to `core/designsystem/src/commonMain/composeResources/font/` and the license to `composeResources/files/licenses/`. Verify: 7 font files and the license exist, and the release tag is noted in the commit message.
+- [ ] 2.1 Download the static TTFs from the official vercel/geist-font GitHub release (Geist 400/500/600/700, Geist Mono 400/500/600) and the OFL license into a new empty directory in the scratchpad. Copy the fonts to `core/designsystem/src/commonMain/composeResources/font/` and the license to `composeResources/files/licenses/`. Verify: 7 font files and the license exist, they come from the release assets of `vercel/geist-font` at a named tag, and the release tag and the SHA-256 of each file are noted in the commit message.
 - [ ] 2.2 Add all Figma text styles as `AppTheme.textStyles` (sp sizes, sp line heights, em letter spacing, caps where Figma says Caps) and the 7 semantic roles as `AppTheme.typography` with the phone switch for Page title (28), Card title (14.5) and Body (15). Verify: the style count matches the dump from 1.1, and a type specimen preview at `widthDp = 390` and `834` matches the Figma Type section on `9:2`.
 - [ ] 2.3 Run all gates. Verify they pass, then commit `feat(designsystem): add geist fonts and text styles`.
 
@@ -26,11 +26,11 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 ## 4. Interaction base
 
-- [ ] 4.1 Add the shared interaction helpers: hover-or-focus state from an `InteractionSource`, the focus ring modifier (`Focus/Accent`, `Focus/Danger`), and the size mapping helper (semantic size → Touch counterpart in the phone class). Verify: used in group 5, and `:core:designsystem` compiles for Android and iOS.
+- [ ] 4.1 Add the shared interaction helpers: hover-or-focus state from an `InteractionSource`, the focus ring modifier (`Focus/Accent`, `Focus/Danger`), and the size mapping helper (semantic size → Touch counterpart in the phone class). Containers that hold components smaller than 48dp draw their shape with `background`/`border` and don't clip their content (design "Touch area"); this applies to every later group. Verify: used in group 5, and `:core:designsystem` compiles for Android and iOS.
 
 ## 5. Actions
 
-- [ ] 5.1 Button: 5 styles × Small/Medium (Touch small/Touch in the phone class) × Default/Disabled, optional leading icon, loading spinner. Disabled and loading aren't clickable. Danger styles have no hover change. Verify: previews for every style × state × class, the loading state, and font scale 2×, then the preview check.
+- [ ] 5.1 Button: 5 styles × Small/Medium (Touch small/Touch in the phone class) × Default/Disabled, optional leading icon, loading spinner. Disabled and loading aren't clickable. Danger styles have no hover change. Primary and Danger provide a `text/on-accent` ripple. Verify: previews for every style × state × class, the loading state, and font scale 2×, then the preview check.
 - [ ] 5.2 Icon button: Ghost/Boxed × Default/Selected × Small/Medium/Large, optional badge, content description required. Filter button: Default/Active with count. Verify: previews per variant, then the preview check.
 - [ ] 5.3 Run all gates. Verify they pass, then commit `feat(designsystem): add buttons`.
 
@@ -45,7 +45,7 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 - [ ] 7.1 Spinner (Small/Large). Skeleton with the 1.2s shimmer and `expect`/`actual` `rememberReduceMotion()` (Android animator duration scale, iOS `UIAccessibilityIsReduceMotionEnabled`). Verify: previews of the shimmering and the reduced-motion (static) skeleton, then the preview check.
 - [ ] 7.2 Banner (Error/Info), Empty state (Default/Error, Actions slot). Verify: previews per variant, then the preview check.
-- [ ] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success ~4s, error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
+- [ ] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success 4s (Android lengthened by the accessibility recommended timeout), error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
 - [ ] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator` in theme colors. Verify: a preview of the indicator in light and dark.
 - [ ] 7.5 Run all gates. Verify they pass, then commit `feat(designsystem): add feedback components`.
 
