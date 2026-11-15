@@ -60,13 +60,13 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 - [x] 9.1 `LabelColor` with the 20 shared-spec names mapped to `colors.label.*`. Label dot, Label (Small/Medium/Large), Label chip (Removable), Swatch (Selected), Label row (Default/Touch, divider). Verify: a preview of all 20 dots in light and dark, previews per component variant, then the preview check.
 - [x] 9.2 Key (2–5 uppercase letters) and Avatar. Verify: previews with a 2-letter and a 5-letter key, then the preview check.
-- [ ] 9.3 Run all gates. Verify they pass, then commit `feat(designsystem): add labels, key and avatar`.
+- [x] 9.3 Run all gates. Verify they pass, then commit `feat(designsystem): add labels, key and avatar`.
 
 ## 10. Board, boards, card detail and transfer
 
-- [ ] 10.1 Card (Default/Selected/Dragging/Placeholder × Default/Touch, labels slot; Dragging with 2.2° tilt and `Shadow/Drag`), Drop indicator, Add card button (Default/Touch), Add column button, Column (Default/Touch, Cards slot). Plain props only. Verify: previews per variant, then the preview check.
-- [ ] 10.2 Board tile (Default only, no Hover) and Board row (divider). Verify: previews, then the preview check.
-- [ ] 10.3 Panel (Body slot scrolls, Footer slot) and File row. Verify: previews including a long description in the body, then the preview check.
+- [x] 10.1 Card (Default/Selected/Dragging/Placeholder × Default/Touch, labels slot; Dragging with 2.2° tilt and `Shadow/Drag`), Drop indicator, Add card button (Default/Touch), Add column button, Column (Default/Touch, Cards slot). Plain props only. Verify: previews per variant, then the preview check.
+- [x] 10.2 Board tile (Default only, no Hover) and Board row (divider). Verify: previews, then the preview check.
+- [x] 10.3 Panel (Body slot scrolls, Footer slot) and File row. Verify: previews including a long description in the body, then the preview check.
 - [ ] 10.4 Run all gates. Verify they pass, then commit `feat(designsystem): add board, card and transfer components`.
 
 ## 11. Navigation
