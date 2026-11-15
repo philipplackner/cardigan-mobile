@@ -1,12 +1,9 @@
 package com.plcoding.cardiganapp.di
 
 import androidx.lifecycle.SavedStateHandle
-import assertk.assertThat
-import assertk.assertions.isInstanceOf
 import com.plcoding.cardiganapp.core.domain.board.Board
 import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.core.presentation.toast.ToastController
-import com.plcoding.cardiganapp.feature.transfer.data.FixtureBoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportError
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
@@ -29,7 +26,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
-/** Resolves the transfer definitions of [appModules] for both build types. */
+/** Resolves the transfer definitions of [appModules]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppModulesTest {
 
@@ -43,7 +40,7 @@ class AppModulesTest {
         Dispatchers.resetMain()
     }
 
-    private val releaseRepository = module {
+    private val testRepository = module {
         single<BoardTransferRepository> {
             object : BoardTransferRepository {
                 override suspend fun exportBoard(boardId: Uuid): Result<ExportedFile, ExportError> = Result.Error(ExportError.Failed)
@@ -61,15 +58,9 @@ class AppModulesTest {
     }
 
     @Test
-    fun debugBuildBindsTheFixtureRepository() {
-        val koin = koinApplication { modules(appModules(isDebug = true)) }.koin
-        koin.resolveTransfer()
-        assertThat(koin.get<BoardTransferRepository>()).isInstanceOf(FixtureBoardTransferRepository::class)
-    }
-
-    @Test
-    fun releaseBuildResolvesWithTheRepositoryFromATestModule() {
-        val koin = koinApplication { modules(appModules(isDebug = false) + releaseRepository) }.koin
+    fun transferDefinitionsResolveWithTheRepositoryFromATestModule() {
+        // No module binds BoardTransferRepository until mob-import-export-connect adds the Ktor one.
+        val koin = koinApplication { modules(appModules() + testRepository) }.koin
         koin.resolveTransfer()
     }
 }
