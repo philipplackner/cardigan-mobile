@@ -67,11 +67,11 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 - [x] 10.1 Card (Default/Selected/Dragging/Placeholder × Default/Touch, labels slot; Dragging with 2.2° tilt and `Shadow/Drag`), Drop indicator, Add card button (Default/Touch), Add column button, Column (Default/Touch, Cards slot). Plain props only. Verify: previews per variant, then the preview check.
 - [x] 10.2 Board tile (Default only, no Hover) and Board row (divider). Verify: previews, then the preview check.
 - [x] 10.3 Panel (Body slot scrolls, Footer slot) and File row. Verify: previews including a long description in the body, then the preview check.
-- [ ] 10.4 Run all gates. Verify they pass, then commit `feat(designsystem): add board, card and transfer components`.
+- [x] 10.4 Run all gates. Verify they pass, then commit `feat(designsystem): add board, card and transfer components`.
 
 ## 11. Navigation
 
-- [ ] 11.1 Nav item (Default/Selected/Dim, key), Sidebar (Boards slot), Page header (Actions slot, key, meta), App bar (Brand/Title/Centered × Raised). Verify: previews per variant, then the preview check.
+- [x] 11.1 Nav item (Default/Selected/Dim, key), Sidebar (Boards slot), Page header (Actions slot, key, meta), App bar (Brand/Title/Centered × Raised). Verify: previews per variant, then the preview check.
 - [ ] 11.2 Run all gates. Verify they pass, then commit `feat(designsystem): add navigation components`.
 
 ## 12. Integration check
