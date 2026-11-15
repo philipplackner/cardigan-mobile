@@ -110,6 +110,12 @@ Frame IDs come from `get_metadata` on page `9:9` (Import & export) and `9:3` (De
 - [x] 10.1 Delete `FixtureBoardTransferRepository` and its test, `TransferDebugScreen`, its route and NavHost entry, the `isDebug` fixture binding, and the `isDebug` parameter if nothing else uses it. Verify: `grep -rn "Fixture\|TransferDebug" --include=*.kt .` finds nothing outside `commonTest` fixtures for the JSON checker.
 - [x] 10.2 Run all gates. Verify they pass, then commit `chore(transfer): remove temporary debug entry and fixture repository`. Verify: `git log` shows this commit after the one from 9.2, so the branch can be pushed.
 
+## 11. Shared board key errors (D37)
+
+- [x] 11.1 Move `BoardKeyRule` and `BoardKeyError` to `:core:domain` (`core.domain.board`), add `Required`, and check in the order empty, too short, too long, format. Move `BoardKeyRuleTest` with them and add the empty and lone-space cases. Verify: the tests pass.
+- [x] 11.2 Replace the `:core:presentation` key strings with the four approved strings, add `BoardKeyError.toUiText()` and `boardKeyAlreadyUsedText(key)` there, and drop the transfer copy of the mapper. Verify: the key strings exist only in `:core:presentation`, and the import ViewModel and UI tests show "Enter a key." and "Use only the letters A–Z.".
+- [ ] 11.3 Hand-off for `mob-import-export-connect`: map a 400 `key` field error `REQUIRED`/`TOO_SHORT`/`TOO_LONG` to its own `BoardKeyError` and `INVALID_FORMAT` or any other code to `InvalidFormat`. Verify: a `MockEngine` test per code, including an unknown one.
+
 ## Workflow follow-up
 
 - `mob-import-export-connect` adds `KtorBoardTransferRepository`, the ProblemDetail mapping, `Content-Disposition` parsing with `ExportFileName.fallback`, and timeouts.

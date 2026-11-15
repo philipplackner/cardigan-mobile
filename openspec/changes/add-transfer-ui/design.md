@@ -34,7 +34,7 @@
 :composeApp         toast/AppToastController.kt, App()       app-wide ToastHost; transfer graph + callbacks
 :feature:transfer:domain
     BoardTransferRepository, ExportedFile, ImportError, ExportError
-    ImportFileRules (size limit, size check), BoardKeyRule
+    ImportFileRules (size limit, size check)
     FileSizeFormatter, ExportFileName (fallback name)
     ExportFileChecker (interface), BoardKeyOwnerLookup (fun interface)
 :feature:transfer:data
@@ -64,12 +64,12 @@ interface BoardTransferRepository {
 data class ExportedFile(val fileName: String, val bytes: ByteArray)
 sealed interface ExportError : Error { BoardNotFound; Failed }
 sealed interface ImportError : Error { FileTooLarge; InvalidFile; KeyAlreadyUsed; data class KeyInvalid(val rule: BoardKeyError); Failed }
-enum class BoardKeyError { TooShort, TooLong, InvalidFormat }
+enum class BoardKeyError { Required, TooShort, TooLong, InvalidFormat } // :core:domain
 ```
 
 - These are the domain errors the spec needs, and no more. `Failed` covers network, unknown outcome, 5xx and every unmapped code (D13, D14).
 - How ProblemDetail codes reach these types is the connect chunk's open item (D29).
-- `KeyAlreadyUsed` means 409 with `key`/`ALREADY_USED`. `KeyInvalid(rule)` means 400 with a `key` field error of `TOO_SHORT`, `TOO_LONG` or `INVALID_FORMAT`. A 400 `key` error with any other code maps to `Failed`.
+- `KeyAlreadyUsed` means 409 with `key`/`ALREADY_USED`. `KeyInvalid(rule)` means 400 with a `key` field error: `REQUIRED`, `TOO_SHORT` and `TOO_LONG` map to their own case, and `INVALID_FORMAT` or any other code maps to `InvalidFormat` (D37).
 - `BoardKeyError` is also the result type of `BoardKeyRule`'s validation, so client and server key errors map to the same `UiText`.
 
 ### Device-side checks (D9, D11, D12)
@@ -97,11 +97,11 @@ The 5,242,880-byte limit and the format literals are the only rules duplicated f
 
 ### Key rule (D18)
 
-`BoardKeyRule.normalize(input)`: maps `a`–`z` to uppercase and leaves everything else as is. `BoardKeyRule.isValid(key)`: 2–5 chars, all in `A`–`Z`. No trimming, because `domain-board` treats any other character as invalid.
+`BoardKeyRule.normalize(input)`: maps `a`–`z` to uppercase and leaves everything else as is. `BoardKeyRule.validate(key)` checks in this order: empty → `Required`, fewer than 2 chars → `TooShort`, more than 5 → `TooLong`, any char outside `A`–`Z` → `InvalidFormat`. No trimming, because `domain-board` treats any other character as invalid. Both live in `:core:domain` (`core.domain.board`) so the board list reuses them (D37).
 
 This duplicates what the New board field needs. When `mob-board-list-ui` lands, the rule moves to `:core:domain` if both features use it (CLAUDE.md: code moves to core when a second feature needs it).
 
-The key field error strings (`TOO_SHORT`, `TOO_LONG`, `INVALID_FORMAT`, and "You already have a board with the key {key}.") are shared with the New board field and defined by the board list chunk (D18). Two features use them, so they live in `:core:presentation` string resources together with a small mapper from the key error to `UiText`. If `mob-board-list-ui` has already added them, this change reuses them. If not, task 5.1 stops and asks for the `TOO_SHORT` and `TOO_LONG` copy, and adds the approved `INVALID_FORMAT` and "already used" strings there.
+The key field error strings (`REQUIRED`, `TOO_SHORT`, `TOO_LONG`, `INVALID_FORMAT`, and "You already have a board with the key {key}.") are defined by this change and shared with the New board field (D37). They live in `:core:presentation` string resources with `BoardKeyError.toUiText()` and `boardKeyAlreadyUsedText(key)`. The board list chunks reuse them as they are.
 
 ### Import flow as one ViewModel
 
@@ -210,7 +210,7 @@ Used only in the Import dialog's error state.
 
 **Unit (`commonTest`):**
 - `FileSizeFormatter`. Break vectors: 0, 1, 1023, 1024, 1,535, 1,536, 2,560, 1,048,575, 1,048,576, 5,242,880, 5,242,881, 7,549,747, `Long.MAX_VALUE`.
-- `BoardKeyRule`: `crd`, `CRD`, `C`, `CRDBXY`, `CR1`, ` CRD`, `ÄBC`, `ǅAB`, an emoji, empty.
+- `BoardKeyRule` (in `:core:domain`): `crd`, `CRD`, `C`, `CRDBXY`, `CR1`, ` CRD`, `ÄBC`, `ǅAB`, an emoji, empty (`Required`), a lone space (`TooShort`).
 - `ExportFileName.fallback`: a UTC date across midnight in a pinned non-UTC zone.
 - `ExportFileName.sanitize`: `../x.json`, `a/b.json`, `a\\b.json`, `x.txt`, `.json`, an empty name, a 101-character name, `CRD-2026-11-04.json`.
 - `JsonExportFileChecker`: not JSON, BOM, array root, `null` root, wrong `format` case, `formatVersion` `"1"`/`1.0`/`1e0`/`2`/missing/huge, lowercase `board.key` (normalized), missing `board`, non-string key, unknown fields, invalid UTF-8.

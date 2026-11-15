@@ -19,7 +19,8 @@ Users can't yet move a board out of the app or bring one back in. Chunk `mob-imp
 - **Key clash**: a "Choose a different key" dialog. It opens with the clashing key and the "already used" error. "Import" stays disabled until the key differs from every key that came back as used. The key is checked like the New board key field. "Cancel import" closes everything.
 - **`:core:designsystem`**: a tap-only **Drop zone** component, used only in the Import dialog's error state.
 - **`:core:presentation`**: a `ToastController` interface. **`:composeApp`**: one app-wide toast host that every feature can use.
-- **`:core:domain`**: a minimal `Board` model (id, name, key).
+- **`:core:domain`**: a minimal `Board` model (id, name, key), and the shared board key check (`BoardKeyRule`, `BoardKeyError`).
+- **`:core:presentation`**: the shared board key error strings and their `UiText` mapper.
 - **`transfer` feature**:
   - `domain`: repository interface, error types, file checks, key rule, size and file name formatting.
   - `data`: the JSON format check.
@@ -56,7 +57,12 @@ App-only, shown only in the Import dialog's error state (added to Figma page 9:9
 - Drop zone title: "Choose a board export"
 - Drop zone hint: "Tap to browse files" (the "browse files" part in the accent color, as in Figma)
 - Drop zone accessibility label: "Choose a board export file"
-Key field errors (`TOO_SHORT`, `TOO_LONG`, `INVALID_FORMAT`) reuse the New board key field strings that `mob-board-list-ui` defines. "Use 2–5 letters from A to Z." is the approved `INVALID_FORMAT` candidate handed to that chunk.
+
+Board key field errors, shared with the web client and defined here for the board list to reuse (D37):
+- `REQUIRED`: "Enter a key."
+- `TOO_SHORT`: "Use at least 2 letters."
+- `TOO_LONG`: "Use at most 5 letters."
+- `INVALID_FORMAT`, and any other `key` field error code: "Use only the letters A–Z."
 
 ## Capabilities
 

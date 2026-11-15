@@ -134,7 +134,7 @@ Build the mobile import and export UI for chunk `mob-import-export-ui` in the `t
 
 ### D18 — Key checks
 - **Question**: How is the new key checked?
-- **Decision**: The same as the New board key field: client-side 2–5 letters A–Z, server field errors shown under the field, and the dialog stays open. The field error strings for `TOO_SHORT`, `TOO_LONG` and `INVALID_FORMAT` are defined by the board list chunks and reused here. "Use 2–5 letters from A to Z." is approved and goes to the board list session as the `INVALID_FORMAT` candidate.
+- **Decision**: The same as the New board key field: client-side 2–5 letters A–Z, server field errors shown under the field, and the dialog stays open. The key error strings and the local check are now defined by this change and reused by the board list chunks (D37).
 - **Alternatives**: Wait for designs; own strings in `transfer`.
 - **Why**: User choice; one set of key strings across the app. SHARED.
 - **Depends on**: —
@@ -250,7 +250,7 @@ Build the mobile import and export UI for chunk `mob-import-export-ui` in the `t
 - **Question**: What do `TOO_SHORT` and `TOO_LONG` show, since `mob-board-list-ui` hasn't defined them yet?
 - **Decision**: Both show the `INVALID_FORMAT` sentence "Use 2–5 letters from A to Z." The strings live in `:core:presentation` for the board list to reuse.
 - **Alternatives**: Separate sentences per rule.
-- **Why**: User choice during apply (task 5.1).
+- **Why**: User choice during apply (task 5.1). Superseded by D37.
 - **Depends on**: D18
 
 ### D34 — App shell
@@ -273,6 +273,21 @@ Build the mobile import and export UI for chunk `mob-import-export-ui` in the `t
 - **Alternatives**: Open the "Save to…" screen instead of the share sheet on Android; ask the user to choose Save or Share (needs a design).
 - **Why**: Found in the manual check (task 9.3): the share sheet only offered Drive, Gmail, Chat and Quick Share. User choice during apply, including the copy. Extends D6 and refines D7, which still holds for share targets.
 - **Depends on**: D6, D7
+
+### D37 — Shared board key errors and check
+- **Question**: Which strings and which check do key fields use, and where do they live?
+- **Decision**: Import/export defines them, and the board list chunks reuse them. Both clients use the same four strings:
+  - `REQUIRED`: "Enter a key."
+  - `TOO_SHORT`: "Use at least 2 letters."
+  - `TOO_LONG`: "Use at most 5 letters."
+  - `INVALID_FORMAT`: "Use only the letters A–Z."
+  - Any other server `key` field error code shows the `INVALID_FORMAT` message.
+  - `ALREADY_USED` stays as in Figma: "You already have a board with the key {key}."
+  - Check order after lowercase → uppercase: empty → `REQUIRED`, fewer than 2 characters → `TOO_SHORT`, more than 5 → `TOO_LONG`, otherwise any character outside A–Z → `INVALID_FORMAT`.
+  - Location: `BoardKeyRule` and `BoardKeyError` in `:core:domain` (`core.domain.board`); the strings and the `BoardKeyError.toUiText()` mapper plus `boardKeyAlreadyUsedText(key)` in `:core:presentation` (`core.presentation.board`). Two features use them, so they belong in core per CLAUDE.md, and the board list needs no feature-to-feature dependency and no later move.
+- **Alternatives**: Define them in `transfer` and let the board list chunk move them.
+- **Why**: User decision relayed by cardiganapp-be. Shared with the web client. Supersedes D33 and the "Use 2–5 letters from A to Z." string from D18.
+- **Depends on**: D18, D33
 
 ## Facts
 

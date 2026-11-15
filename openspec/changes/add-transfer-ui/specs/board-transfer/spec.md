@@ -210,7 +210,7 @@ In the key dialog, "Import" SHALL be disabled while the entered key, with `a`–
 - **THEN** "Import" is disabled
 
 ### Requirement: Retry with another key
-Choosing "Import" in the key dialog SHALL convert lowercase letters `a`–`z` to uppercase and check the key: 2 to 5 letters from `A` to `Z`. An invalid key SHALL show the New board key field's error for that rule and SHALL NOT upload. When a key breaks more than one rule, the field SHALL show the error the New board key field shows for that key. Until that order exists, length rules come first. A valid key SHALL upload the same file again with that key and show the Importing progress dialog.
+Choosing "Import" in the key dialog SHALL convert `a`–`z` to uppercase and check the key in this order, showing the first failure under the field: empty, fewer than 2 characters, more than 5, any character outside `A`–`Z`. The New board key field uses the same check and strings. An invalid key SHALL NOT upload. A valid key SHALL upload the same file again with that key and show the Importing progress dialog.
 
 #### Scenario: Valid new key
 - **WHEN** the user enters `crdb` and chooses "Import"
@@ -218,14 +218,22 @@ Choosing "Import" in the key dialog SHALL convert lowercase letters `a`–`z` to
 
 #### Scenario: Too short
 - **WHEN** the user enters `C` and chooses "Import"
-- **THEN** nothing is uploaded and the field shows the New board key field's too-short error
+- **THEN** nothing is uploaded and the field shows "Use at least 2 letters."
+
+#### Scenario: Empty
+- **WHEN** the user clears the field and chooses "Import"
+- **THEN** nothing is uploaded and the field shows "Enter a key."
+
+#### Scenario: Too long
+- **WHEN** the user enters `CRD123` and chooses "Import"
+- **THEN** nothing is uploaded and the field shows "Use at most 5 letters."
 
 #### Scenario: Not letters
 - **WHEN** the user enters `CR1` and chooses "Import"
-- **THEN** nothing is uploaded and the field shows the New board key field's invalid-format error
+- **THEN** nothing is uploaded and the field shows "Use only the letters A–Z."
 
 ### Requirement: Key field errors from the server
-A retry that returns 409 `ALREADY_USED` or 400 for the `key` field SHALL return to the key dialog with the user's key in the field and the New board key field's error for that code under it. The dialog SHALL stay open. Other failures of a retry SHALL behave as for the first upload.
+A retry that returns 409 `ALREADY_USED` or 400 for the `key` field SHALL return to the key dialog with the user's key in the field and the error for that code under it: `REQUIRED`, `TOO_SHORT` and `TOO_LONG` show their key check message, and `INVALID_FORMAT` or any other code shows "Use only the letters A–Z." The dialog SHALL stay open. Other failures of a retry SHALL behave as for the first upload.
 
 #### Scenario: New key also used
 - **WHEN** the retry with `CRDB` returns 409 with `key`/`ALREADY_USED`
@@ -233,7 +241,11 @@ A retry that returns 409 `ALREADY_USED` or 400 for the `key` field SHALL return 
 
 #### Scenario: Server rejects the format
 - **WHEN** the retry returns 400 with the field error `key`/`INVALID_FORMAT`
-- **THEN** the key dialog shows the New board key field's invalid-format error under the field
+- **THEN** the key dialog shows "Use only the letters A–Z." under the field
+
+#### Scenario: Server sends an unknown key code
+- **WHEN** the retry returns 400 with a `key` field error code the app doesn't know
+- **THEN** the key dialog shows "Use only the letters A–Z." under the field
 
 ### Requirement: Cancel import closes everything
 "Cancel import" in the key dialog SHALL close all import dialogs without uploading again. "Cancel" in the Import dialog SHALL close it and end the import. Back, Escape and a scrim tap on the Import dialog SHALL do the same as "Cancel". On the key dialog they SHALL do the same as "Cancel import".
