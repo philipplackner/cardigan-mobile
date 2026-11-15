@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.plcoding.cardiganapp.core.designsystem.components.inputs.Option
+import com.plcoding.cardiganapp.core.designsystem.components.labels.Label
+import com.plcoding.cardiganapp.core.designsystem.components.labels.LabelColor
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.dropShadow
 
@@ -65,9 +66,9 @@ private fun PopoverSample() {
             .padding(AppTheme.space.s24),
     ) {
         PopoverSurface(modifier = Modifier.width(280.dp)) {
-            listOf("Bug", "Feature", "Docs").forEachIndexed { index, name ->
+            listOf("bug", "feature", "docs").forEachIndexed { index, name ->
                 Option(checked = index == 0, onCheckedChange = {}) {
-                    Text(text = name, style = AppTheme.textStyles.sans12_5Medium100, color = AppTheme.colors.text.primary)
+                    Label(name = name, color = LabelColor.entries[index])
                 }
             }
         }

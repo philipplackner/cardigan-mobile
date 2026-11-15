@@ -3,4 +3,24 @@
     <string name="password_rule_met">Met</string>
     <string name="password_rule_not_met">Not met</string>
     <string name="toast_close">Close</string>
+    <string name="label_color_red">Red</string>
+    <string name="label_color_orange">Orange</string>
+    <string name="label_color_amber">Amber</string>
+    <string name="label_color_yellow">Yellow</string>
+    <string name="label_color_lime">Lime</string>
+    <string name="label_color_green">Green</string>
+    <string name="label_color_emerald">Emerald</string>
+    <string name="label_color_teal">Teal</string>
+    <string name="label_color_cyan">Cyan</string>
+    <string name="label_color_sky">Sky</string>
+    <string name="label_color_blue">Blue</string>
+    <string name="label_color_indigo">Indigo</string>
+    <string name="label_color_violet">Violet</string>
+    <string name="label_color_purple">Purple</string>
+    <string name="label_color_fuchsia">Fuchsia</string>
+    <string name="label_color_pink">Pink</string>
+    <string name="label_color_rose">Rose</string>
+    <string name="label_color_brown">Brown</string>
+    <string name="label_color_olive">Olive</string>
+    <string name="label_color_slate">Slate</string>
 </resources>

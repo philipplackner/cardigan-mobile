@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.plcoding.cardiganapp.core.designsystem.components.interaction.collectIsHighlightedAsState
 import com.plcoding.cardiganapp.core.designsystem.components.interaction.isTouchSize
 import com.plcoding.cardiganapp.core.designsystem.components.interaction.rememberPreviewInteractionSource
+import com.plcoding.cardiganapp.core.designsystem.components.labels.Label
+import com.plcoding.cardiganapp.core.designsystem.components.labels.LabelColor
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 
@@ -81,7 +82,7 @@ private fun OptionSamples() {
                 onCheckedChange = {},
                 interactionSource = rememberPreviewInteractionSource(hovered = highlighted),
             ) {
-                Text(text = "Bug", style = AppTheme.textStyles.sans12_5Medium100, color = AppTheme.colors.text.primary)
+                Label(name = "bug", color = LabelColor.Red)
             }
         }
     }

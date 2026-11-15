@@ -54,12 +54,12 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 - [x] 8.1 Menu divider, Menu item (Default/Highlighted on hover/focus/Danger/Disabled/Header × Default/Touch), Menu on `DropdownMenu`. Verify: previews per variant, then the preview check.
 - [x] 8.2 Popover on `Popup` with `Shadow/Popover`. Dialog (Default/Progress × Default/Touch) on `BasicAlertDialog`; Progress ignores back, Escape and scrim taps. Verify: previews per variant, then the preview check.
 - [x] 8.3 Bottom sheet on `ModalBottomSheet` with every visible Material default overridden. Verify: preview, then the preview check.
-- [ ] 8.4 Run all gates. Verify they pass, then commit `feat(designsystem): add menus, dialogs and sheets`.
+- [x] 8.4 Run all gates. Verify they pass, then commit `feat(designsystem): add menus, dialogs and sheets`.
 
 ## 9. Labels and data display
 
-- [ ] 9.1 `LabelColor` with the 20 shared-spec names mapped to `colors.label.*`. Label dot, Label (Small/Medium/Large), Label chip (Removable), Swatch (Selected), Label row (Default/Touch, divider). Verify: a preview of all 20 dots in light and dark, previews per component variant, then the preview check.
-- [ ] 9.2 Key (2–5 uppercase letters) and Avatar. Verify: previews with a 2-letter and a 5-letter key, then the preview check.
+- [x] 9.1 `LabelColor` with the 20 shared-spec names mapped to `colors.label.*`. Label dot, Label (Small/Medium/Large), Label chip (Removable), Swatch (Selected), Label row (Default/Touch, divider). Verify: a preview of all 20 dots in light and dark, previews per component variant, then the preview check.
+- [x] 9.2 Key (2–5 uppercase letters) and Avatar. Verify: previews with a 2-letter and a 5-letter key, then the preview check.
 - [ ] 9.3 Run all gates. Verify they pass, then commit `feat(designsystem): add labels, key and avatar`.
 
 ## 10. Board, boards, card detail and transfer
