@@ -22,4 +22,8 @@
     <string name="import_success">Imported “%1$s” with the key %2$s.</string>
     <string name="file_size_kb">%1$s KB</string>
     <string name="file_size_mb">%1$s MB</string>
+    <string name="exporting_title">Exporting “%1$s”</string>
+    <string name="exporting_description">When the file is ready, the share sheet opens so you can save or send it.</string>
+    <string name="export_error_failed">Couldn't export “%1$s”. Check your connection and try again.</string>
+    <string name="export_error_not_found">“%1$s” no longer exists, so it can't be exported.</string>
 </resources>
