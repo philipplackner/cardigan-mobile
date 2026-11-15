@@ -8,6 +8,9 @@ projectCompileSdkVersion = "37"
 
 agp = "9.1.1"
 androidx-activity = "1.13.0"
+androidx-compose-ui = "1.12.1"
+androidx-test = "1.7.0"
+androidx-test-espresso = "3.7.0"
 androidx-lifecycle = "2.11.0"
 androidx-navigation = "2.10.0"
 androidx-savedstate = "1.4.0"
@@ -52,6 +55,11 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiTest = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
+androidx-compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4-android", version.ref = "androidx-compose-ui" }
+androidx-compose-uiTestManifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-compose-ui" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test" }
+androidx-test-espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
 compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 

@@ -34,6 +34,13 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
 
                 // KMP library modules have no build types, so debugImplementation isn't available for previews.
                 "androidMainImplementation"(libs.library("compose-uiTooling"))
+
+                "androidDeviceTestImplementation"(libs.library("androidx-compose-uiTestJunit4"))
+                "androidDeviceTestImplementation"(libs.library("androidx-compose-uiTestManifest"))
+                // ui-test-junit4 brings Espresso 3.5, which calls an InputManager API removed in newer Android versions.
+                "androidDeviceTestImplementation"(libs.library("androidx-test-espressoCore"))
+                "androidDeviceTestImplementation"(libs.library("androidx-test-runner"))
+                "androidDeviceTestImplementation"(libs.library("androidx-test-core"))
             }
         }
     }
