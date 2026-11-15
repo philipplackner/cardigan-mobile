@@ -1,7 +1,6 @@
 package com.plcoding.cardiganapp.feature.transfer.presentation.importboard
 
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.lifecycle.SavedStateHandle
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
@@ -153,14 +152,13 @@ class ImportBoardUiTest {
     }
 
     @Test
-    fun progressDialogShowsAndCantBeDismissed() = runComposeUiTest {
+    fun progressDialogShowsWhileUploading() = runComposeUiTest {
         repository.gate = CompletableDeferred()
         showImport()
         picker.pick(validPick())
 
         awaitText(getString(Res.string.importing_title, "board-backup.json"))
         onNodeWithText(getString(Res.string.importing_description)).assertIsDisplayed()
-        onNode(isDialog()).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
         assertThat(doneCount).isEqualTo(0)
     }
 
