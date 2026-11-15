@@ -16,12 +16,12 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 
 - [x] 2.1 Download the static TTFs from the official vercel/geist-font GitHub release (Geist 400/500/600/700, Geist Mono 400/500/600) and the OFL license into a new empty directory in the scratchpad. Copy the fonts to `core/designsystem/src/commonMain/composeResources/font/` and the license to `composeResources/files/licenses/`. Verify: 7 font files and the license exist, they come from the release assets of `vercel/geist-font` at a named tag, and the release tag and the SHA-256 of each file are noted in the commit message.
 - [x] 2.2 Add all Figma text styles as `AppTheme.textStyles` (sp sizes, sp line heights, em letter spacing, caps where Figma says Caps) and the 7 semantic roles as `AppTheme.typography` with the phone switch for Page title (28), Card title (14.5) and Body (15). Verify: the style count matches the dump from 1.1, the Material `Typography` from 1.4 is built from them, and a type specimen preview at `widthDp = 390` and `834` exists whose styles match the Figma Type section on `9:2` in code.
-- [ ] 2.3 Run all gates. Verify they pass, then commit `feat(designsystem): add geist fonts and text styles`.
+- [x] 2.3 Run all gates. Verify they pass, then commit `feat(designsystem): add geist fonts and text styles`.
 
 ## 3. Icons and brand
 
-- [ ] 3.1 Export all 27 icons from the Icons section of `9:3` as SVG and convert them to vector drawables with `figma-to-android-vector`, with hard-coded colors replaced so `tint` applies. Add them to `CardiganIcons`. Verify: all 27 are on `CardiganIcons` with no hard-coded colors left, and a preview grid of all 27, tinted with `text/primary`, exists in light and dark.
-- [ ] 3.2 Add Logo (drawn in code) and Brand (Sidebar, App bar, Auth). Verify: previews per size in light and dark, then the preview check.
+- [x] 3.1 Export all 27 icons from the Icons section of `9:3` as SVG and convert them to vector drawables with `figma-to-android-vector`, with hard-coded colors replaced so `tint` applies. Add them to `CardiganIcons`. Verify: all 27 are on `CardiganIcons` with no hard-coded colors left, and a preview grid of all 27, tinted with `text/primary`, exists in light and dark.
+- [x] 3.2 Add Logo (drawn in code) and Brand (Sidebar, App bar, Auth). Verify: previews per size in light and dark, then the preview check.
 - [ ] 3.3 Run all gates. Verify they pass, then commit `feat(designsystem): add icons and brand`.
 
 ## 4. Interaction base
