@@ -174,11 +174,11 @@ Component text SHALL scale with the system font size. Figma control heights SHAL
 - **THEN** the label stays on one line and ends with an ellipsis
 
 ### Requirement: Pull-to-refresh indicator
-Where a screen offers pull to refresh, the indicator SHALL use the Material pull-to-refresh behavior with colors from the theme.
+Where a screen offers pull to refresh, the indicator SHALL use the Material pull-to-refresh behavior. Its container SHALL use `background/surface` and its spinner `accent/default`.
 
 #### Scenario: Pull in dark mode
 - **WHEN** the user pulls down on a refreshable list in the dark theme
-- **THEN** the indicator shows on a dark theme surface with the accent color
+- **THEN** the indicator container uses the dark `background/surface` and the spinner the dark `accent/default`
 
 ### Requirement: Accessible names from string resources
 Every interactive component that shows only an icon SHALL take a non-null `contentDescription` parameter and expose it as its accessibility label to TalkBack and VoiceOver. Callers pass a string resource.

@@ -55,7 +55,7 @@
 **Fix:** "Every interactive component that shows only an icon SHALL take a non-null `contentDescription` parameter and expose it as its accessibility label. Callers pass a string resource." Catches: an `IconButton` with a nullable or defaulted description.
 
 ### T4: Pull-to-refresh colors aren't named
-**Severity:** minor · **Status:** open (token choice is the user's)
+**Severity:** minor · **Status:** applied (user chose `background/surface` for the container, spinner stays `accent/default`)
 **Location:** spec > Pull-to-refresh indicator; design.md > Component bases
 **Current text:** "THEN the indicator shows on a dark theme surface with the accent color"
 **Failure scenario:** One implementer uses `background/surface`, another `background/raised` (or whatever the elevated surface token is). Both pass the scenario.
@@ -99,6 +99,6 @@ All 14 requirements and their scenarios in `specs/design-system/spec.md` checked
 - `design.md`: ripple per fill (T2), clipping rule in Touch area (A2), Android accessibility timeout in Toast host (A1), 1.2s shimmer (T1), `AppTheme(windowClass)` for previews (D2).
 - `tasks.md`: 1.1 and 1.2 expect 12 Size variables (D1), 1.4 ripple and `windowClass` parameter (T2, D2), 2.1 tag and SHA-256 (S1), 4.1 no-clip rule (A2), 5.1 on-accent ripple (T2), 7.3 toast timing (A1).
 - `proposal.md`: note on behavior shared with web without a shared spec (D3).
-- T4 stays open: the pull-to-refresh surface token needs the user's choice.
-- decisions.md: D13 says "about 4 seconds" and doesn't mention accessibility timeouts. A1 refines it; not a contradiction, but D13 could be updated by the user. D10's "8 sizes" predates D23 (D1).
+- T4 closed: the user chose `background/surface` for the indicator container; spec, design.md and tasks.md 7.4 name both tokens.
+- decisions.md: D13 now matches A1 (4s ±0.5s, or longer with the Android accessibility timeout), and D10 says 12 sizes (D1). Both confirmed by the user.
 - `openspec validate add-design-system --strict` passes. README.md is not stale.

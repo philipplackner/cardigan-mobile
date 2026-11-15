@@ -73,7 +73,7 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 
 ### D10 — Token coverage and source
 - **Question**: Which tokens does the code mirror, and where do they come from?
-- **Decision**: All Figma variables and effect styles, 1:1, hand-ported, named after the Figma variables: 53 colors (light and dark), 23 spacing steps, 11 radii, 8 sizes, 7 effects. The web client does the same.
+- **Decision**: All Figma variables and effect styles, 1:1, hand-ported, named after the Figma variables: 53 colors (light and dark), 23 spacing steps, 11 radii, 12 sizes (8 `height/*` plus the 4 `width/*` variables from D23), 7 effects. The web client does the same.
 - **Alternatives**: Only the tokens the Foundations page lists; generate code from an exported token file.
 - **Why**: User choice. Keeps both clients aligned with Figma. The Foundations page is brought up to date in the separate change `update-figma-foundations`.
 - **Depends on**: —
@@ -94,7 +94,7 @@ Build the mobile design system in `:core:designsystem` in one change: theme and 
 
 ### D13 — Toast timing
 - **Question**: How long do toasts stay, and how do several toasts behave?
-- **Decision**: Success toasts close after about 4 seconds. Error toasts stay until the user closes them. One toast at a time, and a new toast replaces the one showing. Toasts sit at the bottom of the screen; the horizontal position follows the tablet and desktop frames.
+- **Decision**: Success toasts close 4 seconds (±0.5s) after they appear, or later when Android's accessibility timeout ("Time to take action") asks for a longer one. Error toasts stay until the user closes them. One toast at a time, and a new toast replaces the one showing. Toasts sit at the bottom of the screen; the horizontal position follows the tablet and desktop frames.
 - **Alternatives**: All toasts ~4s; a queue.
 - **Why**: User choice.
 - **Depends on**: —

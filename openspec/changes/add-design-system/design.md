@@ -69,7 +69,7 @@ Material 3 bases first, as in `kmp-compose-components`:
 | Popover | `Popup` with our surface and `Shadow/Popover` |
 | Toast | `SnackbarHost` with a custom `Snackbar` look |
 | Spinner | `CircularProgressIndicator` with our colors |
-| Pull-to-refresh | `PullToRefreshBox` with `PullToRefreshDefaults.Indicator` in theme colors (D5) |
+| Pull-to-refresh | `PullToRefreshBox` with `PullToRefreshDefaults.Indicator`, container `background/surface`, spinner `accent/default` (D5) |
 | Everything else (Card, Column, Label chip, Key, Avatar, Skeleton, …) | Foundation layouts. No Material equivalent models them |
 
 ### Dialog and text area behavior

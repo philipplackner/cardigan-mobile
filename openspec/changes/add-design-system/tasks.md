@@ -46,7 +46,7 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 - [ ] 7.1 Spinner (Small/Large). Skeleton with the 1.2s shimmer and `expect`/`actual` `rememberReduceMotion()` (Android animator duration scale, iOS `UIAccessibilityIsReduceMotionEnabled`). Verify: previews of the shimmering and the reduced-motion (static) skeleton, then the preview check.
 - [ ] 7.2 Banner (Error/Info), Empty state (Default/Error, Actions slot). Verify: previews per variant, then the preview check.
 - [ ] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success 4s (Android lengthened by the accessibility recommended timeout), error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
-- [ ] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator` in theme colors. Verify: a preview of the indicator in light and dark.
+- [ ] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator`, container `background/surface`, spinner `accent/default`. Verify: a preview of the indicator in light and dark.
 - [ ] 7.5 Run all gates. Verify they pass, then commit `feat(designsystem): add feedback components`.
 
 ## 8. Overlays
