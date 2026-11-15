@@ -47,13 +47,13 @@ Figma workflow for every component task: `create_session` on `MALwbOph7Uj2QtiTy2
 - [x] 7.2 Banner (Error/Info), Empty state (Default/Error, Actions slot). Verify: previews per variant, then the preview check.
 - [x] 7.3 Toast look (Success/Error with close icon) and `ToastHostState`: replace-current, success 4s (Android lengthened by the accessibility recommended timeout), error indefinite. Read the toast's horizontal position on tablet and desktop from the screen frames first. Verify: previews per type, then the preview check.
 - [x] 7.4 Pull-to-refresh indicator: `PullToRefreshBox` with `PullToRefreshDefaults.Indicator`, container `background/surface`, spinner `accent/default`. Verify: a preview of the indicator in light and dark.
-- [ ] 7.5 Run all gates. Verify they pass, then commit `feat(designsystem): add feedback components`.
+- [x] 7.5 Run all gates. Verify they pass, then commit `feat(designsystem): add feedback components`.
 
 ## 8. Overlays
 
-- [ ] 8.1 Menu divider, Menu item (Default/Highlighted on hover/focus/Danger/Disabled/Header × Default/Touch), Menu on `DropdownMenu`. Verify: previews per variant, then the preview check.
-- [ ] 8.2 Popover on `Popup` with `Shadow/Popover`. Dialog (Default/Progress × Default/Touch) on `BasicAlertDialog`; Progress ignores back, Escape and scrim taps. Verify: previews per variant, then the preview check.
-- [ ] 8.3 Bottom sheet on `ModalBottomSheet` with every visible Material default overridden. Verify: preview, then the preview check.
+- [x] 8.1 Menu divider, Menu item (Default/Highlighted on hover/focus/Danger/Disabled/Header × Default/Touch), Menu on `DropdownMenu`. Verify: previews per variant, then the preview check.
+- [x] 8.2 Popover on `Popup` with `Shadow/Popover`. Dialog (Default/Progress × Default/Touch) on `BasicAlertDialog`; Progress ignores back, Escape and scrim taps. Verify: previews per variant, then the preview check.
+- [x] 8.3 Bottom sheet on `ModalBottomSheet` with every visible Material default overridden. Verify: preview, then the preview check.
 - [ ] 8.4 Run all gates. Verify they pass, then commit `feat(designsystem): add menus, dialogs and sheets`.
 
 ## 9. Labels and data display
