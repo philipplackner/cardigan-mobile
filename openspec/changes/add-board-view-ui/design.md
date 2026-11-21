@@ -7,7 +7,12 @@ See proposal.md for the why and decisions.md for every settled choice. Relevant 
 - `:feature:boards` has only build files. The board list change (`add-board-list-ui`) is planned in parallel and lands first. This change is rebased onto it (D5). It brings `BoardRepository`, the reusable rename/delete board dialogs, the sidebar/phone menu (D3), and the shared name rule and its strings in core (D35).
 - `:core:domain` has `Board(id, name, key)`, `BoardKeyRule`, `Result` and `DataError`. `:core:presentation` has `UiText`, `ObserveAsEvents` and `ToastController`. `:composeApp` has the NavHost, the app toast host and `initKoin(isDebug)` from add-transfer-ui.
 - `:core:designsystem` has `BoardColumn`, `BoardCard`, `AddCardButton`, `AddColumnButton`, `Menu`/`MenuItem`, `CardiganDialog`, `Input`/`Field`, `RefreshBox`, `Skeleton`, `EmptyState`, `LabelChip`, `TitleAppBar` and `LocalWindowClass` (Phone/Tablet/Desktop, breakpoints in one place).
-- The backend has no board, column or card endpoints yet. `be-boards` plans boards and columns with integer positions and a move endpoint that returns all columns. Cards are not planned. The repository interfaces here follow the shared specs, not a guessed wire format.
+- `be-boards` is archived and implemented: the board and column endpoints exist, with integer positions and a move endpoint that returns all columns. There is no backend change for cards yet. Cards in the board load, card create (quick add) and the card count come from the later `be-cards` change. The repository interfaces here follow the shared specs, not a guessed wire format, and this change runs on fakes either way.
+
+### Backend dependencies
+
+- Cards on the board, quick add and the card count depend on `be-cards`.
+- If the connect change runs before `be-cards`, that change handles the gap. This change doesn't plan for it.
 
 ## Goals / Non-Goals
 
