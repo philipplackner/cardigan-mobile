@@ -89,6 +89,6 @@ This change implements or depends on:
   - The board view (`mob-board-view-ui`) rebases on this change, reuses the Rename/Delete dialogs and adds its repository in `boards`.
   - Auth (add-auth-ui) provides `SessionManager` and `AppViewModel.onLogout()`. Its session gate holds a temporary `AppStartRoute` that the board list replaces. Whichever change lands second does the wiring (D20).
   - Board view and labels should reuse the core name rule and strings.
-  - be-boards: the list response must include `cardCount`, `createdAt` and `updatedAt`, sorted per `api-conventions` "Board list order" (D13).
+  - be-boards: the list response must include `createdAt` and `updatedAt`, sorted per `api-conventions` "Board list order" (D13). `cardCount` comes later from be-cards (design.md Open Questions).
 - **Figma**: no changes.
 - **Tests**: unit tests for the text rule, key prefill, relative time, the board store, and the ViewModels. `*UiTest`s for the list states, dialogs and shell, with fakes. Run on Android host and the iOS simulator.

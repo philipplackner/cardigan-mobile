@@ -212,3 +212,7 @@ Accessible names come from string resources in the shared style: "Actions for bo
 
 None. Nothing is released. The fixture binding is removed before archive and replaced by the Ktor data source in `mob-boards-connect`.
 
+
+## Open Questions
+
+- `cardCount` comes from be-cards, not be-boards. If boards-connect runs before be-cards, the connect change decides the placeholder (e.g. hide the card count). This change stays as it is, because the fixture provides `cardCount`.
