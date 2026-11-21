@@ -169,7 +169,7 @@ Column names and card titles, including the quick add field, SHALL be checked on
 - **THEN** nothing is sent and the field stays open
 
 ### Requirement: One inline field at a time
-Only one inline field (a quick add field or the add column field) SHALL be open at a time. Opening another one SHALL close an empty field. A field that holds text SHALL NOT lose it on a switch without the user confirming. Cancel or back SHALL still drop the text without asking.
+Only one inline field (a quick add field or the add column field) SHALL be open at a time. Opening another one SHALL close an empty field. If the open field holds text, the "Discard changes?" dialog SHALL ask first. Cancel or back in the field SHALL still drop the text without asking. While the open field is saving, opening another inline field SHALL do nothing. Opening a menu or a dialog SHALL NOT close an open field.
 
 #### Scenario: Second column, empty field
 - **WHEN** an empty quick add field is open in "To do" and the user taps "Add card" in "Done"
@@ -177,7 +177,31 @@ Only one inline field (a quick add field or the add column field) SHALL be open 
 
 #### Scenario: Second column, field with text
 - **WHEN** the quick add field in "To do" holds "Write docs" and the user taps "Add card" in "Done"
-- **THEN** "Write docs" is not dropped until the user confirms the discard
+- **THEN** the dialog "Discard changes?" / "The card you started in “To do” hasn’t been added." with "Keep editing" and "Discard" shows
+
+#### Scenario: Keep editing
+- **WHEN** the discard dialog shows and the user taps "Keep editing", goes back, or taps outside the dialog
+- **THEN** the dialog closes, the field in "Done" doesn't open, and the field in "To do" keeps "Write docs", scrolls into view and has focus
+
+#### Scenario: Discard
+- **WHEN** the discard dialog shows and the user taps "Discard"
+- **THEN** "Write docs" is dropped, the field in "To do" closes, and the field in "Done" opens with focus
+
+#### Scenario: Add column field with text
+- **WHEN** the add column field holds "Blocked" and the user taps "Add card" in a column
+- **THEN** the dialog shows with the body "The column you started hasn’t been added."
+
+#### Scenario: Quick add to add column
+- **WHEN** a quick add field holds text and the user taps "Add column"
+- **THEN** the discard dialog for that card shows
+
+#### Scenario: Switch while saving
+- **WHEN** the quick add field in "To do" is saving and the user taps "Add card" in "Done"
+- **THEN** nothing happens
+
+#### Scenario: Menu with an open field
+- **WHEN** a quick add field holds text and the user opens a column's ⋯ menu
+- **THEN** the field stays open with its text and no dialog shows
 
 #### Scenario: Explicit cancel
 - **WHEN** the quick add field holds "Write docs" and the user taps "Cancel" or goes back

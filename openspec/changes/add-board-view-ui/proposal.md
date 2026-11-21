@@ -13,7 +13,7 @@ The board view is where the work happens, and card detail, card drag & drop, sea
   - "Add column" at the end of the strip, opening an inline name field. The field closes after a successful add and the strip scrolls to the new column. On a board without columns, the field replaces the empty state (D32).
   - States: loading skeleton, "Couldn’t load this board" with "Try again", "No cards yet" in an empty column, "This board has no columns" with "Add column".
   - Pull to refresh on every column's card list reloads the whole board (D16).
-- **Quick add card** at the bottom of each column, title only, with name errors under the field (D22, D33). Switching to another field while this one holds text asks before dropping the text. The dialog is still being settled (MBV-24).
+- **Quick add card** at the bottom of each column, title only, with name errors under the field (D22, D33). Switching to another inline field while this one holds text opens a "Discard changes?" dialog (D41).
 - **Column menu**: Move left, Move right (disabled at the ends), Rename (dialog), Delete column (confirm dialog that names the card count, or the empty-column variant) (D23, D30).
 - **Board ⋯ menu**: Rename board and Delete board open the board list change's reusable dialogs (D5). After a delete, the app goes back to the board list without a toast (D34). Export as JSON opens transfer's export flow.
 - **Writes wait for the server** and apply the response locally (D21). Failures follow D15 and D23: error toasts, inputs kept, stale data reloads the board, a missing board goes back to the board list.
@@ -42,7 +42,7 @@ Confirmed via the coordinator (D13, D15, D16, D23):
 
 Accessibility labels, accepted via the coordinator (D38): "Back", "Board actions", "Actions for column “{name}”", "Add card to “{name}”", "Add column", and a card tile reads "{displayId}, {title}, labels {a}, {b}".
 
-Pending (MBV-24): the discard dialog when switching away from an inline field with text.
+Discard dialog when switching inline fields, confirmed via the coordinator (D41), reusing the Card detail "Unsaved changes" pattern: "Discard changes?" / "The card you started in “{column}” hasn’t been added." / "The column you started hasn’t been added." / "Keep editing" / "Discard".
 
 ## Capabilities
 

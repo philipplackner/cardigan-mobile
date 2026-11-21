@@ -73,8 +73,8 @@ interface CardCreateRepository {
 
 One `BoardViewModel` per board route, with `boardId` from `SavedStateHandle`.
 
-- `BoardState`: `content: LoadState` (`Loading`, `Error`, `Loaded(BoardContent, labelsById)`), `headerHint` (name and key from the route, D39), `isRefreshing`, `refreshingColumnId`, `inlineField: InlineField?` (one of `QuickAdd(columnId)` or `AddColumn`, each with text, isSaving, error and showErrors), `dialog: BoardDialog?` (`RenameColumn`, `DeleteColumn` with name and card count, and the MBV-24 discard dialog once settled), and `savingColumnMoveId`. A single `inlineField` keeps "one inline field at a time" structural.
-- **Switching inline fields**: opening another field closes an empty one. If the open field holds text (after trim), the switch is held as `pendingSwitch` and the discard dialog from MBV-24 decides. Its copy and button behavior are settled in task 1.1. Explicit Cancel/back drops the text without asking (D22).
+- `BoardState`: `content: LoadState` (`Loading`, `Error`, `Loaded(BoardContent, labelsById)`), `headerHint` (name and key from the route, D39), `isRefreshing`, `refreshingColumnId`, `inlineField: InlineField?` (one of `QuickAdd(columnId)` or `AddColumn`, each with text, isSaving, error and showErrors), `dialog: BoardDialog?` (`RenameColumn`, `DeleteColumn` with name and card count, and `DiscardInlineField` with the pending switch target), and `savingColumnMoveId`. A single `inlineField` keeps "one inline field at a time" structural.
+- **Switching inline fields** (D41): opening another field closes an empty one. If the open field holds text (after trim), the target is held in the `DiscardInlineField` dialog. "Keep editing", back and outside tap clear the dialog and emit an event that scrolls the open field into view and focuses it. "Discard" replaces `inlineField` with the target and emits a focus event for it. While the open field is saving, the open action is ignored. Explicit Cancel/back drops the text without asking (D22). The dialog reuses the same dialog component as card detail's "Unsaved changes", with a secondary and a danger button.
 - Load and refresh fetch the board and `LabelSource.labels()` in parallel. If either fails, the load fails: the first load shows the error state, and a refresh keeps the board and shows the refresh toast (D16). A label ID without a matching label is skipped on the tile.
 - **One write at a time.** All writes and refreshes go through one `Mutex` in the order they arrive. Each response is applied to the state the previous write left (D21): add appends, rename replaces, move reorders by the returned IDs, delete removes, card create appends to its column. Without this, a move response could be applied on top of a board that a parallel delete had already changed. The rejected alternative was a full reload after every write, which D21 rules out.
 - **Saving state** (D15, D36): while a dialog or inline field is saving, actions from it are ignored (Enter, Cancel, dismiss). The Root passes `isSaving` to the dialog's `dismissOnBackPress`/`dismissOnClickOutside`.
@@ -128,7 +128,8 @@ Every icon button and tile gets a content description from string resources, and
 - Unit tests (`commonTest` of `:feature:boards:presentation`) for `BoardViewModel` with fake repositories, a fake `LabelSource`, a fake `ToastController` and a test dispatcher. Break vectors:
   - Double submit while saving.
   - Enter during a save.
-  - A second quick add opened while one is saving, while one is empty, and while one holds text.
+  - A second quick add opened while one is saving, while one is empty, and while one holds text, then Keep editing, Discard, and back on the dialog.
+  - Add column with text → quick add, and quick add with text → Add column.
   - Quick add with a pasted line break, and with 201 code points.
   - A move on the only column, the first and the last column.
   - A move answered `Stale`.
@@ -150,7 +151,6 @@ Every icon button and tile gets a content description from string resources, and
 - [The card contract doesn't exist yet] → The interfaces follow the shared specs. `mob-cards-connect` may have to map extra response fields. The interfaces return domain types only, so the presentation layer won't change.
 - [`lowercase()` is not full case folding] → It matches for nearly all label names. The labels change owns the comparator and can replace it in one place.
 - [Nested scrolling (horizontal strip, vertical columns, pull to refresh) behaves differently on iOS] → `*UiTest`s run on the iOS simulator, and manual checks on both platforms use the fixture.
-- [The discard dialog for switching inline fields (MBV-24) is not settled] → The state already holds `pendingSwitch`. Task 1.1 records the answer before any code is written.
 
 ## Open Questions
 

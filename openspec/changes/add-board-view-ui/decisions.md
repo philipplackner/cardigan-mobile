@@ -101,7 +101,7 @@ Build the mobile board view for chunk `mob-board-view-ui` in `:feature:boards`. 
 
 ### D22 — Quick add
 - **Question**: How does quick add behave?
-- **Decision**: Enter or "Add card" creates the card. The field stays open, empty and focused. Empty or whitespace-only input does nothing. Cancel or back discards without asking. A tap outside keeps the field open if it has text and closes it if it is empty. Only one quick add field is open at a time. The title is at most 200 characters. Amended on 2026-11-21: switching to another field while this one holds text asks first instead of dropping the text (MBV-24, Deferred).
+- **Decision**: Enter or "Add card" creates the card. The field stays open, empty and focused. Empty or whitespace-only input does nothing. Cancel or back discards without asking. A tap outside keeps the field open if it has text and closes it if it is empty. Only one quick add field is open at a time. The title is at most 200 characters. Amended on 2026-11-21: switching to another field while this one holds text asks first instead of dropping the text (D41).
 - **Alternatives**: —
 - **Why**: Figma annotation (marked "proposal"), confirmed as final.
 - **Depends on**: —
@@ -199,6 +199,13 @@ The follow-up answers below (D32–D40) were confirmed by the user via the coord
 - **Why**: A stale move doesn't mean the column is gone.
 - **Depends on**: D23
 
+### D41 — Switching inline fields with text (MBV-24)
+- **Question**: What happens when the user opens another inline field while the open one holds text?
+- **Decision**: A discard dialog that reuses the Card detail "Unsaved changes" pattern: "Discard changes?" / "The card you started in “{columnA}” hasn’t been added." (for an add column field: "The column you started hasn’t been added.") / "Keep editing" (secondary) / "Discard" (danger). "Keep editing" closes the dialog. The new field doesn't open, and the open field keeps its text, scrolls back into view and gets focus. "Discard" drops the text, closes the open field and opens the new one with focus. Back or a tap outside the dialog counts as "Keep editing". Every switch between inline fields asks: quick add → quick add, quick add → "Add column", and "Add column" with text → quick add. An empty field closes silently. Explicit Cancel/back in the open field still drops the text without asking (D22). Menus and dialogs don't close an open field, so they don't ask. While the open field is saving, opening another inline field does nothing.
+- **Alternatives**: Copy that quotes the typed title; card detail copy as is; asking only for quick add → quick add.
+- **Why**: The user doesn't want typed text dropped silently. Confirmed by the user via the coordinator on 2026-11-21, the same for web.
+- **Depends on**: D22, D32, D36
+
 ## Facts
 
 - The shared specs are the OpenSpec store `cardigan-shared-specs` at `~/openspec/cardigan-shared-specs`. `~/cardigan-specs` is an old layout and is not used. — source: `openspec store list`
@@ -226,4 +233,4 @@ The follow-up answers below (D32–D40) were confirmed by the user via the coord
 
 ## Deferred
 
-- MBV-24: Switching to another inline field while the open one holds text. The user doesn't want the text dropped silently and wants a discard dialog. The proposal sent to the coordinator on 2026-11-21 reuses the Card detail "Unsaved changes" dialog pattern (Figma 9:7: "Discard changes?" / "Keep editing" / "Discard"). Open points: copy, what "Keep editing" does, which switches ask, and behavior while saving. Until it is settled, the artifacts only say that a switch with text asks first. Explicit Cancel/back still discards without asking (D22). — settle before: implementation (task 1.1)
+- (none)
