@@ -138,7 +138,7 @@ data class BoardItemUi(val id: String, val name: String, val key: String, val ca
   - Phone: `LazyColumn` with a large-title header item, `BoardRow`s and a footer count. The bar switches from `BrandAppBar` to `TitleAppBar("Boards", raised = true)` once the header item has left the viewport (`firstVisibleItemIndex > 0`).
   - Tablet/Desktop: `PageHeader("Boards", meta = count, actions = Import)` above a `LazyVerticalGrid(GridCells.Adaptive(BoardTileMinWidth))`. `BoardTileMinWidth` is about 260 dp, taken from the Figma Board tile, and defined once (D19).
   - Both sit in a `RefreshBox`.
-- Actions are `OnBoardClick(id)`, `OnRenameClick(id)`, `OnDeleteClick(id)`, `OnNewBoardClick`, `OnImportClick`, `OnLabelsClick`, `OnLogOutClick`, `OnRefresh` and `OnRetry`. Navigation actions are forwarded by the Root to callbacks.
+- Actions are `OnBoardClick(id)` (the ViewModel looks up the name and key and emits `OpenBoard(id, name, key)`), `OnRenameClick(id)`, `OnDeleteClick(id)`, `OnNewBoardClick`, `OnImportClick`, `OnLabelsClick`, `OnLogOutClick`, `OnRefresh` and `OnRetry`. Navigation actions are forwarded by the Root to callbacks.
 
 Relative time goes through `UiText`. "N minutes ago" and "N hours ago" use plural resources. "Oct 9" is built from a short-month string array resource plus the day. Strings live in boards:presentation and move to core when card detail needs them.
 
@@ -155,7 +155,7 @@ Each dialog ViewModel reads the board by id from `repository.boards`. If it is m
 - `RenameBoardViewModel`: the same name handling. If the normalized name equals the current name, it emits `Done` (D15).
 - `DeleteBoardViewModel`: builds the body from `cardCount` (D5).
 - Results (D21):
-  - Create success emits `Created(boardId)`. The Root pops and calls `onBoardCreated(id)` (D10).
+  - Create success emits `Created(id, name, key)` from the server's response. The Root pops and calls `onOpenBoard(id, name, key)` (D10, D23).
   - Rename success emits `Renamed(newName)`, delete success (including 404) emits `Deleted`. The Root pops and calls `onRenamed(newName)` / `onDeleted()`, which `boardsGraph` takes per caller. The board list passes no-ops, since the store already updated it. The board view passes its own handling (back to the list after a delete, no toast).
   - Cancel and an unchanged rename pop with no result.
   - `Network` keeps the dialog open and shows the toast through `ToastController` (D11).
@@ -167,9 +167,9 @@ Each dialog ViewModel reads the board by id from `repository.boards`. If it is m
 
 `AppShell(navController, accountEmail: String?, onLogOut: () -> Unit)` in `:composeApp`:
 - Phone: only the `AppNavHost`. The bar and its ⋯ menu belong to the board list screen, which gets `accountEmail`, `onImportClick`, `onLabelsClick` and `onLogOutClick` from `boardsGraph` parameters.
-- Tablet/Desktop: `Row { Sidebar(...); AppNavHost(...) }`. `mainNav` holds "All boards" (selected when the current destination is `BoardListRoute`) and "Labels" (no-op). `boards` holds `BoardsSidebarSection(onBoardClick, onNewBoardClick)` from boards:presentation, which reads `repository.boards`. `Sidebar` takes a non-null email. When `accountEmail` is null, the shell passes "" and the avatar initial is left out. If `Sidebar` can't hide them, a small `Sidebar` change to accept null is part of the shell task.
+- Tablet/Desktop: `Row { Sidebar(...); AppNavHost(...) }`. `mainNav` holds "All boards" (selected when the current destination is `BoardListRoute`) and "Labels" (no-op). `boards` holds `BoardsSidebarSection(onOpenBoard, onNewBoardClick)` from boards:presentation, which reads `repository.boards`. `Sidebar` takes a non-null email. When `accountEmail` is null, the shell passes "" and the avatar initial is left out. If `Sidebar` can't hide them, a small `Sidebar` change to accept null is part of the shell task.
 - `:composeApp` feeds `accountEmail` from `SessionManager.state` (`SignedIn(email)` → email, anything else → null) and `onLogOut` from `AppViewModel.onLogout()`, both from add-auth-ui (D20). If this change lands before add-auth-ui, it passes null and a no-op with a TODO, and add-auth-ui does the wiring. If it lands after, this change does it and replaces add-auth-ui's temporary `AppStartRoute` inside the session gate with `BoardListRoute`.
-- Board taps, `onBoardCreated` and Labels are no-op callbacks with TODOs for `mob-board-view-ui` and `mob-labels-ui`.
+- Opening a board (list tap, sidebar tap, after create) goes through one callback, `onOpenBoard(boardId: String, name: String, key: String)` (D23). `:composeApp` maps it to `navigate(BoardRoute(boardId, name, key))`, the route add-board-view-ui defines in `boards:presentation`. If the board view hasn't landed, it is a no-op with a TODO. Labels is a no-op with a TODO for `mob-labels-ui`.
 
 ### Wiring and placeholders
 

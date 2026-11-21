@@ -168,6 +168,13 @@ Build the mobile board list for chunk `mob-board-list-ui` in the `boards` featur
 - **Why**: Same style across features and clients.
 - **Depends on**: —
 
+### D23 — Open-board navigation [coordinator, board view]
+- **Question**: What does the board list pass when it opens a board?
+- **Decision**: The board's id, name and key. List taps, sidebar taps and the open after Create board all use one callback, `onOpenBoard(boardId, name, key)`. `:composeApp` maps it to add-board-view-ui's `BoardRoute(boardId, name?, key?)`, so the board view header shows the name and key while the board loads.
+- **Alternatives**: Pass only the id.
+- **Why**: mobile-boardview's loading header needs them (its D39).
+- **Depends on**: D10, D21
+
 ## Facts
 
 - The backend spec snapshot has only `/api/v1/labels`, `/api/v1/labels/{labelId}` and `/api/v1/users/me`. There are no board endpoints and no `api/openapi.json` in this repo yet — source: `cardigan.backend.dir`/app/src/test/resources/openapi/openapi.json.

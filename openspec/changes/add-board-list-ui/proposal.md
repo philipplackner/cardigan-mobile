@@ -9,7 +9,7 @@ The app has no home screen yet. `App()` starts on an empty route, and import has
 - **Board list screen** (`boards` feature), the app's start destination:
   - Phone: a list of board rows under a large "Boards" title with the board count. The title collapses into the bar on scroll. The list ends with the board count.
   - Tablet and desktop: a page header with the count and an Import button, above a grid of board tiles.
-  - Each item shows name, key, card count ("1 card" / "N cards") and the relative updated time (D6). Tapping an item opens the board (callback).
+  - Each item shows name, key, card count ("1 card" / "N cards") and the relative updated time (D6). Tapping an item opens the board, passing its id, name and key (D23).
   - States: loading skeletons, "No boards yet" (phone: New board and Import buttons), "Couldn't load your boards" with Try again.
   - Pull to refresh on every size. No refresh button (D12). A failed refresh keeps the list and shows an error toast.
 - **New board dialog**: name and key fields. The key is prefilled from the name until the user edits it (D7). Local key and name checks, including a clash with a loaded board (D14). Errors show on the first submit and then live (D8). On success it closes and opens the new board (D10).

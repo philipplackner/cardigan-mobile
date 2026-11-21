@@ -45,7 +45,7 @@ Each row and tile SHALL show the board's name as returned by the server, its key
 
 #### Scenario: Open a board
 - **WHEN** the user taps the row of "Raytracer"
-- **THEN** the app asks to open the board "Raytracer"
+- **THEN** the app opens the board "Raytracer" and passes its id, name and key, so the board's name and key can show before it loads
 
 ### Requirement: Relative updated time
 The updated time SHALL be shown in the device time zone, relative to the device clock when the list state was built: under 1 minute "Just now"; under 1 hour "1 minute ago" or "{n} minutes ago"; on the same calendar day "1 hour ago" or "{n} hours ago"; on the previous calendar day "Yesterday"; in the same year "MMM d"; otherwise "MMM d, yyyy". The text SHALL NOT update on its own while shown.

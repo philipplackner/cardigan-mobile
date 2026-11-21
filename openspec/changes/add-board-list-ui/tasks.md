@@ -30,13 +30,13 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 5. Board list screen
 
-- [ ] 5.1 Add `BoardListRoute`, State, Action, Event and `BoardListViewModel` (first load, retry, pull to refresh through the reloader, menu state, navigation events). Verify with ViewModel unit tests: Loading → Loaded, Loading → Error → Retry, empty, refresh failure keeps items, list updates when the store changes.
+- [ ] 5.1 Add `BoardListRoute`, State, Action, Event and `BoardListViewModel` (first load, retry, pull to refresh through the reloader, menu state, navigation events, including `OpenBoard(id, name, key)`). Verify with ViewModel unit tests: Loading → Loaded, Loading → Error → Retry, empty, refresh failure keeps items, list updates when the store changes.
 - [ ] 5.2 Build `BoardListScreen` for Phone (large title, collapse, rows, footer count, ⋯ menu with "Signed in as", empty-state buttons) and Tablet/Desktop (page header with count and Import, adaptive tile grid), with loading skeletons, empty and error states in a `RefreshBox`, and previews per state and window class in `commonMain`. Verify against `get_design_context` values of every Figma 9:5 frame for these states (frame IDs via `get_metadata`, annotations via `use_figma`) and with `*UiTest`s for each state, the collapse, the menus, accessible names in the D22 style and 48 dp targets.
 - [ ] 5.3 Commit `feat(boards): add board list screen`.
 
 ## 6. Board dialogs
 
-- [ ] 6.1 Add `NewBoardRoute` + `NewBoardViewModel` + dialog UI: prefill, uppercase key, first-submit-then-live validation, local clash, saving lock, server field errors, network toast, `Created` event. Verify with ViewModel unit tests for each spec scenario and a `*UiTest` for the dialog on Phone and Desktop.
+- [ ] 6.1 Add `NewBoardRoute` + `NewBoardViewModel` + dialog UI: prefill, uppercase key, first-submit-then-live validation, local clash, saving lock, server field errors, network toast, `Created(id, name, key)` event. Verify with ViewModel unit tests for each spec scenario and a `*UiTest` for the dialog on Phone and Desktop.
 - [ ] 6.2 Add `RenameBoardRoute` + ViewModel + dialog UI: read-only key, unchanged-name close, 404 close + toast, network toast, `Renamed(newName)` result. Verify with unit tests and a `*UiTest` on Phone and Desktop.
 - [ ] 6.3 Add `DeleteBoardRoute` + ViewModel + dialog UI with the 0 / 1 / N card bodies, 404 as success, the network toast and the `Deleted` result. Verify with unit tests and a `*UiTest`.
 - [ ] 6.4 Add `boardsGraph(...)` with the list and the three dialog destinations (transfer's dialog properties, no dim, `launchSingleTop`), plus `navigateToNewBoard/RenameBoard/DeleteBoard` the per-caller `onRenamed` / `onDeleted` callbacks (D21) and `boardsPresentationModule`. Verify with a `*UiTest` that opens each dialog from the list menu, that back during a save keeps the dialog, and that a test caller receives `Renamed` and `Deleted`.
@@ -50,7 +50,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 ## 8. App shell and wiring
 
 - [ ] 8.1 Add `AppShell` in `:composeApp` (Phone: NavHost only; Tablet/Desktop: `Sidebar` with All boards, Labels, `BoardsSidebarSection`, email/avatar and Log out). Null email hides the email and avatar, which needs a small `Sidebar` change if the current API can't. Feed `accountEmail` and `onLogOut` from add-auth-ui's `SessionManager.state` and `AppViewModel.onLogout()` if it has landed, otherwise null/no-op with a TODO (D20). Verify with `*UiTest`s for both window classes, including a null email.
-- [ ] 8.2 Replace the add-transfer-ui (and, if landed, add-auth-ui) placeholders: `BoardListRoute` as start (inside the session gate if it exists), remove `AppStartRoute`, `onImported`/`onBoardListChanged` → `BoardListReloader.reload()`, Import entries → `navigateToImport()`, `BoardKeyOwnerLookup` over the store. Add no-op TODO callbacks for board open, Labels and Log out, and load `fixtureBoardsModule`. Verify with a `*UiTest` E2E: import success → list reloads, and the key clash dialog shows the loaded board's name.
+- [ ] 8.2 Replace the add-transfer-ui (and, if landed, add-auth-ui) placeholders: `BoardListRoute` as start (inside the session gate if it exists), remove `AppStartRoute`, `onImported`/`onBoardListChanged` → `BoardListReloader.reload()`, Import entries → `navigateToImport()`, `BoardKeyOwnerLookup` over the store. Map `onOpenBoard(id, name, key)` to `BoardRoute(id, name, key)` if add-board-view-ui has landed (otherwise a no-op with a TODO), add a no-op TODO callback for Labels, and load `fixtureBoardsModule`. Verify with a `*UiTest` E2E: import success → list reloads, and the key clash dialog shows the loaded board's name.
 - [ ] 8.3 Commit `feat: add app shell and wire the board list`.
 
 ## 9. Manual verification
