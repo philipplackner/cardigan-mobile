@@ -44,8 +44,8 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 7. Sidebar board section
 
-- [ ] 7.1 Add `BoardsSidebarSection` and its ViewModel over `repository.boards`, with the New board entry. Verify with a `*UiTest` that a create, rename and delete in the store show in the section.
-- [ ] 7.2 Commit `feat(boards): add sidebar board section`.
+- [x] 7.1 Add `BoardsSidebarSection` and its ViewModel over `repository.boards`, with the New board entry. Verify with a `*UiTest` that a create, rename and delete in the store show in the section.
+- [x] 7.2 Commit `feat(boards): add sidebar board section`.
 
 ## 8. App shell and wiring
 

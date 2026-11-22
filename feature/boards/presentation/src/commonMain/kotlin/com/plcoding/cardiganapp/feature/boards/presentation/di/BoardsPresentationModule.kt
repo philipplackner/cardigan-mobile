@@ -5,6 +5,7 @@ import com.plcoding.cardiganapp.feature.boards.presentation.deleteboard.DeleteBo
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
+import com.plcoding.cardiganapp.feature.boards.presentation.sidebar.BoardsSidebarViewModel
 import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ val boardsPresentationModule = module {
 
     viewModelOf(::BoardListViewModel)
     viewModelOf(::NewBoardViewModel)
+    viewModelOf(::BoardsSidebarViewModel)
     viewModel { params -> RenameBoardViewModel(params.get(), get(), get(), get()) }
     viewModel { params -> DeleteBoardViewModel(params.get(), get(), get()) }
 }
