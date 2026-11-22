@@ -2,7 +2,7 @@
 
 ## Context
 
-See proposal.md for the motivation and decisions.md for every product decision (D1–D18).
+See proposal.md for the motivation and decisions.md for every product decision (D1–D23).
 
 Current state:
 - `feature/boards/{domain,data,presentation}` contain only build files.
@@ -96,6 +96,7 @@ The New board ViewModel holds `keyEdited: Boolean`. Any key `onValueChange` sets
 interface BoardRepository {
     val boards: StateFlow<List<BoardSummary>?>          // null = never loaded
     suspend fun refresh(): EmptyResult<DataError.Network>
+    suspend fun ensureLoaded(): EmptyResult<DataError.Network>  // joins or starts the first load
     suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError>
     suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError>
     suspend fun deleteBoard(id: Uuid): EmptyResult<BoardSaveError>
@@ -105,6 +106,9 @@ interface RemoteBoardDataSource { getBoards(); createBoard(name, key); renameBoa
 
 `InMemoryBoardRepository(remote)` is a Koin `single`:
 - `refresh()` replaces the list with the server's list as it is. Concurrent calls share one request: a `Mutex` plus the running `Deferred`. A failed refresh leaves the list unchanged.
+- `ensureLoaded()` returns at once when `boards` is non-null. Otherwise it joins the running refresh or starts one, and returns its result.
+- Saves that complete while a refresh is running are recorded. Before the refresh result is published, the store re-applies them by id (insert or replace by `BoardOrder`, or remove). Saves that complete while no refresh runs update the list directly.
+- Session end (add-auth-ui "Clearing user data on sign-out"): `InMemoryBoardRepository` also binds add-auth-ui's `SessionScopedStore`. Its `clear()` resets `boards` to `null` and bumps a session counter. A refresh or save applies its result only if the counter hasn't changed since it started, so a late result can't bring back the previous user's boards. add-auth-ui's `AppViewModel` calls `clear()`. If this change lands before add-auth-ui, it adds the `clear()` method now and add-auth-ui binds it.
 - `createBoard` inserts the response by `BoardOrder`. `renameBoard` removes the old entry and inserts the response by `BoardOrder`. `deleteBoard` removes it, also on `NotFound`. A rename `NotFound` removes the board and returns `NotFound`.
 - `BoardOrder` is the shared rule from `api-conventions` "Board list order": updatedAt desc, createdAt desc, id string asc. It's used only to place one returned board into the loaded list. The loaded list itself is never re-sorted.
 - D13: ties go by createdAt desc, then id asc, as the shared spec says (the coordinator withdrew "by name").
@@ -115,7 +119,7 @@ This keeps the screens consistent without a refetch after every mutation. Whethe
 
 `BoardListReloader` (boards:presentation, Koin `single`) owns an app-scoped `CoroutineScope`. Its `reload()` calls `repository.refresh()` and shows the D12 refresh toast on failure. It exposes `isReloading: StateFlow<Boolean>`. Pull to refresh in the list goes through it too, so the import reload and a pull share one indicator and one request. `:composeApp` maps transfer's `onImported` and `onBoardListChanged` to `reload()`.
 
-The first load and "Try again" call `repository.refresh()` from the ViewModel, because their failure shows the error state, not a toast.
+The first load starts in `:composeApp` once the session is `SignedIn` (or at start while add-auth-ui hasn't landed), through `repository.ensureLoaded()`, so the sidebar, the key lookup and the board dialogs have data whichever screen is restored. The list ViewModel calls `ensureLoaded()` on start, which joins that request, and shows the error state if it fails. "Try again" calls `repository.refresh()` from the ViewModel. Both failures show the error state, not a toast. A pull to refresh from the empty or error state goes through the reloader and shows its toast on failure, and the state stays as it is.
 
 ### Board list screen
 
@@ -150,7 +154,7 @@ Relative time goes through `UiText`. "N minutes ago" and "N hours ago" use plura
 
 The board view registers nothing new. It calls `navigateToRenameBoard(id)` / `navigateToDeleteBoard(id)`, which the boards graph exposes. All three destinations navigate with `launchSingleTop = true`.
 
-Each dialog ViewModel reads the board by id from `repository.boards`. If it is missing (deleted elsewhere, or process death before a load), the dialog closes at once. The ViewModels:
+Each dialog ViewModel reads the board by id from `repository.boards`. If `boards` is null (for example after process death), it calls `ensureLoaded()` and waits. It closes at once only when the loaded list has no board with this id, or the load fails. The ViewModels:
 - `NewBoardViewModel`: name, key, keyEdited, submitted, nameError, keyError, isSaving. Submit runs `normalizeText` + `validateName(…, 100)`, `BoardKeyRule.normalize` + `validate`, and the local clash against `repository.boards` (D14). After the first submit, every change re-validates (D8). The button is enabled when `!isSaving && (!submitted || no errors)`.
 - `RenameBoardViewModel`: the same name handling. If the normalized name equals the current name, it emits `Done` (D15).
 - `DeleteBoardViewModel`: builds the body from `cardCount` (D5).
@@ -176,7 +180,7 @@ Each dialog ViewModel reads the board by id from `repository.boards`. If it is m
 - `AppStartRoute` is removed, and `BoardListRoute` becomes the start destination (inside add-auth-ui's session gate if that landed first, D20).
 - `BoardKeyOwnerLookup { key -> repository.boards.value?.firstOrNull { it.key == key }?.name }`.
 - `onImported` / `onBoardListChanged` → `BoardListReloader.reload()`.
-- `navigateToImport()` is passed as `onImportClick`.
+- `{ navController.navigate(ImportBoardRoute) { launchSingleTop = true } }` is passed as `onImportClick`. transfer has no navigate helper.
 
 ### Accessible names (D22)
 
@@ -184,7 +188,7 @@ Accessible names come from string resources in the shared style: "Actions for bo
 
 ### Temporary fixture (D3)
 
-`FixtureBoardDataSource` in `boards:data/fixture`, bound in a `fixtureBoardsModule` that `:composeApp` loads instead of a real data source:
+`FixtureBoardDataSource` in `boards:data/fixture`, bound in a `fixtureBoardsModule` that `:composeApp` loads instead of a real data source. This binding is the D3 debug entry. No extra UI is added:
 - It holds the six boards from the Figma frames and answers after 600 ms.
 - Trigger names make every error path checkable by hand: a create or rename with a name starting with "fail" → `Network`; key `USED` → `AlreadyUsed`; renaming or deleting a board named "Gone" → `NotFound`; a refresh within 2 s of a "fail" save → `Network`.
 - The whole fixture package and module are removed in one commit before archive. `mob-boards-connect` binds the Ktor source.

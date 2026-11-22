@@ -18,7 +18,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 3. Board store
 
-- [ ] 3.1 Implement `InMemoryBoardRepository` (single-flight refresh, insert/move/remove by `BoardOrder`, delete 404 = success, rename 404 removes). Verify with unit tests against a fake `RemoteBoardDataSource`: server order kept, failed refresh keeps the list, concurrent refreshes make one call, create/rename/delete updates, both 404 paths.
+- [ ] 3.1 Implement `InMemoryBoardRepository` (single-flight refresh, insert/move/remove by `BoardOrder`, delete 404 = success, rename 404 removes). Verify with unit tests against a fake `RemoteBoardDataSource`: server order kept, failed refresh keeps the list, concurrent refreshes make one call, create/rename/delete updates, both 404 paths, `ensureLoaded()` joining a running load, a create, rename and delete that each complete during a running refresh are still in the store after it returns, and `clear()` resets `boards` to null and drops a refresh or save that returns after it (bound as add-auth-ui's `SessionScopedStore` if that has landed).
 - [ ] 3.2 Add `FixtureBoardDataSource` and `fixtureBoardsModule` in `boards:data/fixture` with the Figma boards and the trigger names from design.md, plus `boardsDataModule` binding the repository as a `single`. Verify with a unit test per trigger name.
 - [ ] 3.3 Commit `feat(boards): add in-memory board store and temporary fixture`.
 
@@ -50,7 +50,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 ## 8. App shell and wiring
 
 - [ ] 8.1 Add `AppShell` in `:composeApp` (Phone: NavHost only; Tablet/Desktop: `Sidebar` with All boards, Labels, `BoardsSidebarSection`, email/avatar and Log out). Null email hides the email and avatar, which needs a small `Sidebar` change if the current API can't. Feed `accountEmail` and `onLogOut` from add-auth-ui's `SessionManager.state` and `AppViewModel.onLogout()` if it has landed, otherwise null/no-op with a TODO (D20). Verify with `*UiTest`s for both window classes, including a null email.
-- [ ] 8.2 Replace the add-transfer-ui (and, if landed, add-auth-ui) placeholders: `BoardListRoute` as start (inside the session gate if it exists), remove `AppStartRoute`, `onImported`/`onBoardListChanged` → `BoardListReloader.reload()`, Import entries → `navigateToImport()`, `BoardKeyOwnerLookup` over the store. Map `onOpenBoard(id, name, key)` to `BoardRoute(id, name, key)` if add-board-view-ui has landed (otherwise a no-op with a TODO), add a no-op TODO callback for Labels, and load `fixtureBoardsModule`. Verify with a `*UiTest` E2E: import success → list reloads, and the key clash dialog shows the loaded board's name.
+- [ ] 8.2 Replace the add-transfer-ui (and, if landed, add-auth-ui) placeholders: `BoardListRoute` as start (inside the session gate if it exists), remove `AppStartRoute`, `onImported`/`onBoardListChanged` → `BoardListReloader.reload()`, Import entries → `navController.navigate(ImportBoardRoute) { launchSingleTop = true }`, start the first load with `repository.ensureLoaded()` once signed in, `BoardKeyOwnerLookup` over the store. Map `onOpenBoard(id, name, key)` to `BoardRoute(id, name, key)` if add-board-view-ui has landed (otherwise a no-op with a TODO), add a no-op TODO callback for Labels, and load `fixtureBoardsModule`. Verify with a `*UiTest` E2E: import success → list reloads, and the key clash dialog shows the loaded board's name.
 - [ ] 8.3 Commit `feat: add app shell and wire the board list`.
 
 ## 9. Manual verification
@@ -59,7 +59,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 10. Remove the temporary fixture
 
-- [ ] 10.1 Delete `boards:data/fixture` and `fixtureBoardsModule`, and leave `RemoteBoardDataSource` unbound with a TODO for `mob-boards-connect`, or bind a source that returns `Network` errors if Koin needs a binding to start. Verify with the gates, then commit `chore(boards): remove temporary board fixture`.
+- [ ] 10.1 Delete `boards:data/fixture` and `fixtureBoardsModule` (the D3 debug entry), and leave `RemoteBoardDataSource` unbound with a TODO for `mob-boards-connect`, or bind a source that returns `Network` errors if Koin needs a binding to start. Verify with the gates, then commit `chore(boards): remove temporary board fixture`.
 
 ## Workflow follow-up
 

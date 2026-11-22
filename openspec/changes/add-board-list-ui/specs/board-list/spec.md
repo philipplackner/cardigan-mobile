@@ -10,8 +10,8 @@ Defines how the Android and iOS app shows the user's boards and lets them create
 The board list SHALL be the first screen after the app starts with a session. It SHALL load all boards at once and show them in the order the server returned them (cardigan-shared-specs `api-conventions` "Board list order"). The app SHALL NOT re-sort loaded boards.
 
 #### Scenario: App start
-- **WHEN** the app starts
-- **THEN** the board list shows and loads the user's boards
+- **WHEN** the app starts with a signed-in session
+- **THEN** the first screen is the board list in its loading state and one board list request is made
 
 #### Scenario: Server order kept
 - **WHEN** the server returns boards B, A, C
@@ -82,6 +82,17 @@ The updated time SHALL be shown in the device time zone, relative to the device 
 - **WHEN** a board was updated at 2026-11-20T23:30:00.000Z, the device time zone is UTC+2 and it is 2026-11-21 10:00 local time
 - **THEN** its time reads "10 hours ago", because both times fall on 21 Nov in the device time zone
 
+### Requirement: Relative time edge cases
+In the relative updated time, `{n}` SHALL be the elapsed time in whole minutes or whole hours, rounded down, measured between the two instants, so a DST change doesn't shift it. An updated time after the device clock SHALL read "Just now".
+
+#### Scenario: Rounded down
+- **WHEN** it is 18:00 and a board was updated at 09:31 the same day
+- **THEN** its time reads "8 hours ago"
+
+#### Scenario: Updated time in the future
+- **WHEN** a board's updated time is 5 minutes after the device clock
+- **THEN** its time reads "Just now"
+
 ### Requirement: Board count
 The phone large title and the tablet/desktop page header SHALL show the board count as "1 board", "{n} boards" or "0 boards". On phones, the list SHALL end with the same count.
 
@@ -141,11 +152,15 @@ On every window class, the user SHALL refresh the list by pulling it down. The a
 - **THEN** the boards load again
 
 ### Requirement: Failed refresh keeps the list
-When a refresh fails while boards are shown, the app SHALL keep the shown boards, stop the indicator and show the error toast "Couldn't refresh your boards. Check your connection and try again.".
+When a refresh fails while boards are shown, the app SHALL keep the shown boards, stop the indicator and show the error toast "Couldn't refresh your boards. Check your connection and try again.". When a refresh started from the empty or load error state fails, that state SHALL stay as it is, the indicator SHALL stop, and the same toast SHALL show.
 
 #### Scenario: Refresh without network
 - **WHEN** 6 boards show and a refresh fails
 - **THEN** the 6 boards stay and the error toast shows
+
+#### Scenario: Refresh fails in the error state
+- **WHEN** the load error state shows and a pull to refresh fails
+- **THEN** the error state stays and the toast "Couldn't refresh your boards. Check your connection and try again." shows
 
 ### Requirement: Board menus
 Each row and tile SHALL have a ⋯ button that opens a menu with "Rename" and "Delete board". The ⋯ button's accessible name SHALL be "Actions for board “{name}”".
@@ -223,7 +238,7 @@ Name errors SHALL read: required "Enter a name."; over the limit "Use at most {n
 - **THEN** no name error shows
 
 ### Requirement: Key field errors
-Key errors SHALL use the shared key strings: "Enter a key.", "Use at least 2 letters.", "Use at most 5 letters.", "Use only the letters A–Z.". A key that matches a loaded board's key SHALL show "You already have a board with the key {key}." without a request. A server `ALREADY_USED` for `key` SHALL show the same text. Any other key field error code SHALL show "Use only the letters A–Z.".
+Key errors SHALL use the shared key strings: "Enter a key.", "Use at least 2 letters.", "Use at most 5 letters.", "Use only the letters A–Z.". A key that matches a loaded board's key SHALL show "You already have a board with the key {key}." without a request. A server `ALREADY_USED` for `key` SHALL show the same text.
 
 #### Scenario: Local clash
 - **WHEN** a board with key `CRD` is loaded and the user submits a new board with key `CRD`
@@ -236,6 +251,17 @@ Key errors SHALL use the shared key strings: "Enter a key.", "Use at least 2 let
 #### Scenario: Digit in key
 - **WHEN** the user submits the key `CR1`
 - **THEN** "Use only the letters A–Z." shows
+
+### Requirement: Server key field errors
+A server key field error `REQUIRED`, `TOO_SHORT`, `TOO_LONG` or `INVALID_FORMAT` SHALL show the matching shared key string. Any other key field error code except `ALREADY_USED` SHALL show "Use only the letters A–Z.".
+
+#### Scenario: Server key too long
+- **WHEN** the server answers with `key` `TOO_LONG`
+- **THEN** "Use at most 5 letters." shows under Key and the dialog stays open
+
+#### Scenario: Unknown key code
+- **WHEN** the server answers with an unknown code for `key`
+- **THEN** "Use only the letters A–Z." shows under Key
 
 ### Requirement: Create board result
 After a successful create, the dialog SHALL close, the new board SHALL appear first in the list and the sidebar, and the app SHALL open the new board. No toast SHALL show.
@@ -288,6 +314,10 @@ While a create, rename or delete request runs, the primary button SHALL show its
 - **WHEN** "Create board" is saving and the user does the Android back gesture
 - **THEN** the dialog stays open and the request continues
 
+#### Scenario: Tap outside while saving
+- **WHEN** "Save" in Rename board is saving and the user taps outside the dialog
+- **THEN** the dialog stays open with "Cancel" and the field disabled
+
 ### Requirement: Failed saves keep the dialog open
 When a create, rename or delete fails because of the network, a 5xx response or an error code without a specific message, the dialog SHALL stay open with its input and show the error toast: "Couldn't create the board. Check your connection and try again.", "Couldn't rename “{name}”. Check your connection and try again." or "Couldn't delete “{name}”. Check your connection and try again.". A failed create SHALL NOT be repeated automatically.
 
@@ -314,7 +344,7 @@ In the Phone window class, Rename board and the New board key error SHALL use th
 - **THEN** it uses the same dialog layout as New board on a phone
 
 ### Requirement: Sidebar board section
-In the Tablet and Desktop window classes, the sidebar SHALL list the loaded boards by name and key in the list's order, with "All boards" selected on the board list, and a "New board" entry that opens the New board dialog. Tapping a board SHALL open it. The section SHALL reflect every create, rename, delete, refresh and import.
+In the Tablet and Desktop window classes, the sidebar SHALL list the loaded boards by name and key in the list's order, with "All boards" selected on the board list, and a "New board" entry that opens the New board dialog. Tapping a board SHALL open it. The section SHALL reflect every create, rename, delete, refresh and import. The section SHALL load the boards if they aren't loaded yet, whichever screen is shown.
 
 #### Scenario: Board created
 - **WHEN** the user creates a board on a tablet
