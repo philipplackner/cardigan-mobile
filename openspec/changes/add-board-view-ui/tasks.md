@@ -14,8 +14,8 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 ## 3. ViewModel
 
 - [ ] 3.1 Add `BoardState`, `BoardAction`, `BoardEvent` and `BoardViewModel` with load, retry and pull to refresh (labels fetched in parallel, D16), the header hint from the route (D39), the `Mutex` write path and `SavedStateHandle` restore (design "ViewModel and state"). Unit test the load, retry, refresh and restore break vectors from design "Testing", and the header with and without a hint. Verify: the tests pass on both targets.
-- [ ] 3.2 Add the column writes (add with close and scroll-to-new-column event (D32), rename with the D19 no-op, move left/right, delete with the 404-as-done rule) and their response apply functions. Unit test the column break vectors, the stale move (D40), missing column and missing board paths (D23), delete board → `onBoardDeleted` without a toast (D34), and the ordered apply of back-to-back writes. Verify: the tests pass on both targets.
-- [ ] 3.3 Add quick add (D22): one open inline field, Enter/submit, whitespace no-op, cancel, outside tap, keep text on failure, saving state (D36), validation timing (D12/D13/D33), and the discard dialog on a switch with text (D41). Unit test each case, including a refresh that removes the field's column (D37). Verify: the tests pass on both targets.
+- [ ] 3.2 Add the column writes (add with close and scroll-to-new-column event (D32), rename with the D19 no-op, move left/right, delete with the 404-as-done rule) and their response apply functions. Unit test the column break vectors, two moves on the same column before the first response (target index computed inside the mutex), the background reload after a failed add column or move (`api-conventions` "Retries after a lost response"), the stale move (D40), missing column and missing board paths (D23), delete board → `onBoardDeleted` without a toast (D34), and the ordered apply of back-to-back writes. Verify: the tests pass on both targets.
+- [ ] 3.3 Add quick add (D22): one open inline field, Enter/submit, whitespace no-op, cancel, outside tap, keep text on failure, saving state (D36), validation timing (D12/D13/D33), and the discard dialog on a switch with text (D41). Unit test each case, including a refresh or restore that removes the field's column (D37), and the background reload after a failed card create with the text kept. Verify: the tests pass on both targets.
 - [ ] 3.4 Map every error to its toast or field error in one place (D15, D16, D23), with string resources for all copy from proposal.md "Copy" and plurals (D9). Unit test with a fake `ToastController` that each error shows the exact message once. Verify: the tests pass on both targets. Commit `feat(boards): add board view model`.
 
 ## 4. Screen
@@ -27,8 +27,8 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 5. Navigation and wiring
 
-- [ ] 5.1 Add `BoardRoute(boardId)` and `boardViewDestination(...)` (design "Navigation and wiring"), and register the board view Koin module. Verify: the Koin `verify()` test passes.
-- [ ] 5.2 Wire `:composeApp`: open-board from the board list, `onBack`, `onExportClick` → `ExportBoardRoute` (`launchSingleTop`), `onBoardMissing`/`onBoardDeleted` → back to the board list, `onCardClick` no-op, and the board list's rename/delete dialogs from the board menu. Verify: all gates pass, and a `*UiTest` in `:composeApp` or the feature checks that "Export as JSON" navigates with the board's ID and name. Commit `feat(boards): wire board view navigation`.
+- [ ] 5.1 Add `BoardRoute(boardId, name = null, key = null)` and `boardViewDestination(...)` (design "Navigation and wiring"), and register the board view Koin module. Verify: the Koin `verify()` test passes.
+- [ ] 5.2 Wire `:composeApp`: open-board from the board list, `onBack`, `onExportClick` → `ExportBoardRoute` (`launchSingleTop`), `onBoardMissing` → board list reload (or removal from its store) and back to the board list, `onBoardDeleted` → back to the board list, `onCardClick` no-op, and the board list's rename/delete dialogs from the board menu. Verify: all gates pass, and a `*UiTest` in `:composeApp` or the feature checks that "Export as JSON" navigates with the board's ID and name. Commit `feat(boards): wire board view navigation`.
 
 ## 6. Fixture and manual check
 
@@ -41,6 +41,6 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## Workflow follow-up
 
-- Hand-off for `mob-boards-connect`: map `be-boards` responses to `BoardContent`/`Column`, the move response to the ordered IDs, 404 on board and column, `OUT_OF_RANGE` to `Stale`, and name field errors to `InvalidName`.
+- Hand-off for `mob-boards-connect`: map `be-boards` responses to `BoardContent`/`Column`, the move response to the ordered IDs, 404 on board and column, `OUT_OF_RANGE` to `Stale`, and name field errors to `InvalidName`. A 404 on a column call maps to `ColumnNotFound` (or success for delete); the reload that follows detects a missing board through `loadBoard`'s `BoardNotFound`. After a column delete answered with 404, reload the board too.
 - Hand-off for `mob-cards-connect`: implement `CardCreateRepository` once `be-cards` defines the card contract.
 - Archive the change after review.

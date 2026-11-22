@@ -7,7 +7,7 @@ See proposal.md for the why and decisions.md for every settled choice. Relevant 
 - `:feature:boards` has only build files. The board list change (`add-board-list-ui`) is planned in parallel and lands first. This change is rebased onto it (D5). It brings `BoardRepository`, the reusable rename/delete board dialogs, the sidebar/phone menu (D3), and the shared name rule and its strings in core (D35).
 - `:core:domain` has `Board(id, name, key)`, `BoardKeyRule`, `Result` and `DataError`. `:core:presentation` has `UiText`, `ObserveAsEvents` and `ToastController`. `:composeApp` has the NavHost, the app toast host and `initKoin(isDebug)` from add-transfer-ui.
 - `:core:designsystem` has `BoardColumn`, `BoardCard`, `AddCardButton`, `AddColumnButton`, `Menu`/`MenuItem`, `CardiganDialog`, `Input`/`Field`, `RefreshBox`, `Skeleton`, `EmptyState`, `LabelChip`, `TitleAppBar` and `LocalWindowClass` (Phone/Tablet/Desktop, breakpoints in one place).
-- `be-boards` is archived and implemented: the board and column endpoints exist, with integer positions and a move endpoint that returns all columns. There is no backend change for cards yet. Cards in the board load, card create (quick add) and the card count come from the later `be-cards` change. The repository interfaces here follow the shared specs, not a guessed wire format, and this change runs on fakes either way.
+- `be-boards` is archived in the backend repo (`2026-11-20-be-boards`), and the backend's OpenAPI snapshot has the board and column paths. `api/openapi.json` hasn't been synced into this repo yet. The endpoints use integer positions and a move endpoint that returns all columns. There is no backend change for cards yet. Cards in the board load, card create (quick add) and the card count come from the later `be-cards` change. The repository interfaces here follow the shared specs, not a guessed wire format, and this change runs on fakes either way.
 
 ### Backend dependencies
 
@@ -80,18 +80,18 @@ One `BoardViewModel` per board route, with `boardId` from `SavedStateHandle`.
 
 - `BoardState`: `content: LoadState` (`Loading`, `Error`, `Loaded(BoardContent, labelsById)`), `headerHint` (name and key from the route, D39), `isRefreshing`, `refreshingColumnId`, `inlineField: InlineField?` (one of `QuickAdd(columnId)` or `AddColumn`, each with text, isSaving, error and showErrors), `dialog: BoardDialog?` (`RenameColumn`, `DeleteColumn` with name and card count, and `DiscardInlineField` with the pending switch target), and `savingColumnMoveId`. A single `inlineField` keeps "one inline field at a time" structural.
 - **Switching inline fields** (D41): opening another field closes an empty one. If the open field holds text (after trim), the target is held in the `DiscardInlineField` dialog. "Keep editing", back and outside tap clear the dialog and emit an event that scrolls the open field into view and focuses it. "Discard" replaces `inlineField` with the target and emits a focus event for it. While the open field is saving, the open action is ignored. Explicit Cancel/back drops the text without asking (D22). The dialog reuses the same dialog component as card detail's "Unsaved changes", with a secondary and a danger button.
-- Load and refresh fetch the board and `LabelSource.labels()` in parallel. If either fails, the load fails: the first load shows the error state, and a refresh keeps the board and shows the refresh toast (D16). A label ID without a matching label is skipped on the tile.
-- **One write at a time.** All writes and refreshes go through one `Mutex` in the order they arrive. Each response is applied to the state the previous write left (D21): add appends, rename replaces, move reorders by the returned IDs, delete removes, card create appends to its column. Without this, a move response could be applied on top of a board that a parallel delete had already changed. The rejected alternative was a full reload after every write, which D21 rules out.
+- Load and refresh fetch the board and `LabelSource.labels()` in parallel. If either fails, the load fails (confirmed by the user on 2026-11-22, review finding A2): the first load shows the error state, and a refresh keeps the board and shows the refresh toast (D16). A label ID without a matching label is skipped on the tile.
+- **One write at a time.** All writes and refreshes go through one `Mutex` in the order they arrive. Each response is applied to the state the previous write left (D21): add appends, rename replaces, move reorders by the returned IDs, delete removes, card create appends to its column. Without this, a move response could be applied on top of a board that a parallel delete had already changed. A move computes its target index inside the mutex from the current state, not when the action arrives, and the menu enables its move items from that same state. The rejected alternative was a full reload after every write, which D21 rules out.
 - **Saving state** (D15, D36): while a dialog or inline field is saving, actions from it are ignored (Enter, Cancel, dismiss). The Root passes `isSaving` to the dialog's `dismissOnBackPress`/`dismissOnClickOutside`.
 - **Validation** (D12, D13, D33): each name field, quick add included, tracks `showErrors`, which becomes true on the first submit. After that, the error is recomputed on every change. The board list's shared name rule in core (D35) normalizes the text, and the normalized value is sent. Rename compares normalized old and new names (D19).
 - **Failures** map in one place:
-  - `Failed`: the matching D15 toast through `ToastController`. Inputs stay.
+  - `Failed`: the matching D15 toast through `ToastController`. Inputs stay. For POSTs (add column, add card, move) the board also reloads in the background, as `api-conventions` "Retries after a lost response" requires. A failed background reload keeps the board and shows no second toast.
   - `InvalidName`/`InvalidTitle`: the error under the field, with `showErrors = true`.
   - `ColumnNotFound`: close the dialog or field, reload the board, and show D23's "no longer exists" toast with the column name captured before the write.
   - `Stale` (move only): reload the board and show D40's "The board changed on another device" toast.
   - `BoardNotFound` from any call: show the "This board no longer exists." toast and emit `BoardEvent.BoardMissing`. The Root calls `onBoardMissing`.
 - **Process death**: the route argument, the open field or dialog (column ID, kind) and its text are saved in `SavedStateHandle`. Saving flags are not saved. After a restore, the user submits again.
-- **Pull to refresh with an open field** (D37): the refresh replaces `content`. A quick add field whose column is gone closes. Other fields and dialogs keep their text.
+- **Pull to refresh with an open field** (D37): the refresh replaces `content`. After any load (first load, restore, refresh), a quick add field, rename dialog or delete dialog whose column is gone closes. Other fields and dialogs keep their text.
 
 ### Layout per window class (D20, D24)
 
@@ -117,7 +117,7 @@ Each column's cards sit in their own vertical scroll inside a `RefreshBox`. A pu
 - `@Serializable data class BoardRoute(val boardId: String, val name: String? = null, val key: String? = null)` in `:feature:boards:presentation`. The board list passes the name and key it already has, so the header can show them while loading (D39). Without them, for example from the debug entry, the header has no title until the load finishes.
 - Logout is not part of the board view. It lives in the board list's menu and sidebar and uses the auth change's `SessionManager` / `AppViewModel.onLogout()`.
 - `NavGraphBuilder.boardViewDestination(onBack, onCardClick, onExportClick, onBoardMissing, onBoardDeleted)`.
-- `:composeApp` wires `onExportClick` to `ExportBoardRoute(boardId, boardName)` with `launchSingleTop`, `onBoardMissing` and `onBoardDeleted` to pop back to the board list route, `onCardClick` to a no-op until card detail, and the board list's "open board" to `BoardRoute`.
+- `:composeApp` wires `onExportClick` to `ExportBoardRoute(boardId, boardName)` with `launchSingleTop`, `onBoardMissing` to `BoardListReloader.reload()` (or removing the board from the board list store, whichever API add-board-list-ui exposes) and a pop back to the board list route, `onBoardDeleted` to pop back to the board list route, `onCardClick` to a no-op until card detail, and the board list's "open board" to `BoardRoute`.
 - The toasts are shown from the ViewModel through `ToastController`, so they survive the navigation.
 
 ### Fixture and debug entry (D6)
@@ -147,6 +147,9 @@ Every icon button and tile gets a content description from string resources, and
   - A card with an unknown label ID.
   - Restore after process death with each field and dialog open.
   - Writes applied in order when two arrive back to back.
+  - Two "Move right" on the same column before the first response.
+  - Card create, add column and move failing with an unknown outcome: board reloads in the background, text kept, one toast.
+  - Restore with a field or dialog whose column is gone after the load.
 - Unit tests for `Card.displayId`, label ordering and the response apply functions.
 - `BoardScreenUiTest` for each state and window class. `BoardRootUiTest` with the real ViewModel and fakes for quick add, the column menu, rename, delete and failure toasts. Both run on Android host and the iOS simulator.
 

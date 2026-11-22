@@ -46,20 +46,28 @@ Each card tile SHALL show the card's display ID, its title and its labels as chi
 ### Requirement: Layout per window class
 On the phone window class, columns SHALL be 300 dp wide in a free horizontal scroll without snapping, with the next column partly visible. Tablet and desktop window classes SHALL use the desktop layout, including the desktop variant of every state that has no tablet frame. The layout SHALL follow the window class, never the device type.
 
+#### Scenario: Next column peeks in
+- **WHEN** the phone layout shows a board with 4 columns in a window 390 dp wide
+- **THEN** the second column's left edge is inside the window
+
 #### Scenario: Phone swipe
-- **WHEN** the user swipes sideways on a phone and lifts the finger between two columns
-- **THEN** the strip stops where the fling ends, without snapping to a column
+- **WHEN** the user drags the strip sideways by half a column width without a fling and lifts the finger
+- **THEN** the strip stays at that offset, and the first visible column's scroll offset is not 0
 
 #### Scenario: Tablet window on a phone-class width
 - **WHEN** a tablet app window is resized to a width of the phone window class
 - **THEN** the phone layout is used
 
 ### Requirement: Loading and load failure
-While the board loads for the first time, the view SHALL show the loading skeleton. When the load fails for a reason other than a missing board, the view SHALL show "Couldn’t load this board" / "Check your connection and try again." with a "Try again" button that loads again.
+While the board loads for the first time, the view SHALL show the loading skeleton. When the load fails for a reason other than a missing board, the view SHALL show "Couldn’t load this board" / "Check your connection and try again." with a "Try again" button that loads again. The board and the user's labels SHALL load together. When the labels fail to load, the load SHALL count as failed.
 
 #### Scenario: Load fails
 - **WHEN** the first load fails with a network error
 - **THEN** the error state shows, and "Try again" starts a new load with the loading skeleton
+
+#### Scenario: Labels fail
+- **WHEN** the board loads but the labels fail with a network error
+- **THEN** the error state shows
 
 ### Requirement: Empty board and empty column
 A board without columns SHALL show "This board has no columns" / "Add a column to start adding cards." with an "Add column" button. A column without cards SHALL show "No cards yet" above its "Add card" button.
@@ -73,11 +81,11 @@ A board without columns SHALL show "This board has no columns" / "Add a column t
 - **THEN** each column shows "No cards yet"
 
 ### Requirement: Missing board
-When a load or a write reports that the board no longer exists, the app SHALL leave the board view, show the board list and show the toast "This board no longer exists."
+When a load or a write reports that the board no longer exists, the app SHALL leave the board view, show the board list and show the toast "This board no longer exists." The board SHALL also disappear from the board list and the sidebar.
 
 #### Scenario: Board deleted on another device
 - **WHEN** the user opens a board that was deleted on another device
-- **THEN** the board list shows with the toast "This board no longer exists."
+- **THEN** the board list shows with the toast "This board no longer exists." and the board is not in the list
 
 ### Requirement: Pull to refresh
 Pulling down any column's card list SHALL reload the whole board, on every window class. There SHALL be no refresh button. When the reload fails, the board SHALL stay as it was and the toast "Couldn't refresh the board. Check your connection and try again." SHALL show.
@@ -126,6 +134,13 @@ When a write fails with a network error, a server error or an error code the app
 #### Scenario: Server field error
 - **WHEN** a rename is rejected with a field error for the name
 - **THEN** the matching name error shows under the field and the dialog stays open
+
+### Requirement: Reload after a lost response
+When adding a column, adding a card or moving a column fails with a network error or an unknown outcome, the app SHALL reload the board in the background, keeping the open field or dialog and its text. A failed background reload SHALL keep the board as shown and show no second toast.
+
+#### Scenario: Lost response on a card create
+- **WHEN** adding the card "Write docs" fails with a network error after the server created it
+- **THEN** the field still holds "Write docs", the error toast shows, and the board reloads and shows the created card
 
 ### Requirement: Stale column
 When a column move is rejected as out of range, the app SHALL reload the board and show the toast "Couldn't move “{name}”. The board changed on another device, so it was reloaded." When a write reports that its column no longer exists, the app SHALL reload the board and show the toast "“{name}” no longer exists. The board was reloaded." A delete that reports the column as missing SHALL count as done.
@@ -219,7 +234,7 @@ Only one inline field (a quick add field or the add column field) SHALL be open 
 - **THEN** the name field shows in place of the empty state
 
 ### Requirement: Column menu
-Each column's ⋯ menu SHALL offer "Move left", "Move right", "Rename" and "Delete column". "Move left" SHALL be disabled on the first column and "Move right" on the last. A move SHALL place the column one position to the left or right.
+Each column's ⋯ menu SHALL offer "Move left", "Move right", "Rename" and "Delete column". "Move left" SHALL be disabled on the first column and "Move right" on the last. A move SHALL place the column one position to the left or right. The target position SHALL be computed from the board as shown when the request is sent, after earlier writes have been applied. Move left and Move right SHALL be enabled from that same board.
 
 #### Scenario: First column
 - **WHEN** the user opens the menu of the first column
@@ -229,6 +244,10 @@ Each column's ⋯ menu SHALL offer "Move left", "Move right", "Rename" and "Dele
 - **WHEN** the board has one column and the user opens its menu
 - **THEN** both "Move left" and "Move right" are disabled
 
+#### Scenario: Two moves before the first is confirmed
+- **WHEN** the user picks "Move right" twice on the first of four columns before the first move is confirmed
+- **THEN** after both are confirmed, the column shows third
+
 ### Requirement: Rename column
 "Rename" SHALL open the "Rename column" dialog with the current name in the "Name" field. Saving an unchanged name, compared after normalization, SHALL close the dialog without a request.
 
@@ -237,11 +256,15 @@ Each column's ⋯ menu SHALL offer "Move left", "Move right", "Rename" and "Dele
 - **THEN** the dialog closes and no request is sent
 
 ### Requirement: Delete column
-"Delete column" SHALL open a confirm dialog. For a column with cards it SHALL read "Delete column “{name}”?" / "Its {count} cards will be deleted too. This can’t be undone." with the button "Delete column and {count} cards". For an empty column it SHALL read "Delete column “{name}”?" / "This can't be undone." with the button "Delete column".
+"Delete column" SHALL open a confirm dialog. For a column with cards it SHALL read "Delete column “{name}”?" / "Its {count} cards will be deleted too. This can’t be undone." with the button "Delete column and {count} cards". Both strings SHALL use plural forms. For an empty column it SHALL read "Delete column “{name}”?" / "This can't be undone." with the button "Delete column".
 
 #### Scenario: Column with cards
 - **WHEN** the user deletes "Review", which holds 2 cards
 - **THEN** the dialog names the 2 cards, and after confirming, the column and its cards disappear once the server confirms
+
+#### Scenario: Column with one card
+- **WHEN** the user deletes a column with 1 card
+- **THEN** the dialog reads "Its 1 card will be deleted too. This can’t be undone." and the button reads "Delete column and 1 card"
 
 #### Scenario: Empty column
 - **WHEN** the user deletes an empty column
@@ -263,7 +286,7 @@ The board's ⋯ menu SHALL offer "Rename board", "Export as JSON" and "Delete bo
 - **THEN** the board list shows and no toast shows
 
 ### Requirement: Accessibility labels
-Controls without visible text SHALL have accessibility labels from string resources: "Back", "Board actions", "Actions for column “{name}”", "Add card to “{name}”" and "Add column". A card tile SHALL read as "{displayId}, {title}, labels {a}, {b}", with labels in tile order. Every interactive element SHALL have a touch target of at least 48 dp.
+Controls without visible text SHALL have accessibility labels from string resources: "Back", "Board actions", "Actions for column “{name}”", "Add card to “{name}”" and "Add column". A card tile SHALL read as "{displayId}, {title}, labels {a}, {b}", with labels in tile order. Without labels, the tile SHALL read "{displayId}, {title}". Every interactive element SHALL have a touch target of at least 48 dp.
 
 #### Scenario: Column menu button
 - **WHEN** a screen reader focuses the ⋯ button of the column "Review"
@@ -272,3 +295,7 @@ Controls without visible text SHALL have accessibility labels from string resour
 #### Scenario: Card tile
 - **WHEN** a screen reader focuses the tile of `CRD-121` "Define export file format v1" with the labels `api` and `infra`
 - **THEN** it reads "CRD-121, Define export file format v1, labels api, infra"
+
+#### Scenario: Card tile without labels
+- **WHEN** a screen reader focuses the tile of `CRD-1` "Setup" without labels
+- **THEN** it reads "CRD-1, Setup"

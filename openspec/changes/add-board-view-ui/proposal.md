@@ -16,7 +16,7 @@ The board view is where the work happens, and card detail, card drag & drop, sea
 - **Quick add card** at the bottom of each column, title only, with name errors under the field (D22, D33). Switching to another inline field while this one holds text opens a "Discard changes?" dialog (D41).
 - **Column menu**: Move left, Move right (disabled at the ends), Rename (dialog), Delete column (confirm dialog that names the card count, or the empty-column variant) (D23, D30).
 - **Board ⋯ menu**: Rename board and Delete board open the board list change's reusable dialogs (D5). After a delete, the app goes back to the board list without a toast (D34). Export as JSON opens transfer's export flow.
-- **Writes wait for the server** and apply the response locally (D21). Failures follow D15 and D23: error toasts, inputs kept, stale data reloads the board, a missing board goes back to the board list.
+- **Writes wait for the server** and apply the response locally (D21). Failures follow D15 and D23: error toasts, inputs kept, stale data reloads the board, a missing board goes back to the board list and disappears from it. A failed create or move also reloads the board in the background, so a lost response can't lead to a duplicate (`api-conventions` "Retries after a lost response").
 - **Card tap** calls an `onCardClick` callback. It does nothing until `mob-card-detail-ui` (D30).
 - **`:core:domain`**: `Card`, `Column`, the board content model, a minimal `Label` and the read-only `LabelSource` interface (D7).
 - **`:feature:boards:domain`**: the board-detail repository (load board, column create/rename/move/delete) and the card create repository, with their error types.
