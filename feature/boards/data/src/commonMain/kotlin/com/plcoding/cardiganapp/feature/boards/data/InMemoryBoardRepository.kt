@@ -9,17 +9,18 @@ import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -29,43 +30,42 @@ import kotlinx.coroutines.sync.withLock
  * Refreshes run in [scope], so a caller that leaves doesn't cancel a refresh others joined.
  *
  * [clear] ends the session's data: [boards] becomes null, and the result of every refresh or save
- * that started before it is dropped.
+ * that started before it is dropped. The session number and the list live in one state that is only
+ * changed by compare-and-set, so a result can't be written after a [clear] on any thread.
  */
-@OptIn(ExperimentalAtomicApi::class)
 class InMemoryBoardRepository(
     private val remote: RemoteBoardDataSource,
     private val scope: CoroutineScope,
 ) : BoardRepository {
 
-    private val _boards = MutableStateFlow<List<BoardSummary>?>(null)
-    override val boards: StateFlow<List<BoardSummary>?> = _boards.asStateFlow()
+    private val store = MutableStateFlow(Snapshot(session = 0, boards = null))
+    override val boards: StateFlow<List<BoardSummary>?> = BoardsView(store)
 
-    private val session = AtomicInt(0)
     private val lock = Mutex()
     private var running: RunningRefresh? = null
 
     override suspend fun refresh(): EmptyResult<DataError.Network> {
         val refresh = lock.withLock {
-            val current = session.load()
+            val current = store.value.session
             running?.takeIf { it.session == current } ?: startRefresh(current).also { running = it }
         }
         return refresh.result.await()
     }
 
     override suspend fun ensureLoaded(): EmptyResult<DataError.Network> {
-        if (_boards.value != null) return Result.Success(Unit)
+        if (store.value.boards != null) return Result.Success(Unit)
         return refresh()
     }
 
     override suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError> {
-        val started = session.load()
+        val started = store.value.session
         val result = remote.createBoard(name, key)
         if (result is Result.Success) applySave(started, SaveOp.Upsert(result.data))
         return result
     }
 
     override suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError> {
-        val started = session.load()
+        val started = store.value.session
         val result = remote.renameBoard(id, name)
         when {
             result is Result.Success -> applySave(started, SaveOp.Upsert(result.data))
@@ -75,7 +75,7 @@ class InMemoryBoardRepository(
     }
 
     override suspend fun deleteBoard(id: Uuid): EmptyResult<BoardSaveError> {
-        val started = session.load()
+        val started = store.value.session
         val result = remote.deleteBoard(id)
         if (result is Result.Error && result.error != BoardSaveError.NotFound) return result
         applySave(started, SaveOp.Remove(id))
@@ -84,8 +84,7 @@ class InMemoryBoardRepository(
 
     /** Resets [boards] to null and drops the results of requests that are still running. */
     fun clear() {
-        session.incrementAndFetch()
-        _boards.value = null
+        store.update { Snapshot(session = it.session + 1, boards = null) }
     }
 
     private fun startRefresh(started: Int): RunningRefresh {
@@ -109,8 +108,25 @@ class InMemoryBoardRepository(
         setIfSession(started) { current -> current?.let(op::applyTo) }
     }
 
+    /** Applies [transform] only while the session is still [started]; checked in the same CAS step as the write. */
     private inline fun setIfSession(started: Int, transform: (List<BoardSummary>?) -> List<BoardSummary>?) {
-        _boards.update { current -> if (session.load() == started) transform(current) else current }
+        store.update { current ->
+            if (current.session != started) current else current.copy(boards = transform(current.boards))
+        }
+    }
+
+    private data class Snapshot(val session: Int, val boards: List<BoardSummary>?)
+
+    /** Read-only view of the list in [source], so readers never see the session number. */
+    @OptIn(ExperimentalForInheritanceCoroutinesApi::class)
+    private class BoardsView(private val source: StateFlow<Snapshot>) : StateFlow<List<BoardSummary>?> {
+        override val value: List<BoardSummary>? get() = source.value.boards
+        override val replayCache: List<List<BoardSummary>?> get() = listOf(value)
+
+        override suspend fun collect(collector: FlowCollector<List<BoardSummary>?>): Nothing {
+            source.map { it.boards }.distinctUntilChanged().collect(collector)
+            awaitCancellation()
+        }
     }
 
     private class RunningRefresh(
