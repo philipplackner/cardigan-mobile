@@ -2,9 +2,7 @@ package com.plcoding.cardiganapp.core.domain.text
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNull
-import assertk.assertions.isTrue
 import kotlin.test.Test
 
 /*
@@ -14,7 +12,7 @@ import kotlin.test.Test
  * - trimming: spaces, whitespace only, NBSP, U+3000 and other White_Space; BOM and ZWSP are not White_Space
  * - inner whitespace is kept
  * - invalid characters: tab, LF, NUL, U+001F, unpaired high and low surrogates; DEL (U+007F) is allowed
- * - multi-line text allows tab, LF and CR but never NUL
+ * - multi-line normalization is the same as single-line
  * - code points: emoji = 1, ZWJ family = 5, CJK = 2
  * - limits: 100 vs 101 code points, emoji at the limit, a limit reached only after trimming
  * - error order: required before invalid before too long
@@ -78,10 +76,8 @@ class TextRulesTest {
     }
 
     @Test
-    fun multiLineAllowsLineBreaksAndTabsButNotNul() {
-        assertThat(hasInvalidCharacter("a\nb\tc\rd", multiLine = true)).isFalse()
-        assertThat(hasInvalidCharacter("a\u0000b", multiLine = true)).isTrue()
-        assertThat(hasInvalidCharacter("a\nb", multiLine = false)).isTrue()
+    fun multiLineNormalizesTheSameWay() {
+        assertThat(normalizeText(" a\r\nb ", multiLine = true)).isEqualTo("a\nb")
     }
 
     @Test

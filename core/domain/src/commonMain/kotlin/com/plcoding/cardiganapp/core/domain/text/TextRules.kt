@@ -11,9 +11,12 @@ sealed interface NameError : Error {
 
 /**
  * Normalizes user text per cardigan-shared-specs `text-length`: CRLF and lone CR become LF, then
- * NFC, then leading and trailing Unicode White_Space is removed. Not for passwords.
+ * NFC, then leading and trailing Unicode White_Space is removed. Not for passwords. The steps are
+ * the same for single- and multi-line fields; [multiLine] states the field type at the call site,
+ * and which control characters are allowed is decided by validation.
  */
-fun normalizeText(input: String): String {
+@Suppress("UNUSED_PARAMETER")
+fun normalizeText(input: String, multiLine: Boolean = false): String {
     val lineFeeds = input.replace("\r\n", "\n").replace('\r', '\n')
     return lineFeeds.toNfc().trim(::isUnicodeWhiteSpace)
 }
@@ -30,11 +33,7 @@ fun codePointLength(text: String): Int {
     return count
 }
 
-/**
- * True when [text] has an unpaired surrogate or a control character U+0000–U+001F. Tab, LF and CR
- * are allowed only when [multiLine] is true.
- */
-fun hasInvalidCharacter(text: String, multiLine: Boolean = false): Boolean {
+private fun hasInvalidNameCharacter(text: String): Boolean {
     var index = 0
     while (index < text.length) {
         val char = text[index]
@@ -45,7 +44,7 @@ fun hasInvalidCharacter(text: String, multiLine: Boolean = false): Boolean {
                 continue
             }
             char.isLowSurrogate() -> return true
-            char.code <= 0x1F -> if (!(multiLine && char in MULTI_LINE_CONTROLS)) return true
+            char.code <= 0x1F -> return true
         }
         index++
     }
@@ -58,12 +57,10 @@ fun hasInvalidCharacter(text: String, multiLine: Boolean = false): Boolean {
  */
 fun validateName(normalized: String, max: Int): NameError? = when {
     normalized.isEmpty() -> NameError.Required
-    hasInvalidCharacter(normalized) -> NameError.InvalidCharacter
+    hasInvalidNameCharacter(normalized) -> NameError.InvalidCharacter
     codePointLength(normalized) > max -> NameError.TooLong(max)
     else -> null
 }
-
-private val MULTI_LINE_CONTROLS = setOf('\t', '\n', '\r')
 
 // Kotlin's isWhitespace() differs from the Unicode White_Space property that the shared spec names.
 private fun isUnicodeWhiteSpace(char: Char): Boolean = when (char.code) {
