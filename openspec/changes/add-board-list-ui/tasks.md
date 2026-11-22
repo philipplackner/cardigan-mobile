@@ -56,6 +56,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 ## 9. Manual verification
 
 - [ ] 9.1 Run the app on an Android emulator (phone and tablet) and the iOS simulator (iPhone and iPad, portrait and landscape). Walk every state and every fixture trigger. Check pull to refresh, the title collapse, the dialog layouts per size and dark theme against Figma 9:5. Done when the walkthrough finds no mismatch, or each mismatch is fixed and committed.
+  - First walkthrough (user): in landscape the display cutout wasn't handled, so content sat under the camera cutout / notch. Fixed in `fix: handle the display cutout in landscape`. Landscape is still to be re-checked on device; everything else matched.
 
 ## 10. Remove the temporary fixture
 

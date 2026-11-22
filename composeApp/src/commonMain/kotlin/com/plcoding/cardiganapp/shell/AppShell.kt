@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -54,11 +57,9 @@ fun AppShell(
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val onBoardList = navController.previousNonDialogDestinationIsBoardList(backStackEntry?.destination?.hasRoute<BoardListRoute>() == true)
-    Row(
-        modifier = modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
-    ) {
+    val startInset = WindowInsets.safeDrawing.only(WindowInsetsSides.Start)
+    val sidebarWidth = if (windowClass == WindowClass.Tablet) AppTheme.width.sidebarTablet else AppTheme.width.sidebarDesktop
+    Row(modifier = modifier.fillMaxSize()) {
         Sidebar(
             boardsHeading = stringResource(Res.string.shell_boards_heading),
             accountEmail = accountEmail,
@@ -66,9 +67,8 @@ fun AppShell(
             onLogOutClick = onLogOut,
             logOutContentDescription = stringResource(Res.string.shell_log_out),
             modifier = Modifier
-                .width(if (windowClass == WindowClass.Tablet) AppTheme.width.sidebarTablet else AppTheme.width.sidebarDesktop)
-                .fillMaxHeight()
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical)),
+                .width(sidebarWidth + startInset.asPaddingValues().calculateStartPadding(LocalLayoutDirection.current))
+                .fillMaxHeight(),
             mainNav = {
                 NavItem(
                     label = stringResource(Res.string.shell_all_boards),
@@ -89,7 +89,8 @@ fun AppShell(
                 )
             },
         )
-        content(Modifier.weight(1f).fillMaxHeight())
+        // The sidebar pads its content by the start inset, so the screen next to it must not again.
+        content(Modifier.weight(1f).fillMaxHeight().consumeWindowInsets(startInset))
     }
 }
 

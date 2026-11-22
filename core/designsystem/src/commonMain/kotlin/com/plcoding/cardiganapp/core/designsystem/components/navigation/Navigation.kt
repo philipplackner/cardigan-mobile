@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -111,7 +116,8 @@ fun NavItem(
 
 /**
  * Persistent navigation on tablet ([AppTheme.width] `sidebarTablet`) and desktop
- * (`sidebarDesktop`); the caller sets the width. [mainNav] holds the top Nav items, [boards]
+ * (`sidebarDesktop`); the caller sets the width, plus the start safe-drawing inset, which the
+ * sidebar pads its content by (with the top and bottom ones) while its background runs edge to edge. [mainNav] holds the top Nav items, [boards]
  * the board items and the New board item. The board list scrolls when it is long. A null
  * [accountEmail] leaves the email and avatar out and keeps the Log out button.
  */
@@ -137,6 +143,7 @@ fun Sidebar(
                 val x = if (layoutDirection == LayoutDirection.Ltr) size.width - lineWidth.toPx() / 2 else lineWidth.toPx() / 2
                 drawLine(lineColor, Offset(x, 0f), Offset(x, size.height), lineWidth.toPx())
             }
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start))
             .padding(PaddingValues(start = AppTheme.space.s10, end = AppTheme.space.s10, top = AppTheme.space.s14, bottom = AppTheme.space.s10)),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s18),
     ) {
@@ -185,7 +192,10 @@ fun Sidebar(
     }
 }
 
-/** Title bar of a page on tablet and desktop. Buttons, search and filters go in [actions]. */
+/**
+ * Title bar of a page on tablet and desktop. Buttons, search and filters go in [actions]. Its
+ * background runs under the status bar and display cutout; the content is padded by them.
+ */
 @Composable
 fun PageHeader(
     title: String,
@@ -200,12 +210,13 @@ fun PageHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = PageHeaderMinHeight)
             .background(colors.background.app)
             .drawBehind {
                 val y = size.height - lineWidth.toPx() / 2
                 drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
             }
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+            .heightIn(min = PageHeaderMinHeight)
             .padding(horizontal = AppTheme.space.s20, vertical = AppTheme.space.s12),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,

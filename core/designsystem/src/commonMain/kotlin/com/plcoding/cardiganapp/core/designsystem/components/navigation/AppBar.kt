@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -61,8 +66,9 @@ private fun AppBarContainer(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = AppBarMinHeight)
             .then(raisedModifier)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+            .heightIn(min = AppBarMinHeight)
             .padding(PaddingValues(start = AppTheme.space.s10, end = AppTheme.space.s8, top = AppTheme.space.s6, bottom = AppTheme.space.s6)),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s2),
         verticalAlignment = Alignment.CenterVertically,

@@ -16,8 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -29,6 +35,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -108,10 +117,12 @@ fun BoardListScreen(
             .fillMaxSize()
             .background(AppTheme.colors.background.app),
     ) {
-        if (LocalWindowClass.current == WindowClass.Phone) {
-            PhoneBoardList(state, onAction)
-        } else {
-            GridBoardList(state, onAction)
+        ProvideConsumedInsets {
+            if (LocalWindowClass.current == WindowClass.Phone) {
+                PhoneBoardList(state, onAction)
+            } else {
+                GridBoardList(state, onAction)
+            }
         }
     }
 }
@@ -121,22 +132,16 @@ private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) ->
     val listState = rememberLazyListState()
     val collapsed by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     Column(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .background(AppTheme.colors.background.app)
-                .windowInsetsPadding(WindowInsets.statusBars),
-        ) {
-            val actions: @Composable RowScope.() -> Unit = { PhoneBarActions(state, onAction) }
-            if (collapsed) {
-                TitleAppBar(
-                    title = stringResource(Res.string.boards_title),
-                    raised = true,
-                    actions = actions,
-                    modifier = Modifier.testTag(BoardListTestTags.CollapsedBar),
-                )
-            } else {
-                BrandAppBar(actions = actions)
-            }
+        val actions: @Composable RowScope.() -> Unit = { PhoneBarActions(state, onAction) }
+        if (collapsed) {
+            TitleAppBar(
+                title = stringResource(Res.string.boards_title),
+                raised = true,
+                actions = actions,
+                modifier = Modifier.testTag(BoardListTestTags.CollapsedBar),
+            )
+        } else {
+            BrandAppBar(actions = actions)
         }
         RefreshBox(
             isRefreshing = false,
@@ -153,7 +158,7 @@ private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) ->
                         end = AppTheme.space.s16,
                         top = AppTheme.space.s4,
                         bottom = AppTheme.space.s24,
-                    ),
+                    ) + contentInsets(),
                     verticalArrangement = Arrangement.spacedBy(AppTheme.space.s18),
                 ) {
                     item(key = "title") { LargeTitle(state) }
@@ -418,11 +423,7 @@ private fun LoadErrorState(onAction: (BoardListAction) -> Unit, modifier: Modifi
 
 @Composable
 private fun GridBoardList(state: BoardListState, onAction: (BoardListAction) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.statusBars),
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         PageHeader(
             title = stringResource(Res.string.boards_title),
             meta = if (state.content is BoardListContent.Loaded) boardCountText(state.boardCount).asString() else null,
@@ -460,12 +461,7 @@ private fun BoardGrid(state: BoardListState, content: BoardListContent, onAction
     LazyVerticalGrid(
         columns = GridCells.Adaptive(BoardTileMinWidth),
         modifier = Modifier.fillMaxSize().testTag(BoardListTestTags.Grid),
-        contentPadding = PaddingValues(
-            start = AppTheme.space.s24,
-            end = AppTheme.space.s24,
-            top = AppTheme.space.s24,
-            bottom = AppTheme.space.s24,
-        ),
+        contentPadding = PaddingValues(AppTheme.space.s24) + contentInsets(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s14),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s14),
     ) {
@@ -489,16 +485,17 @@ private fun BoardGrid(state: BoardListState, content: BoardListContent, onAction
 
 @Composable
 private fun FullHeightState(isRefreshing: Boolean, content: @Composable (Modifier) -> Unit) {
+    val padding = PaddingValues(AppTheme.space.s24) + contentInsets()
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val height = maxHeight
+        val height = maxHeight - padding.calculateTopPadding() - padding.calculateBottomPadding()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(AppTheme.space.s24),
+                .padding(padding),
         ) {
             if (isRefreshing) RefreshingRow()
-            content(Modifier.fillMaxWidth().heightIn(min = height - AppTheme.space.s24 * 2))
+            content(Modifier.fillMaxWidth().heightIn(min = height))
         }
     }
 }
@@ -538,6 +535,39 @@ private fun Modifier.drawDividerBelow(color: Color): Modifier = drawBehind {
 private fun Modifier.drawDividerAbove(color: Color): Modifier = drawBehind {
     val y = 0.5.dp.toPx()
     drawLine(color, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
+}
+
+/**
+ * The safe-drawing insets the scrolling content keeps clear of: the sides (display cutout in
+ * landscape) and the bottom. The top belongs to the app bar or page header above the content, and
+ * insets a parent already consumed (the sidebar's start side) are left out.
+ */
+@Composable
+private fun contentInsets(): PaddingValues =
+    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        .exclude(LocalConsumedInsets.current)
+        .asPaddingValues()
+
+private val LocalConsumedInsets = compositionLocalOf { WindowInsets(0, 0, 0, 0) }
+
+/** Makes the insets consumed above this point visible to [contentInsets] below it. */
+@Composable
+private fun ProvideConsumedInsets(content: @Composable () -> Unit) {
+    var consumed by remember { mutableStateOf(WindowInsets(0, 0, 0, 0)) }
+    Box(modifier = Modifier.fillMaxSize().onConsumedWindowInsetsChanged { consumed = it }) {
+        CompositionLocalProvider(LocalConsumedInsets provides consumed, content = content)
+    }
+}
+
+@Composable
+private operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
+    val direction = LocalLayoutDirection.current
+    return PaddingValues(
+        start = calculateStartPadding(direction) + other.calculateStartPadding(direction),
+        top = calculateTopPadding() + other.calculateTopPadding(),
+        end = calculateEndPadding(direction) + other.calculateEndPadding(direction),
+        bottom = calculateBottomPadding() + other.calculateBottomPadding(),
+    )
 }
 
 /** Test tags for the board list's scroll containers and collapsed bar. */

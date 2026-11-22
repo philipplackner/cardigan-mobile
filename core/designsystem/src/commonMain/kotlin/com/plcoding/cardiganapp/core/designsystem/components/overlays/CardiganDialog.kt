@@ -5,6 +5,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -83,10 +88,12 @@ fun ProgressDialog(
 @Composable
 private fun Modifier.dialogContainer(): Modifier {
     val shape = RoundedCornerShape(AppTheme.radius.r12)
+    // Keeps the dialog out of the notch and system bars where the dialog window draws under them (iOS).
+    val safe = windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))
     val sized = if (isTouchSize) {
-        fillMaxWidth().padding(horizontal = AppTheme.space.s16)
+        safe.fillMaxWidth().padding(horizontal = AppTheme.space.s16)
     } else {
-        width(DialogWidth)
+        safe.width(DialogWidth)
     }
     return sized
         .dropShadow(shape, AppTheme.shadows.popover)
