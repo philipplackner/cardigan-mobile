@@ -62,4 +62,26 @@
     <string name="board_menu_delete">Delete board</string>
     <string name="board_actions_description">Actions for board “%1$s”</string>
     <string name="board_item_description">%1$s, %2$s, %3$s, updated %4$s</string>
+    <string name="board_dialog_name">Name</string>
+    <string name="board_dialog_key">Key</string>
+    <string name="board_dialog_cancel">Cancel</string>
+    <string name="new_board_title">New board</string>
+    <string name="new_board_key_hint">2–5 uppercase letters. Card IDs will look like %1$s-1. The key can’t be changed later.</string>
+    <string name="new_board_key_hint_placeholder">KEY</string>
+    <string name="new_board_columns_note">New boards start with the columns To do, In progress and Done.</string>
+    <string name="new_board_create">Create board</string>
+    <string name="new_board_failed">Couldn't create the board. Check your connection and try again.</string>
+    <string name="rename_board_title">Rename board</string>
+    <string name="rename_board_key_hint">The key can’t be changed.</string>
+    <string name="rename_board_save">Save</string>
+    <string name="rename_board_failed">Couldn't rename “%1$s”. Check your connection and try again.</string>
+    <string name="board_no_longer_exists">“%1$s” no longer exists.</string>
+    <string name="delete_board_title">Delete board “%1$s”?</string>
+    <plurals name="delete_board_body">
+        <item quantity="one">Its 1 card will be deleted too. This can’t be undone.</item>
+        <item quantity="other">Its %1$d cards will be deleted too. This can’t be undone.</item>
+    </plurals>
+    <string name="delete_board_body_empty">This can’t be undone.</string>
+    <string name="delete_board_confirm">Delete board</string>
+    <string name="delete_board_failed">Couldn't delete “%1$s”. Check your connection and try again.</string>
 </resources>

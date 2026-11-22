@@ -36,11 +36,11 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 6. Board dialogs
 
-- [ ] 6.1 Add `NewBoardRoute` + `NewBoardViewModel` + dialog UI: prefill, uppercase key, first-submit-then-live validation, local clash, saving lock, server field errors, network toast, `Created(id, name, key)` event. Verify with ViewModel unit tests for each spec scenario and a `*UiTest` for the dialog on Phone and Desktop.
-- [ ] 6.2 Add `RenameBoardRoute` + ViewModel + dialog UI: read-only key, unchanged-name close, 404 close + toast, network toast, `Renamed(newName)` result. Verify with unit tests and a `*UiTest` on Phone and Desktop.
-- [ ] 6.3 Add `DeleteBoardRoute` + ViewModel + dialog UI with the 0 / 1 / N card bodies, 404 as success, the network toast and the `Deleted` result. Verify with unit tests and a `*UiTest`.
-- [ ] 6.4 Add `boardsGraph(...)` with the list and the three dialog destinations (transfer's dialog properties, no dim, `launchSingleTop`), plus `navigateToNewBoard/RenameBoard/DeleteBoard` the per-caller `onRenamed` / `onDeleted` callbacks (D21) and `boardsPresentationModule`. Verify with a `*UiTest` that opens each dialog from the list menu, that back during a save keeps the dialog, and that a test caller receives `Renamed` and `Deleted`.
-- [ ] 6.5 Commit `feat(boards): add new, rename and delete board dialogs`.
+- [x] 6.1 Add `NewBoardRoute` + `NewBoardViewModel` + dialog UI: prefill, uppercase key, first-submit-then-live validation, local clash, saving lock, server field errors, network toast, `Created(id, name, key)` event. Verify with ViewModel unit tests for each spec scenario and a `*UiTest` for the dialog on Phone and Desktop.
+- [x] 6.2 Add `RenameBoardRoute` + ViewModel + dialog UI: read-only key, unchanged-name close, 404 close + toast, network toast, `Renamed(newName)` result. Verify with unit tests and a `*UiTest` on Phone and Desktop.
+- [x] 6.3 Add `DeleteBoardRoute` + ViewModel + dialog UI with the 0 / 1 / N card bodies, 404 as success, the network toast and the `Deleted` result. Verify with unit tests and a `*UiTest`.
+- [x] 6.4 Add `boardsGraph(...)` with the list and the three dialog destinations (transfer's dialog properties, no dim, `launchSingleTop`), plus `navigateToNewBoard/RenameBoard/DeleteBoard` the per-caller `onRenamed` / `onDeleted` callbacks (D21) and `boardsPresentationModule`. Verify with a `*UiTest` that opens each dialog from the list menu, that back during a save keeps the dialog, and that a test caller receives `Renamed` and `Deleted`.
+- [x] 6.5 Commit `feat(boards): add new, rename and delete board dialogs`.
 
 ## 7. Sidebar board section
 
