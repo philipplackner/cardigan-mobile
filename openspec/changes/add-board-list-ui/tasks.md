@@ -11,10 +11,10 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 2. Boards domain
 
-- [ ] 2.1 Add `BoardSummary`, `BoardSaveError` with its field error types, `BoardRepository` and `RemoteBoardDataSource` in `boards:domain`, and the build file dependencies (`api(core.domain)`, kotlinx-datetime). Verify that the module compiles on both targets.
-- [ ] 2.2 Add `BoardKeyPrefill.fromName` (D7). Verify with unit tests: "Garden irrigation" → GARD, "Ärger" → ARGE, "ß", "Ø", digits only, "X 1", emoji, empty.
-- [ ] 2.3 Add `BoardOrder` per `api-conventions` "Board list order". Verify with unit tests for each tie-break level, including equal millisecond times and id string order.
-- [ ] 2.4 Commit `feat(boards): add board list domain`.
+- [x] 2.1 Add `BoardSummary`, `BoardSaveError` with its field error types, `BoardRepository` and `RemoteBoardDataSource` in `boards:domain`, and the build file dependencies (`api(core.domain)`, kotlinx-datetime). Verify that the module compiles on both targets.
+- [x] 2.2 Add `BoardKeyPrefill.fromName` (D7). Verify with unit tests: "Garden irrigation" → GARD, "Ärger" → ARGE, "ß", "Ø", digits only, "X 1", emoji, empty.
+- [x] 2.3 Add `BoardOrder` per `api-conventions` "Board list order". Verify with unit tests for each tie-break level, including equal millisecond times and id string order.
+- [x] 2.4 Commit `feat(boards): add board list domain`.
 
 ## 3. Board store
 
