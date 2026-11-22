@@ -30,9 +30,9 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 5. Board list screen
 
-- [ ] 5.1 Add `BoardListRoute`, State, Action, Event and `BoardListViewModel` (first load, retry, pull to refresh through the reloader, menu state, navigation events, including `OpenBoard(id, name, key)`). Verify with ViewModel unit tests: Loading → Loaded, Loading → Error → Retry, empty, refresh failure keeps items, list updates when the store changes.
-- [ ] 5.2 Build `BoardListScreen` for Phone (large title, collapse, rows, footer count, ⋯ menu with "Signed in as", empty-state buttons) and Tablet/Desktop (page header with count and Import, adaptive tile grid), with loading skeletons, empty and error states in a `RefreshBox`, and previews per state and window class in `commonMain`. Verify against `get_design_context` values of every Figma 9:5 frame for these states (frame IDs via `get_metadata`, annotations via `use_figma`) and with `*UiTest`s for each state, the collapse, the menus, accessible names in the D22 style and 48 dp targets.
-- [ ] 5.3 Commit `feat(boards): add board list screen`.
+- [x] 5.1 Add `BoardListRoute`, State, Action, Event and `BoardListViewModel` (first load, retry, pull to refresh through the reloader, menu state, navigation events, including `OpenBoard(id, name, key)`). Verify with ViewModel unit tests: Loading → Loaded, Loading → Error → Retry, empty, refresh failure keeps items, list updates when the store changes.
+- [x] 5.2 Build `BoardListScreen` for Phone (large title, collapse, rows, footer count, ⋯ menu with "Signed in as", empty-state buttons) and Tablet/Desktop (page header with count and Import, adaptive tile grid), with loading skeletons, empty and error states in a `RefreshBox`, and previews per state and window class in `commonMain`. Verify against `get_design_context` values of every Figma 9:5 frame for these states (frame IDs via `get_metadata`, annotations via `use_figma`) and with `*UiTest`s for each state, the collapse, the menus, accessible names in the D22 style and 48 dp targets.
+- [x] 5.3 Commit `feat(boards): add board list screen`.
 
 ## 6. Board dialogs
 

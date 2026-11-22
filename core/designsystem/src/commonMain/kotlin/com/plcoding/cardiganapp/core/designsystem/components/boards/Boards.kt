@@ -20,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +36,8 @@ private val TileTopRowHeight = 26.dp
 
 /**
  * Board in the board list grid (tablet and desktop). [cardCount] and [updated] are formatted by
- * the caller. [menuButton] sits in the top end corner. The grid sets the width.
+ * the caller. [menuButton] sits in the top end corner. The grid sets the width. A non-null
+ * [contentDescription] replaces the texts as the tile's accessible name; the menu button keeps its own.
  *
  * Doesn't clip, so the menu button keeps its 48dp touch area.
  */
@@ -45,6 +49,7 @@ fun BoardTile(
     updated: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     menuButton: @Composable () -> Unit,
 ) {
     val colors = AppTheme.colors
@@ -56,10 +61,12 @@ fun BoardTile(
             .dropShadow(shape, AppTheme.shadows.small)
             .background(colors.background.surface, shape)
             .border(AppTheme.space.s1, colors.border.default, shape)
-            .clickable(role = Role.Button, onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick)
+            .describedAs(contentDescription),
     ) {
         Column(
             modifier = Modifier
+                .hiddenWhenDescribed(contentDescription)
                 .fillMaxWidth()
                 .padding(PaddingValues(start = AppTheme.space.s14, end = AppTheme.space.s14, top = AppTheme.space.s14, bottom = AppTheme.space.s12)),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
@@ -92,7 +99,11 @@ fun BoardTile(
     }
 }
 
-/** Board in the phone board list, with a divider below. [cardCount] and [updated] are formatted by the caller. */
+/**
+ * Board in the phone board list, with a divider below unless [showDivider] is false (the last row).
+ * [cardCount] and [updated] are formatted by the caller. A non-null [contentDescription] replaces
+ * the texts as the row's accessible name; the menu button keeps its own.
+ */
 @Composable
 fun BoardRow(
     name: String,
@@ -101,6 +112,8 @@ fun BoardRow(
     updated: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showDivider: Boolean = true,
+    contentDescription: String? = null,
     menuButton: @Composable () -> Unit,
 ) {
     val colors = AppTheme.colors
@@ -111,7 +124,9 @@ fun BoardRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable(role = Role.Button, onClick = onClick)
+            .describedAs(contentDescription)
             .drawBehind {
+                if (!showDivider) return@drawBehind
                 val y = size.height - dividerWidth.toPx() / 2
                 drawLine(dividerColor, Offset(0f, y), Offset(size.width, y), dividerWidth.toPx())
             }
@@ -119,7 +134,12 @@ fun BoardRow(
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .hiddenWhenDescribed(contentDescription),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
+        ) {
             Text(
                 text = name,
                 style = AppTheme.textStyles.sans15_5SemiBold130LsMinus1,
@@ -137,6 +157,12 @@ fun BoardRow(
         menuButton()
     }
 }
+
+private fun Modifier.describedAs(description: String?): Modifier =
+    if (description == null) this else semantics { contentDescription = description }
+
+private fun Modifier.hiddenWhenDescribed(description: String?): Modifier =
+    if (description == null) this else clearAndSetSemantics {}
 
 @Composable
 private fun SampleMenuButton() {
