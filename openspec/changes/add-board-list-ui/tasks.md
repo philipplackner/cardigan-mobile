@@ -18,9 +18,9 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 3. Board store
 
-- [ ] 3.1 Implement `InMemoryBoardRepository` (single-flight refresh, insert/move/remove by `BoardOrder`, delete 404 = success, rename 404 removes). Verify with unit tests against a fake `RemoteBoardDataSource`: server order kept, failed refresh keeps the list, concurrent refreshes make one call, create/rename/delete updates, both 404 paths, `ensureLoaded()` joining a running load, a create, rename and delete that each complete during a running refresh are still in the store after it returns, and `clear()` resets `boards` to null and drops a refresh or save that returns after it (bound as add-auth-ui's `SessionScopedStore` if that has landed).
-- [ ] 3.2 Add `FixtureBoardDataSource` and `fixtureBoardsModule` in `boards:data/fixture` with the Figma boards and the trigger names from design.md, plus `boardsDataModule` binding the repository as a `single`. Verify with a unit test per trigger name.
-- [ ] 3.3 Commit `feat(boards): add in-memory board store and temporary fixture`.
+- [x] 3.1 Implement `InMemoryBoardRepository` (single-flight refresh, insert/move/remove by `BoardOrder`, delete 404 = success, rename 404 removes). Verify with unit tests against a fake `RemoteBoardDataSource`: server order kept, failed refresh keeps the list, concurrent refreshes make one call, create/rename/delete updates, both 404 paths, `ensureLoaded()` joining a running load, a create, rename and delete that each complete during a running refresh are still in the store after it returns, and `clear()` resets `boards` to null and drops a refresh or save that returns after it (bound as add-auth-ui's `SessionScopedStore` if that has landed).
+- [x] 3.2 Add `FixtureBoardDataSource` and `fixtureBoardsModule` in `boards:data/fixture` with the Figma boards and the trigger names from design.md, plus `boardsDataModule` binding the repository as a `single`. Verify with a unit test per trigger name.
+- [x] 3.3 Commit `feat(boards): add in-memory board store and temporary fixture`.
 
 ## 4. Board list presentation basics
 
