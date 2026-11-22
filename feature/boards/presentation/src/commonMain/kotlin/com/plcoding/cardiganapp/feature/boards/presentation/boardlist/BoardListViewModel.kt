@@ -3,10 +3,13 @@ package com.plcoding.cardiganapp.feature.boards.presentation.boardlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.cardiganapp.core.domain.util.Result
+import com.plcoding.cardiganapp.core.domain.util.onFailure
+import com.plcoding.cardiganapp.core.presentation.toast.ToastController
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.util.RelativeTimeFormatter
+import com.plcoding.cardiganapp.feature.boards.presentation.util.boardsReloadFailedToast
 import kotlin.time.Clock
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +24,13 @@ import kotlinx.datetime.TimeZone
 /**
  * The board list reads the shared board store. The first load joins the app-start load; while the
  * store has no list, a failed load shows the error state. Pull to refresh goes through
- * [BoardListReloader], so it shares one indicator and request with the reload after an import.
+ * [BoardListReloader], so it shares one indicator and request with the reload after an import, and
+ * a failed pull shows the D12 toast and leaves the content as it is.
  */
 class BoardListViewModel(
     private val repository: BoardRepository,
     private val reloader: BoardListReloader,
+    private val toastController: ToastController,
     clock: Clock,
     timeZone: TimeZone,
 ) : ViewModel() {
@@ -50,7 +55,9 @@ class BoardListViewModel(
     fun onAction(action: BoardListAction) {
         when (action) {
             is BoardListAction.OnBoardClick -> openBoard(action.boardId)
-            BoardListAction.OnRefresh -> reloader.reload()
+            BoardListAction.OnRefresh -> viewModelScope.launch {
+                reloader.reload().onFailure { toastController.show(boardsReloadFailedToast()) }
+            }
             BoardListAction.OnRetry -> {
                 _state.update { it.copy(content = BoardListContent.Loading) }
                 load { repository.refresh() }

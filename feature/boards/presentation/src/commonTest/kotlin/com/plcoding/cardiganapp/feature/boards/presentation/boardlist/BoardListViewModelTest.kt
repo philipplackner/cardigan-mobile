@@ -9,6 +9,10 @@ import assertk.assertions.isTrue
 import assertk.assertions.hasSize
 import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.Result
+import com.plcoding.cardiganapp.core.presentation.toast.ToastType
+import cardiganapp.feature.boards.presentation.generated.resources.Res
+import cardiganapp.feature.boards.presentation.generated.resources.boards_refresh_failed
+import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeBoardRepository
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeClock
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeToastController
@@ -31,7 +35,7 @@ import kotlinx.datetime.TimeZone
  * Break vectors:
  * - first load: loading while it runs, loaded after, empty list, error when the store stays null
  * - retry: back to loading, then loaded or error again
- * - refresh failure with a list shown keeps the items and shows the toast once (via the reloader)
+ * - refresh failure with a list shown keeps the items and shows the D12 toast once; success shows none
  * - the store changes (create, delete, clear) after loading
  * - the refreshing flag follows the reloader
  * - open a board passes id, name and key; an unknown id does nothing
@@ -56,8 +60,8 @@ class BoardListViewModelTest {
     }
 
     private fun TestScope.viewModel(): Pair<BoardListViewModel, BoardListReloader> {
-        val reloader = BoardListReloader(repository, toasts, backgroundScope)
-        return BoardListViewModel(repository, reloader, FakeClock(), TimeZone.UTC) to reloader
+        val reloader = BoardListReloader(repository, backgroundScope)
+        return BoardListViewModel(repository, reloader, toasts, FakeClock(), TimeZone.UTC) to reloader
     }
 
     private val BoardListViewModel.content get() = state.value.content
@@ -122,6 +126,33 @@ class BoardListViewModelTest {
         assertThat((viewModel.content as BoardListContent.Loaded).boards).hasSize(2)
         assertThat(toasts.messages).hasSize(1)
         assertThat(viewModel.state.value.isRefreshing).isFalse()
+    }
+
+    @Test
+    fun refreshSuccessShowsNoToast() = runTest {
+        repository.serverBoards = listOf(cardigan)
+        val (viewModel) = viewModel()
+        repository.serverBoards = listOf(cardigan, raytracer)
+
+        viewModel.onAction(BoardListAction.OnRefresh)
+        testScheduler.runCurrent()
+
+        assertThat((viewModel.content as BoardListContent.Loaded).boards).hasSize(2)
+        assertThat(toasts.messages).hasSize(0)
+    }
+
+    @Test
+    fun refreshFailureToastUsesTheD12Text() = runTest {
+        repository.serverBoards = listOf(cardigan)
+        val (viewModel) = viewModel()
+        repository.refreshResult = Result.Error(DataError.Network.SERVER_ERROR)
+
+        viewModel.onAction(BoardListAction.OnRefresh)
+        testScheduler.runCurrent()
+
+        val toast = toasts.messages.single()
+        assertResource(toast.text, Res.string.boards_refresh_failed)
+        assertThat(toast.type).isEqualTo(ToastType.Error)
     }
 
     @Test

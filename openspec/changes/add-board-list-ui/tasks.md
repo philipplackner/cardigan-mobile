@@ -26,7 +26,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 - [x] 4.1 Add `RelativeTimeFormatter` with injected `Clock` and `TimeZone`, the plural and short-month string resources, and the "Updated {time}" text. Verify with unit tests in a pinned non-UTC zone for every boundary in the spec, a DST change day and New Year.
 - [x] 4.2 Add `BoardItemUi` mapping and the board count / card count plurals. Verify with unit tests for 0, 1 and many.
-- [x] 4.3 Add `BoardListReloader` (single, app scope, `isReloading`, refresh toast on failure). Verify with unit tests: failure shows the D12 toast once, and overlapping calls make one refresh.
+- [x] 4.3 Add `BoardListReloader` (single, app scope, `isReloading`, `suspend fun reload()` returning the result; callers show the D12 toast on failure). Verify with unit tests: overlapping calls make one refresh and get the same result, and a cancelled caller doesn't cancel the request.
 
 ## 5. Board list screen
 

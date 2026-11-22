@@ -4,6 +4,8 @@ import com.plcoding.cardiganapp.core.domain.board.Board
 import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.EmptyResult
 import com.plcoding.cardiganapp.core.domain.util.Result
+import com.plcoding.cardiganapp.core.presentation.toast.ToastController
+import com.plcoding.cardiganapp.core.presentation.toast.ToastMessage
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
@@ -24,8 +26,12 @@ class FakeRemoteBoardDataSource(vararg responses: List<BoardSummary>) : RemoteBo
     var getBoardsCalls = 0
         private set
 
+    /** When set, list calls from this 1-based call number on fail with no network. */
+    var failFromCall: Int? = null
+
     override suspend fun getBoards(): Result<List<BoardSummary>, DataError.Network> {
         getBoardsCalls++
+        failFromCall?.let { if (getBoardsCalls >= it) return Result.Error(DataError.Network.NO_INTERNET) }
         val next = if (responses.size > 1) responses.removeAt(0) else responses.first()
         return Result.Success(next)
     }
@@ -78,3 +84,11 @@ fun summary(id: String, name: String, key: String, updated: String = "2026-11-20
     createdAt = Instant.parse("2026-11-01T10:00:00Z"),
     updatedAt = Instant.parse(updated),
 )
+
+class RecordingToastController : ToastController {
+    val messages = mutableListOf<ToastMessage>()
+
+    override fun show(message: ToastMessage) {
+        messages += message
+    }
+}

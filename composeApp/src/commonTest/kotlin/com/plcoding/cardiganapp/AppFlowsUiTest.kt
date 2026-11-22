@@ -19,6 +19,9 @@ import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 import com.plcoding.cardiganapp.core.domain.board.Board
 import com.plcoding.cardiganapp.core.domain.util.Result
+import com.plcoding.cardiganapp.core.presentation.toast.ToastController
+import com.plcoding.cardiganapp.core.presentation.toast.ToastType
+import com.plcoding.cardiganapp.fakes.RecordingToastController
 import com.plcoding.cardiganapp.di.appModules
 import com.plcoding.cardiganapp.fakes.FakeBoardTransferRepository
 import com.plcoding.cardiganapp.fakes.FakeExportFileChecker
@@ -43,6 +46,7 @@ class AppFlowsUiTest {
     private val cardigan = summary("0b5c8a6e-1f00-4a3c-9a43-6f5e0e3c1d2a", "Cardigan v1", "CRD")
     private val garden = summary("1c6d9b7f-2a11-4b4d-8b54-7a6f1f4d2e3b", "Garden irrigation", "GARD", updated = "2026-11-21T10:00:00Z")
     private val picker = FakeFilePicker()
+    private val toasts = RecordingToastController()
 
     private fun start(remote: FakeRemoteBoardDataSource, transfer: FakeBoardTransferRepository, fileKey: String?) {
         startKoin {
@@ -51,6 +55,7 @@ class AppFlowsUiTest {
                     single<RemoteBoardDataSource> { remote }
                     single<BoardTransferRepository> { transfer }
                     single<ExportFileChecker> { FakeExportFileChecker(fileKey) }
+                    single<ToastController> { toasts }
                 },
             )
         }
@@ -103,6 +108,25 @@ class AppFlowsUiTest {
 
         awaitBoard("Garden irrigation")
         assertThat(remote.getBoardsCalls).isEqualTo(2)
+    }
+
+    @Test
+    fun importWhoseReloadFailsShowsTheReloadToastOnce() = runComposeUiTest {
+        val remote = FakeRemoteBoardDataSource(listOf(cardigan)).apply { failFromCall = 2 }
+        start(remote, FakeBoardTransferRepository(Result.Success(Board(garden.id, garden.name, garden.key))), fileKey = "GARD")
+        showApp()
+        awaitBoard("Cardigan v1")
+
+        openImportFromTheMenu()
+        picker.pick()
+
+        waitUntil(timeoutMillis = 5_000) { toasts.messages.any { it.type == ToastType.Error } }
+        waitForIdle()
+        val errors = toasts.messages.filter { it.type == ToastType.Error }
+        assertThat(errors.size).isEqualTo(1)
+        assertThat(errors.single().text.asStringAsync()).isEqualTo("Couldn't refresh your boards. Check your connection and try again.")
+        assertThat(remote.getBoardsCalls).isEqualTo(2)
+        awaitBoard("Cardigan v1")
     }
 
     @Test

@@ -1,80 +1,91 @@
 package com.plcoding.cardiganapp.feature.boards.presentation.navigation
 
 import assertk.assertThat
-import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import cardiganapp.feature.boards.presentation.generated.resources.Res
-import cardiganapp.feature.boards.presentation.generated.resources.boards_refresh_failed
 import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.Result
-import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeBoardRepository
-import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeToastController
-import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 
+/*
+ * Break vectors:
+ * - two overlapping calls: one refresh, both get the same failure
+ * - a caller cancelled mid-reload: the request keeps running and isReloading still returns to false
+ * - isReloading: true from the first call until the shared reload ends, also when it fails
+ * - a call after the previous reload ended starts a new refresh
+ * - the reloader has no toast dependency (constructor takes only the repository and a scope)
+ */
 class BoardListReloaderTest {
 
     private val repository = FakeBoardRepository(emptyList())
-    private val toasts = FakeToastController()
 
-    private fun TestScope.reloader() = BoardListReloader(repository, toasts, backgroundScope)
-
-    @Test
-    fun failureShowsTheRefreshToastOnce() = runTest {
-        repository.refreshResult = Result.Error(DataError.Network.NO_INTERNET)
-        val reloader = reloader()
-
-        reloader.reload()
-        runCurrent()
-
-        assertThat(toasts.messages).hasSize(1)
-        assertResource(toasts.messages.single().text, Res.string.boards_refresh_failed)
-        assertThat(toasts.messages.single().type).isEqualTo(ToastType.Error)
-        assertThat(reloader.isReloading.value).isFalse()
-    }
+    private fun TestScope.reloader() = BoardListReloader(repository, backgroundScope)
 
     @Test
-    fun successShowsNoToast() = runTest {
-        val reloader = reloader()
-        reloader.reload()
-        runCurrent()
-        assertThat(toasts.messages).isEmpty()
-    }
-
-    @Test
-    fun overlappingCallsMakeOneRefresh() = runTest {
+    fun overlappingCallsShareOneRefreshAndItsFailure() = runTest {
         repository.gate = CompletableDeferred()
         repository.refreshResult = Result.Error(DataError.Network.NO_INTERNET)
         val reloader = reloader()
 
-        reloader.reload()
-        runCurrent()
-        reloader.reload()
+        val first = async { reloader.reload() }
+        val second = async { reloader.reload() }
         runCurrent()
         assertThat(reloader.isReloading.value).isTrue()
         repository.gate!!.complete(Unit)
-        runCurrent()
 
+        assertThat(first.await()).isEqualTo(Result.Error(DataError.Network.NO_INTERNET))
+        assertThat(second.await()).isEqualTo(Result.Error(DataError.Network.NO_INTERNET))
         assertThat(repository.refreshCalls).isEqualTo(1)
-        assertThat(toasts.messages).hasSize(1)
         assertThat(reloader.isReloading.value).isFalse()
     }
 
     @Test
-    fun aLaterCallRefreshesAgain() = runTest {
+    fun cancelledCallerDoesNotCancelTheRequest() = runTest {
+        repository.gate = CompletableDeferred()
+        repository.serverBoards = listOf()
         val reloader = reloader()
-        reloader.reload()
+
+        val caller = async { reloader.reload() }
         runCurrent()
-        reloader.reload()
+        caller.cancel()
         runCurrent()
+        assertThat(reloader.isReloading.value).isTrue()
+
+        repository.gate!!.complete(Unit)
+        runCurrent()
+
+        assertThat(repository.refreshCalls).isEqualTo(1)
+        assertThat(repository.state.value).isEqualTo(emptyList())
+        assertThat(reloader.isReloading.value).isFalse()
+    }
+
+    @Test
+    fun aCallAfterTheReloadEndedRefreshesAgain() = runTest {
+        val reloader = reloader()
+        assertThat(reloader.reload()).isEqualTo(Result.Success(Unit))
+        assertThat(reloader.reload()).isEqualTo(Result.Success(Unit))
         assertThat(repository.refreshCalls).isEqualTo(2)
+        assertThat(reloader.isReloading.value).isFalse()
+    }
+
+    @Test
+    fun aLateJoinerGetsTheRunningResult() = runTest {
+        repository.gate = CompletableDeferred()
+        val reloader = reloader()
+        val first = async { reloader.reload() }
+        runCurrent()
+        repository.refreshResult = Result.Error(DataError.Network.SERVER_ERROR)
+        val late = async { reloader.reload() }
+        runCurrent()
+        repository.gate!!.complete(Unit)
+        assertThat(late.await()).isEqualTo(first.await())
+        assertThat(repository.refreshCalls).isEqualTo(1)
     }
 }

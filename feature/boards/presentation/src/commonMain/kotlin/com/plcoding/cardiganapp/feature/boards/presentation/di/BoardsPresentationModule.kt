@@ -16,7 +16,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val boardsPresentationModule = module {
-    single { BoardListReloader(get(), get(), CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
+    single { BoardListReloader(get(), CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
     single<Clock> { Clock.System }
     factory<TimeZone> { TimeZone.currentSystemDefault() }
 

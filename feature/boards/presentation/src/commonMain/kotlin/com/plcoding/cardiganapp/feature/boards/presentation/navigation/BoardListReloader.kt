@@ -1,46 +1,49 @@
 package com.plcoding.cardiganapp.feature.boards.presentation.navigation
 
-import cardiganapp.feature.boards.presentation.generated.resources.Res
-import cardiganapp.feature.boards.presentation.generated.resources.boards_refresh_failed
-import com.plcoding.cardiganapp.core.domain.util.onFailure
-import com.plcoding.cardiganapp.core.presentation.toast.ToastController
-import com.plcoding.cardiganapp.core.presentation.toast.ToastMessage
-import com.plcoding.cardiganapp.core.presentation.toast.ToastType
-import com.plcoding.cardiganapp.core.presentation.util.UiText
+import com.plcoding.cardiganapp.core.domain.util.DataError
+import com.plcoding.cardiganapp.core.domain.util.EmptyResult
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
- * Reloads the board list from anywhere in the app (pull to refresh, after an import) and shows the
- * refresh error toast when it fails. Runs in the app-wide [scope], so leaving a screen doesn't
- * cancel it. A call while a reload runs joins it.
+ * Reloads the board list from anywhere in the app (pull to refresh, after an import), so they share
+ * one request and one [isReloading] flag. The request runs in the app-wide [scope]: a caller that
+ * leaves doesn't cancel it. Callers that overlap join the running reload and get the same result.
+ * Showing a failure is up to the caller, for example with [boardsReloadFailedToast].
  */
 class BoardListReloader(
     private val repository: BoardRepository,
-    private val toastController: ToastController,
     private val scope: CoroutineScope,
 ) {
     private val _isReloading = MutableStateFlow(false)
     val isReloading: StateFlow<Boolean> = _isReloading.asStateFlow()
 
-    private var job: Job? = null
+    private val lock = Mutex()
+    private var running: Deferred<EmptyResult<DataError.Network>>? = null
 
-    fun reload() {
-        if (job?.isActive == true) return
+    suspend fun reload(): EmptyResult<DataError.Network> {
+        val reload = lock.withLock {
+            running?.takeIf { it.isActive } ?: startReload().also { running = it }
+        }
+        return reload.await()
+    }
+
+    private fun startReload(): Deferred<EmptyResult<DataError.Network>> {
         _isReloading.value = true
-        job = scope.launch {
+        return scope.async(start = CoroutineStart.LAZY) {
             try {
-                repository.refresh().onFailure {
-                    toastController.show(ToastMessage(UiText.Resource(Res.string.boards_refresh_failed), ToastType.Error))
-                }
+                repository.refresh()
             } finally {
                 _isReloading.value = false
             }
-        }
+        }.also { it.start() }
     }
 }
