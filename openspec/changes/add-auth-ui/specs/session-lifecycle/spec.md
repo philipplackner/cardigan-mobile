@@ -43,7 +43,11 @@ After a successful login or register, the app SHALL show the board list. The Log
 - **THEN** the app is left as the platform does, and the login screen doesn't show
 
 ### Requirement: Logout needs no confirmation
-When the user chooses Log out, the app SHALL end the session at once, with no confirmation. It SHALL show the login screen without a banner, whatever the server answers, and SHALL clear the back stack.
+When the user chooses Log out, the app SHALL end the session at once, with no confirmation. It SHALL show the login screen without a banner, whatever the server answers, and SHALL clear the back stack. The app SHALL show the login screen without waiting for the server's answer.
+
+#### Scenario: Logout request hangs
+- **WHEN** the user logs out and the logout request doesn't answer
+- **THEN** the login screen shows at once, and the app no longer has the session
 
 #### Scenario: Logout offline
 - **WHEN** the user logs out without a connection
@@ -59,6 +63,17 @@ When the session ends without a logout while the app is open (`api-auth-tokens` 
 #### Scenario: Expired while on the board view
 - **WHEN** the session ends without a logout while a board is open
 - **THEN** the login screen shows with the session expired banner and back doesn't return to the board
+
+### Requirement: Signing out clears user data in memory
+When the session state becomes signed out for any reason, the app SHALL clear every in-memory store that holds data loaded for the signed-in user before the login screen shows. The next signed-in user SHALL NOT see any of that data.
+
+#### Scenario: Another user logs in
+- **WHEN** user A has loaded boards, logs out, and user B logs in while the board request is still running or fails
+- **THEN** none of A's boards are shown to B
+
+#### Scenario: Expired session
+- **WHEN** the session ends without a logout while boards are loaded
+- **THEN** the loaded boards are cleared before the login screen shows
 
 ### Requirement: Signed-in email for other screens
 While signed in, the app SHALL make the signed-in email available to other screens, taken from the session and not from a separate request. It SHALL be the email the backend returned, which is lowercased. After a logout or an expired session, no email SHALL be available.

@@ -49,7 +49,7 @@ The Register screen SHALL show the four rules "12+ characters", "Lowercase lette
 
 #### Scenario: Typing completes the rules
 - **WHEN** the user types `Correct horse 7` one character at a time
-- **THEN** "Lowercase letter" and "Uppercase letter" are met from the second character on, "Digit" is met after the last character, and "12+ characters" is met from the twelfth character on
+- **THEN** "Uppercase letter" is met from the first character on, "Lowercase letter" from the second, "12+ characters" from the twelfth, and "Digit" only after the last character
 
 #### Scenario: Non-ASCII letters and digits
 - **WHEN** the password is `äöüÄÖÜ١٢٣ßßßß`
@@ -175,19 +175,34 @@ When login or register fails with 429 `RATE_LIMITED`, the screen SHALL show the 
 - **THEN** the generic connection banner shows instead
 
 ### Requirement: Connection and unexpected errors
-When login or register fails with no response, a 5xx, or any error not covered by another requirement, the screen SHALL show the error banner "Couldn't reach Cardigan. Check your connection and try again.". The app SHALL NOT show the server's `title` or `detail`. A 400 `VALIDATION_FAILED` SHALL show the matching field messages for known fields and codes, and the generic banner when none match.
+When login or register fails with no response, a 5xx, or any error not covered by another requirement, the screen SHALL show the error banner "Couldn't reach Cardigan. Check your connection and try again.". The app SHALL NOT show the server's `title` or `detail`. A 400 `VALIDATION_FAILED` with no field error in the table of "Server field errors" SHALL also show this banner.
 
 #### Scenario: Offline
 - **WHEN** the device has no connection and the user logs in
 - **THEN** the generic banner shows and the entered values stay
 
+#### Scenario: Unknown code
+- **WHEN** login fails with a 409 whose code the app doesn't know
+- **THEN** the generic banner shows
+
+### Requirement: Server field errors
+A 400 `VALIDATION_FAILED` SHALL show each mapped field error under its field with the message of the matching local check. Register maps `REQUIRED` and `TOO_LONG` on `email` and `password`, `INVALID_FORMAT` and `INVALID_CHARACTER` on `email` ("Enter a valid email address."), and `INVALID_CHARACTER` on `password`. Log in maps only `REQUIRED`. Every other field error SHALL show the generic connection banner.
+
 #### Scenario: Server validation for a known field
 - **WHEN** register fails with 400 `VALIDATION_FAILED` and a field error `email`/`INVALID_FORMAT`
 - **THEN** the email field shows "Enter a valid email address." and no banner shows
 
-#### Scenario: Unknown code
-- **WHEN** login fails with a 409 whose code the app doesn't know
-- **THEN** the generic banner shows
+#### Scenario: Server says the password is too weak
+- **WHEN** register fails with 400 `VALIDATION_FAILED` and a field error `password`/`PASSWORD_TOO_WEAK`
+- **THEN** the generic banner shows and the passwords stay filled in
+
+#### Scenario: Mapped and unmapped together
+- **WHEN** register fails with 400 `VALIDATION_FAILED` and field errors `email`/`TOO_LONG` and `password`/`TOO_SHORT`
+- **THEN** the email field shows "Email can't be longer than 254 characters." and the generic banner shows
+
+#### Scenario: Format error on log in
+- **WHEN** login fails with 400 `VALIDATION_FAILED` and a field error `email`/`INVALID_FORMAT`
+- **THEN** the generic banner shows and no field message
 
 ### Requirement: Session expired banner
 When the login screen opens because the session ended without a logout, it SHALL show the info banner "Your session has expired. Log in again to continue." with empty fields. The banner SHALL stay until the user submits or leaves the screen.

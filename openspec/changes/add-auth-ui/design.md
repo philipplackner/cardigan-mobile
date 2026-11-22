@@ -28,8 +28,17 @@ interface SessionManager {
     val state: StateFlow<SessionState>
     /** Restores the stored session once per process. Later calls do nothing. */
     suspend fun restore()
-    /** Ends the session. Never fails; server errors are ignored. */
+    /**
+     * Ends the session. Reads the refresh token, then clears the tokens and email from storage
+     * and memory and sets `SignedOut(LoggedOut)` before sending the server logout. The server
+     * call is best-effort, runs after the state change, and its result is ignored. Never fails.
+     */
     suspend fun logout()
+}
+
+/** An in-memory store of data loaded for the signed-in user. */
+interface SessionScopedStore {
+    fun clear()
 }
 
 sealed interface SessionState {
@@ -44,6 +53,7 @@ enum class SignOutReason { NoSession, LoggedOut, Expired }
 - `Expired` covers both the rejected token at start and a session ending while the app is open (D9). `mob-auth-connect` sets it when a refresh fails with `INVALID_REFRESH_TOKEN`, or when the retry after a refresh fails with 401 again.
 - `SignedIn.email` is the signed-in email the shell shows (D13). It is the backend's lowercased email. After a restart it comes from secure storage, where `mob-auth-connect` keeps it next to the refresh token and clears it with the tokens (D15). A restore that can't reach the backend still reports `SignedIn` with the stored email (D18).
 - The board list change uses `state` for "Signed in as {email}" and `logout()` for the menu item (D2).
+- **Clearing user data on sign-out** (spec "Signing out clears user data in memory", CLAUDE.md Authentication): every in-memory store that holds user data binds `SessionScopedStore` in Koin. `AppViewModel` gets them all with `getAll<SessionScopedStore>()` and calls `clear()` on each when the state leaves `SignedIn`, before the gate navigates. A store SHALL drop the result of any request that started before its last `clear()` (for example with a session counter), so a late refresh or save can't write the old user's data back. This change has no such store yet. The board list change's `InMemoryBoardRepository` implements it (Workflow follow-up in tasks.md).
 - Alternatives:
   - A separate `LogoutUseCase` and `CurrentUserProvider`: more types, no gain.
   - Putting the email on the auth repository: the shell would depend on `:feature:auth`, which breaks the no-feature-to-feature rule.
@@ -76,14 +86,12 @@ enum class FieldErrorCode { Required, TooShort, TooLong, InvalidCharacter, Inval
 
 ### Text rules in `:core:domain`, auth rules in `:feature:auth:domain`
 
-- **`:core:domain` `text` package:**
-  - `normalizeText(String)`: CRLF and CR to LF, NFC, trim Unicode White_Space.
-  - `normalizePassword(String)`: NFC only.
-  - `codePointCount(String)`.
+- **`:core:domain` `text` package:** use add-board-list-ui's `expect fun String.toNfc()`, `normalizeText(input, multiLine = false)` and `codePointLength`. If that change hasn't landed, add them with exactly the names, signatures and behavior from its design ("Module layout" and the `normalizeText` rules, including its fixed White_Space list). This change adds only:
+  - `normalizePassword(String)`: NFC only, via `toNfc()`.
   - `forEachCodePoint`.
-  - `hasInvalidCharacter(String, multiline)`: unpaired surrogate or U+0000–U+001F, with tab, LF and CR allowed only when `multiline`.
-  Other features need these for board, column, card and label names. Before adding them, check whether the board list or board view change already added a text helper, and extend that one instead.
-- **NFC uses `expect`/`actual`:** `java.text.Normalizer` (NFC) in `androidMain`, and `NSString.precomposedStringWithCanonicalMapping` in `iosMain`. No library.
+  - `hasInvalidCharacter(String, multiLine)`: unpaired surrogate or U+0000–U+001F, with tab, LF and CR allowed only when `multiLine`.
+  If the board list's `validateName` already has an equivalent character check, reuse it instead of adding `hasInvalidCharacter`.
+- **NFC** comes from the board list's `toNfc()` (`java.text.Normalizer` on Android, `NSString.precomposedStringWithCanonicalMapping` on iOS). No library.
 - **Code point categories:** `expect fun codePointCategory(cp: Int): CodePointCategory` with `Lower`, `Upper`, `Digit` and `Other`.
   - Android: `Character.getType(Int)`, mapped to `LOWERCASE_LETTER`, `UPPERCASE_LETTER` and `DECIMAL_DIGIT_NUMBER`.
   - iOS: `Char.category` for BMP code points. For supplementary code points, `NSCharacterSet.lowercaseLetterCharacterSet`, `uppercaseLetterCharacterSet` and `decimalDigitCharacterSet` with `longCharacterIsMember`. Apple's uppercase set also contains Lt, but every Lt character is in the BMP, so the BMP path gives the exact Ll/Lu/Nd answer.

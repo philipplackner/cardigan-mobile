@@ -24,7 +24,8 @@ The app has no way to sign in yet, and every other screen needs a signed-in user
 - **Autofill hints, keyboard types and IME actions** on every field (D12).
 - **Session interface** in `:core:domain`:
   - the session state: restoring, signed in with the email, signed out with a reason
-  - `logout()`
+  - `logout()`, which ends the session locally before the server call
+  - `SessionScopedStore`, so in-memory user data is cleared on every sign-out
   The app shell and other features use it. The board list change adds the Log out item and the "Signed in as {email}" text (D2, D13).
 - **Auth repository interface** with login and register and typed errors, in `:feature:auth:domain`.
 - **Session gate in `:composeApp`**: the start route follows the session state.

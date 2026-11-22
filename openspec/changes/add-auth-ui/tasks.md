@@ -15,12 +15,12 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 1. Core: text helpers and session interface
 
-- [ ] 1.1 Check whether another change (board list, board view) already added text helpers to `:core:domain`. Add or extend the `text` package (design "Text rules"):
-  - `normalizeText`, `normalizePassword`, `codePointCount`, `forEachCodePoint`, `hasInvalidCharacter`
-  - the `expect`/`actual` NFC and `codePointCategory` for Android and iOS
+- [ ] 1.1 Check whether add-board-list-ui already added `toNfc()`, `normalizeText(input, multiLine)` and `codePointLength` to `:core:domain`. If not, add them with exactly the names and signatures from its design. Then add (design "Text rules"):
+  - `normalizePassword`, `forEachCodePoint`, `hasInvalidCharacter` (or reuse the board list's character check)
+  - the `expect`/`actual` `codePointCategory` for Android and iOS
 
   List the break vectors from design "Testing" first, then write one test per angle. Verify: the tests pass on Android host and the iOS simulator, including `"👨‍👩‍👧"` = 5, decomposed `é` composed, U+1D7D9 as `Digit` on both platforms, and a lone surrogate rejected.
-- [ ] 1.2 Add `SessionManager`, `SessionState` and `SignOutReason` to `:core:domain` (design "Session interface"). Verify: compiles for Android and iOS.
+- [ ] 1.2 Add `SessionManager` (with the `logout()` ordering in its KDoc), `SessionState`, `SignOutReason` and `SessionScopedStore` to `:core:domain` (design "Session interface"). Verify: compiles for Android and iOS.
 - [ ] 1.3 Run all gates. Verify they pass, then commit `feat(core): add text rules` (1.1) and `feat(core): add session interface` (1.2) as two commits.
 
 ## 2. Auth domain
@@ -66,7 +66,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - unmet rules on submit with no message
   - over 128 code points and a tab
   - `EmailAlreadyUsed` cleared by an email edit
-  - `InvalidFields` mapping for email and password codes, with unknown codes going to the banner
+  - `InvalidFields` mapping for every row of the table in spec "Connection and unexpected errors", `PASSWORD_TOO_WEAK` and other unlisted codes going to the banner, and a mix of mapped and unmapped errors showing both
   - double submit
 
   Verify: the tests pass on both targets.
@@ -77,7 +77,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 ## 5. Navigation and session gate
 
 - [ ] 5.1 Add `authGraph(navController)` with the Log in ↔ Register navigation (design "Navigation"), and the auth presentation Koin module. Verify: a UI test that "Create one" opens Register and back returns to Log in with its values kept.
-- [ ] 5.2 In `:composeApp`, add `AppViewModel`, which calls `restore()` once and exposes `onLogout()`. Add the start destination and transition handling from design "Navigation and the session gate", with `AppStartRoute` standing in for the board list until the board list change replaces it. Unit test `AppViewModel` with a `FakeSessionManager`. Verify: the tests pass.
+- [ ] 5.2 In `:composeApp`, add `AppViewModel`, which calls `restore()` once and exposes `onLogout()`. Add the start destination and transition handling from design "Navigation and the session gate", with `AppStartRoute` standing in for the board list until the board list change replaces it. On every change to `SignedOut`, `AppViewModel` calls `clear()` on all Koin-bound `SessionScopedStore`s before the gate navigates (design "Clearing user data on sign-out"). Unit test `AppViewModel` with a `FakeSessionManager` and fake stores, including that `clear()` runs for `LoggedOut` and `Expired` and before navigation. Verify: the tests pass.
 - [ ] 5.3 Add `SessionGateUiTest` in `:composeApp` with a `FakeSessionManager` and `FakeAuthRepository`. Cover:
   - each start state (`SignedIn`, `NoSession`, `Expired`, and `SignedIn` reported after a restore that couldn't reach the backend, D18)
   - nothing drawn while `Restoring`
@@ -120,6 +120,6 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## Workflow follow-up
 
-- Send the board list change the `SessionManager` contract (state with email, `logout()`, `AppViewModel.onLogout()`), so its menu and sidebar use it (D2, D13).
-- `mob-auth-connect` implements `SessionManager` in `:core:data` and `AuthRepository` in `:feature:auth:data`, maps HTTP errors to `AuthError`, and stores the email next to the refresh token (D15).
+- Send the board list change the `SessionManager` contract (state with email, `logout()`, `AppViewModel.onLogout()`), so its menu and sidebar use it (D2, D13). Also send `SessionScopedStore`: its `InMemoryBoardRepository` must bind it, reset `boards` to `null` in `clear()`, and drop results of requests started before the last `clear()`. This matches the board list review's S1 (`BoardRepository.clear()` plus a session counter), so that change can implement both with one `clear()`.
+- `mob-auth-connect` implements `SessionManager` in `:core:data` and `AuthRepository` in `:feature:auth:data`, maps HTTP errors to `AuthError`, and stores the email next to the refresh token (D15). Its `logout()` clears local state before the server call (design "Session interface").
 - Archive only after `mob-auth-connect` has landed and task 9.1 is done, and only when the user says so.
