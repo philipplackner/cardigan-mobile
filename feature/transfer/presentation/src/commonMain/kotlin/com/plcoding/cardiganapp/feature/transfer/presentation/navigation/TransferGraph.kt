@@ -14,21 +14,15 @@ import com.plcoding.cardiganapp.feature.transfer.presentation.platform.rememberF
 /**
  * Registers [ImportBoardRoute] and [ExportBoardRoute] as dialog destinations. [onImported] runs
  * after a successful import, [onBoardListChanged] when an import failed and the list may have
- * changed, and [onDone] when the flow ends and the route should pop.
+ * changed, and [onDone] when the flow ends and the route should pop. [filePicker] is replaced in tests.
  */
 fun NavGraphBuilder.transferGraph(
     onImported: (Board) -> Unit,
     onBoardListChanged: () -> Unit,
     onDone: () -> Unit,
-) = transferGraph(onImported, onBoardListChanged, onDone) { onPicked, onCancelled ->
-    rememberFilePicker(onPicked, onCancelled)
-}
-
-internal fun NavGraphBuilder.transferGraph(
-    onImported: (Board) -> Unit,
-    onBoardListChanged: () -> Unit,
-    onDone: () -> Unit,
-    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker,
+    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker = { onPicked, onCancelled ->
+        rememberFilePicker(onPicked, onCancelled)
+    },
 ) {
     dialog<ImportBoardRoute>(dialogProperties = transferDestinationProperties()) {
         TransferDestinationNoDimEffect()

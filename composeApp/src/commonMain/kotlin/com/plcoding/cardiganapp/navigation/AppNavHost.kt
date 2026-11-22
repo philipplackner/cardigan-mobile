@@ -1,27 +1,55 @@
 package com.plcoding.cardiganapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.NavDestination.Companion.hasRoute
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardsGraph
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.ExportBoardRoute
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.ImportBoardRoute
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.transferGraph
+import com.plcoding.cardiganapp.feature.transfer.presentation.platform.FilePicker
+import com.plcoding.cardiganapp.feature.transfer.presentation.platform.PickedFile
+import com.plcoding.cardiganapp.feature.transfer.presentation.platform.rememberFilePicker
+import org.koin.compose.koinInject
 
+/**
+ * The app's navigation. [accountEmail] and [onLogOut] come from the session; [onOpenBoard] and
+ * [onLabelsClick] lead to screens other features own. [filePicker] is replaced in tests.
+ */
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    accountEmail: String?,
+    onLogOut: () -> Unit,
+    onOpenBoard: (boardId: String, name: String, key: String) -> Unit,
+    onLabelsClick: () -> Unit,
     modifier: Modifier = Modifier,
+    reloader: BoardListReloader = koinInject(),
+    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker = { onPicked, onCancelled ->
+        rememberFilePicker(onPicked, onCancelled)
+    },
 ) {
-    NavHost(navController = navController, startDestination = AppStartRoute, modifier = modifier) {
-        composable<AppStartRoute> {}
+    val currentEmail by rememberUpdatedState(accountEmail)
+    NavHost(navController = navController, startDestination = BoardListRoute, modifier = modifier) {
+        boardsGraph(
+            navController = navController,
+            accountEmail = { currentEmail },
+            onOpenBoard = onOpenBoard,
+            onImportClick = navController::navigateToImport,
+            onLabelsClick = onLabelsClick,
+            onLogOutClick = onLogOut,
+        )
         transferGraph(
-            // TODO(boards): reload the board list once mob-board-list-ui exposes its reload hook.
-            onImported = {},
-            onBoardListChanged = {},
+            onImported = { reloader.reload() },
+            onBoardListChanged = reloader::reload,
             onDone = { navController.popTransferRoute() },
+            filePicker = filePicker,
         )
     }
 }

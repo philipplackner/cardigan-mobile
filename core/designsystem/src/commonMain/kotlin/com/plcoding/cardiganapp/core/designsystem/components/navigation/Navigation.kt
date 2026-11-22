@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -111,13 +112,14 @@ fun NavItem(
 /**
  * Persistent navigation on tablet ([AppTheme.width] `sidebarTablet`) and desktop
  * (`sidebarDesktop`); the caller sets the width. [mainNav] holds the top Nav items, [boards]
- * the board items and the New board item. The board list scrolls when it is long.
+ * the board items and the New board item. The board list scrolls when it is long. A null
+ * [accountEmail] leaves the email and avatar out and keeps the Log out button.
  */
 @Composable
 fun Sidebar(
     boardsHeading: String,
-    accountEmail: String,
-    avatarInitial: String,
+    accountEmail: String?,
+    avatarInitial: String?,
     onLogOutClick: () -> Unit,
     logOutContentDescription: String,
     modifier: Modifier = Modifier,
@@ -165,15 +167,19 @@ fun Sidebar(
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s9),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Avatar(initial = avatarInitial)
-            Text(
-                text = accountEmail,
-                modifier = Modifier.weight(1f),
-                style = AppTheme.textStyles.sans13Regular145,
-                color = colors.text.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (accountEmail != null) {
+                if (avatarInitial != null) Avatar(initial = avatarInitial)
+                Text(
+                    text = accountEmail,
+                    modifier = Modifier.weight(1f),
+                    style = AppTheme.textStyles.sans13Regular145,
+                    color = colors.text.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
+            }
             CardiganIconButton(icon = CardiganIcons.LogOut, contentDescription = logOutContentDescription, onClick = onLogOutClick)
         }
     }
