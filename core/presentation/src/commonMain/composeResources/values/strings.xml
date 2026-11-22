@@ -4,4 +4,10 @@
     <string name="board_key_error_too_long">Use at most 5 letters.</string>
     <string name="board_key_error_invalid_format">Use only the letters A–Z.</string>
     <string name="board_key_error_already_used">You already have a board with the key %1$s.</string>
+    <string name="name_error_required">Enter a name.</string>
+    <string name="name_error_invalid_character">Use a single line without control characters.</string>
+    <plurals name="name_error_too_long">
+        <item quantity="one">Use at most %1$d character.</item>
+        <item quantity="other">Use at most %1$d characters.</item>
+    </plurals>
 </resources>

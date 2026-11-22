@@ -4,10 +4,10 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 1. Shared text rule and plural text (core)
 
-- [ ] 1.1 Add `expect fun String.toNfc()` / `toNfd()` in `:core:domain` with Android (`java.text.Normalizer`) and iOS (`NSString` canonical mapping) actuals. Verify with a common test that decomposed "é" becomes one code point and back, green on Android host and the iOS simulator.
-- [ ] 1.2 Add `normalizeText`, `codePointLength` and `validateName` → `NameError?` in `:core:domain` per design.md. Verify with adversarial unit tests covering every case listed under design.md Tests.
-- [ ] 1.3 Add `UiText.PluralResource` to `:core:presentation`, plus the name error strings ("Enter a name.", "Use at most {n} characters.", "Use a single line without control characters.") and `NameError.toUiText()`. Verify with a unit test of the mapping and a `*UiTest` that renders a plural for 0, 1 and 2.
-- [ ] 1.4 Commit `feat(core): add shared name rule and plural text`.
+- [x] 1.1 Add `expect fun String.toNfc()` / `toNfd()` in `:core:domain` with Android (`java.text.Normalizer`) and iOS (`NSString` canonical mapping) actuals. Verify with a common test that decomposed "é" becomes one code point and back, green on Android host and the iOS simulator.
+- [x] 1.2 Add `normalizeText`, `codePointLength` and `validateName` → `NameError?` in `:core:domain` per design.md. Verify with adversarial unit tests covering every case listed under design.md Tests.
+- [x] 1.3 Add `UiText.PluralResource` to `:core:presentation`, plus the name error strings ("Enter a name.", "Use at most {n} characters.", "Use a single line without control characters.") and `NameError.toUiText()`. Verify with a unit test of the mapping and a `*UiTest` that renders a plural for 0, 1 and 2.
+- [x] 1.4 Commit `feat(core): add shared name rule and plural text`.
 
 ## 2. Boards domain
 
