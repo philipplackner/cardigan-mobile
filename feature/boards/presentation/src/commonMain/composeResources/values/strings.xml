@@ -1,0 +1,46 @@
+<resources>
+    <string name="relative_time_just_now">Just now</string>
+    <plurals name="relative_time_minutes">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <plurals name="relative_time_hours">
+        <item quantity="one">1 hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <string name="relative_time_yesterday">Yesterday</string>
+    <string name="date_month_day_1">Jan %1$d</string>
+    <string name="date_month_day_2">Feb %1$d</string>
+    <string name="date_month_day_3">Mar %1$d</string>
+    <string name="date_month_day_4">Apr %1$d</string>
+    <string name="date_month_day_5">May %1$d</string>
+    <string name="date_month_day_6">Jun %1$d</string>
+    <string name="date_month_day_7">Jul %1$d</string>
+    <string name="date_month_day_8">Aug %1$d</string>
+    <string name="date_month_day_9">Sep %1$d</string>
+    <string name="date_month_day_10">Oct %1$d</string>
+    <string name="date_month_day_11">Nov %1$d</string>
+    <string name="date_month_day_12">Dec %1$d</string>
+    <string name="date_month_day_year_1">Jan %1$d, %2$d</string>
+    <string name="date_month_day_year_2">Feb %1$d, %2$d</string>
+    <string name="date_month_day_year_3">Mar %1$d, %2$d</string>
+    <string name="date_month_day_year_4">Apr %1$d, %2$d</string>
+    <string name="date_month_day_year_5">May %1$d, %2$d</string>
+    <string name="date_month_day_year_6">Jun %1$d, %2$d</string>
+    <string name="date_month_day_year_7">Jul %1$d, %2$d</string>
+    <string name="date_month_day_year_8">Aug %1$d, %2$d</string>
+    <string name="date_month_day_year_9">Sep %1$d, %2$d</string>
+    <string name="date_month_day_year_10">Oct %1$d, %2$d</string>
+    <string name="date_month_day_year_11">Nov %1$d, %2$d</string>
+    <string name="date_month_day_year_12">Dec %1$d, %2$d</string>
+    <string name="board_updated">Updated %1$s</string>
+    <plurals name="board_count">
+        <item quantity="one">1 board</item>
+        <item quantity="other">%1$d boards</item>
+    </plurals>
+    <plurals name="card_count">
+        <item quantity="one">1 card</item>
+        <item quantity="other">%1$d cards</item>
+    </plurals>
+    <string name="boards_refresh_failed">Couldn't refresh your boards. Check your connection and try again.</string>
+</resources>
