@@ -33,8 +33,9 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 ## 6. Fixture and manual check
 
 - [x] 6.1 Add `FixtureBoardDetailRepository`, `FixtureCardCreateRepository` and `FixtureLabelSource` with the Figma sample board and a new-board sample, bound only when `isDebug` is true. Add a temporary debug entry if the board list doesn't open boards yet (D6). Verify: the Koin `verify()` test passes for both values of `isDebug`. Commit `chore(boards): add temporary board view fixture`.
-- [ ] 6.2 Manual check on an Android emulator and the iOS simulator, phone and tablet, light and dark: every state from 4.2, quick add, column menu actions, refresh, both delete dialogs, and export from the board menu. Compare each screen with its Figma frame. Verify: the user confirms the check.
+- [x] 6.2 Manual check on an Android emulator and the iOS simulator, phone and tablet, light and dark: every state from 4.2, quick add, column menu actions, refresh, both delete dialogs, and export from the board menu. Compare each screen with its Figma frame. Verify: the user confirms the check.
   - Finding (2026-11-23, manual check): the column ⋯ button sat left of the header end (83 dp from the column edge on phone instead of Figma's 10 dp inside the padding). Cause: in `BoardColumn`'s header the name and the spacer both had a weight, so they split the free space and the spacer only got half of it. Fixed in `fix(designsystem): align the column menu button with the header edge`; `BoardScreenUiTest` now checks the button's position. The board header and board list ⋯ buttons have one weighted child and were not affected.
+  - Manual check by the user on 2026-11-23: all checks passed after the column menu fix (b999cba). Scope: Android emulator and iOS simulator, phone and tablet, light and dark; every state from 4.2, quick add, column menu actions, refresh, both delete dialogs, and export from the board menu, each compared with its Figma frame.
 
 ## 7. Clean-up
 
