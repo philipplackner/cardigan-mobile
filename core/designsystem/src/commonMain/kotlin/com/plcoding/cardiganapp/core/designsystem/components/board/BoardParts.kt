@@ -125,7 +125,9 @@ fun AddColumnButton(
  * Board column: header with name, card count and [menuButton], cards in [cards], and an Add card
  * button when [addCard] is set. The board view sets the column width.
  *
- * Draws its shape without clipping, so the small header button keeps its 48dp touch area.
+ * Draws its shape without clipping, so the small header button keeps its 48dp touch area. When the
+ * column's height is bounded, [cards] gets the space left after the header and [addCard], so it
+ * can hold a scrolling list.
  */
 @Composable
 fun BoardColumn(
@@ -164,7 +166,12 @@ fun BoardColumn(
             Box(modifier = Modifier.weight(1f))
             menuButton()
         }
-        Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8), content = cards)
+        // Measured after the header and Add card, so a scrolling cards list never pushes them out.
+        Column(
+            modifier = Modifier.weight(1f, fill = false),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+            content = cards,
+        )
         addCard?.invoke()
     }
 }

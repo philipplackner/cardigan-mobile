@@ -163,3 +163,30 @@ Every icon button and tile gets a content description from string resources, and
 ## Open Questions
 
 - The exact API of the board list's rename/delete board dialogs. It doesn't change this design: the board view needs only the renamed and deleted results.
+
+## Figma values
+
+Read on 2026-11-23 from page 9:6 with `get_design_context`, `get_screenshot` and the frame annotations (Plugin API). Tokens are the theme names in `:core:designsystem`.
+
+| | Phone 390 (`Phone`) | Tablet 834 / Desktop 1440 (`Tablet`, `Desktop`) |
+|---|---|---|
+| Header | `TitleAppBar`: back (`ChevronLeft`, Large), title = board name, subtitle `{key} · {n} cards` (Mono 11.5), actions search, filter, more (Large). Search and filter left out (D31). | `PageHeader`: name, `Key`, meta `{n} cards` (Mono 12), actions search field 240, `FilterButton`, refresh, more (32 outlined icon buttons). Search, filter and refresh left out (D31, D16). |
+| Strip padding | start/end `space/12`, top `space/8`, bottom `space/12` | start/end `space/20`, top/bottom `space/16` |
+| Column gap | `space/10` | `space/12` |
+| Column width | 300 (annotation: "Columns are 300px wide; swipe sideways.") | 276 |
+| Column | `BoardColumn`: `background/column`, `border/default`, `radius/10`, padding `space/8`, gap `space/8`, height hugs its cards | same, Default sizes |
+| Card tile | `BoardCard` Touch: padding 14×12, title Sans 14.5 Medium | `BoardCard` Default: padding 12, 10/11, title Sans 13.5 Medium |
+| Add card | `AddCardButton` Touch (vertical `space/10`, Sans 14) | `AddCardButton` Default (vertical `space/7`, Sans 13) |
+| Add column | `AddColumnButton` 220 wide after the last column | same |
+| Add column form | not drawn on phone (D20: desktop pattern) | box like a column (`background/column`, `border/default`, `radius/10`, padding `space/9`, gap `space/8`, width 276); `Input` with focus ring; buttons "Add column" Primary Small (30 high) and "Cancel" Ghost Small, gap `space/6` |
+| Quick add | `TextArea` MultiLine (Sans 15/150, min 44, accent border + focus ring) at the bottom of the cards; buttons "Add card" Primary and "Cancel" Ghost (Touch 38), gap `space/6`; the column's Add card button is hidden while it is open | same with Default sizes ("Quick add card · Desktop 1440") |
+| No cards yet | dashed box `border/strong`, `radius/8`, padding 7×15, text Sans 12.5 Regular, `text/faint`, centered | same |
+| Loading | header from the board list hint (name, key; no count). Skeleton columns with padding `space/9`: header bar 80×12; tiles 73 high, padding 15×13, gap `space/7`, bars 48×9, 90 %×12, 60 %×12. Column tile counts 4, 3 (phone shows two columns). | four skeleton columns with 4, 3, 2, 3 tiles |
+| Couldn't load | `EmptyState` Error, icon `CloudOff`, "Couldn’t load this board" / "Check your connection and try again.", Secondary button "Try again" with `Refresh` icon, centered in the content area | same |
+| No columns | — (desktop frame on every class, D20) | `EmptyState`, icon `Columns`, "This board has no columns" / "Add a column to start adding cards.", Primary "Add column" with `Plus`, centered |
+| Column menu | `Menu`: Move left (`ArrowLeft`), Move right (`ArrowRight`), Rename (`Rename`), divider, Delete column (`Trash`, danger). Annotation: "Move left is disabled on the first column, Move right on the last." | same |
+| Board menu | `Menu`: Rename board (`Rename`), Export as JSON (`Download`), divider, Delete board (`Trash`, danger) | same |
+| Rename column | `CardiganDialog` "Rename column" with `Field` "Name" + `Input`, Secondary "Cancel", Primary "Save" (desktop frame, D20) | same |
+| Delete column | `CardiganDialog` title "Delete column “{name}”?", description with the card count, Secondary "Cancel", Danger "Delete column and {n} cards"; phone uses Touch buttons that fill | same |
+
+Annotations on the page: phone column width (above), column menu disabled items (above), quick add "Title only. Enter adds the card and keeps the field open for the next one (proposal)." The drag & drop, move failed and search & filter frames belong to later changes. Figma has no rule for a tap outside the add column field; see the assumptions in the task report.
