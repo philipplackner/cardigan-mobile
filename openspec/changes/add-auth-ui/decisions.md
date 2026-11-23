@@ -203,6 +203,10 @@ Build the mobile auth UI for chunk `mob-auth-ui` in the `auth` feature: Log in a
 - `:feature:auth:{domain,data,presentation}` have build files only. `:composeApp` has an empty start route and the transfer graph. — source: repo listing
 - `iosApp` uses the default launch screen. The Android activity theme is `Theme.Material.Light.NoActionBar`. — source: `iosApp/iosApp/Info.plist`, `androidApp/src/main/AndroidManifest.xml`
 
+## Platform gaps
+
+- **iOS new-password autofill hint (task 3.3, found 2026-11-23).** The autofill hints use Compose `Modifier.semantics { contentType = ContentType.* }` from the catalog's Compose Multiplatform 1.12.1. On iOS, that version maps only `EmailAddress`, `Password` and `PhoneNumber` to `UITextContentType` (checked in the `ui-iosSimulatorArm64Main-1.12.1` klib). `ContentType.NewPassword` has no iOS mapping, so the Register password fields get no new-password hint on iOS and iOS Passwords may not offer a strong password there. Log in (email and password hints) is covered on both platforms. Android supports all three hints. No native workaround was built (design "Risks"). Reported to the user.
+
 ## Out of scope
 
 - HTTP calls, generated auth DTOs, token storage, the bearer plugin, refresh and the real session restore (`mob-auth-connect`)

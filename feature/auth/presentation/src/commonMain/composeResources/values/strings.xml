@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_email_label">Email</string>
+    <string name="auth_email_placeholder">you@example.com</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_log_in">Log in</string>
+    <string name="auth_error_email_required">Enter your email.</string>
+    <string name="auth_error_password_required">Enter your password.</string>
+    <string name="auth_error_rate_limited">Too many attempts. Try again in %1$s.</string>
+    <plurals name="auth_time_seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <plurals name="auth_time_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="auth_error_unavailable">Couldn't reach Cardigan. Check your connection and try again.</string>
+
+    <string name="login_title">Log in to Cardigan</string>
+    <string name="login_password_placeholder">Your password</string>
+    <string name="login_loading">Logging in…</string>
+    <string name="login_no_account">No account yet?</string>
+    <string name="login_create_one">Create one</string>
+    <string name="login_error_wrong_credentials">Email or password is incorrect.</string>
+    <string name="login_session_expired">Your session has expired. Log in again to continue.</string>
+</resources>

@@ -33,8 +33,8 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 3. Log in screen
 
-- [ ] 3.1 Add the Log in and shared auth strings from proposal "Copy" to `:feature:auth:presentation`, including the seconds and minutes plurals. Add the rate-limit time formatter (D19). Verify: unit tests for 1, 59, 60, 61 and 3600 seconds pass, every Log in string exists once, and no auth text is hard-coded in composables.
-- [ ] 3.2 Add `LoginRoute(sessionExpired)`, and `LoginViewModel` with State, Action and Event (design "Presentation"). Unit test it with a `FakeAuthRepository`. List the break vectors first:
+- [x] 3.1 Add the Log in and shared auth strings from proposal "Copy" to `:feature:auth:presentation`, including the seconds and minutes plurals. Add the rate-limit time formatter (D19). Verify: unit tests for 1, 59, 60, 61 and 3600 seconds pass, every Log in string exists once, and no auth text is hard-coded in composables.
+- [x] 3.2 Add `LoginRoute(sessionExpired)`, and `LoginViewModel` with State, Action and Event (design "Presentation"). Unit test it with a `FakeAuthRepository`. List the break vectors first:
   - blur timing and the first focus
   - an empty and a whitespace-only email
   - double submit
@@ -44,7 +44,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - saved-state restore without the password
 
   Verify: the tests pass on both targets.
-- [ ] 3.3 Add the Log in composables and `LoginRoot`:
+- [x] 3.3 Add the Log in composables and `LoginRoot`:
   - phone and card layouts by `WindowClass`, scroll and `imePadding`
   - Banner variants and the loading button
   - disabled fields and link while loading
@@ -52,8 +52,8 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - banners announced as a polite live region with their text, and no extra labels (D20)
 
   Check the autofill API in the catalog's Compose version. If iOS lacks it, write the gap in decisions.md and tell the user. Verify: previews for default, wrong credentials, session expired, rate limited, unavailable and loading, in light and dark at phone and desktop classes, then the Figma check against the Log in, Wrong email or password, Session expired and Logging in frames.
-- [ ] 3.4 Add `LoginUiTest` (Root + real ViewModel, fake repository). Cover: Done submits, double tap sends one request, fields disabled while loading, the wrong-credentials banner clears on edit, the session expired banner stays while typing and goes on submit, the 429 text for 1 and 12 seconds, and the "Create one" callback. Verify: `iosSimulatorArm64Test` passes.
-- [ ] 3.5 Run all gates. Verify they pass, then commit `feat(auth): add log in screen`.
+- [x] 3.4 Add `LoginUiTest` (Root + real ViewModel, fake repository). Cover: Done submits, double tap sends one request, fields disabled while loading, the wrong-credentials banner clears on edit, the session expired banner stays while typing and goes on submit, the 429 text for 1 and 12 seconds, and the "Create one" callback. Verify: `iosSimulatorArm64Test` passes.
+- [x] 3.5 Run all gates. Verify they pass, then commit `feat(auth): add log in screen`.
 
 ## 4. Register screen
 
