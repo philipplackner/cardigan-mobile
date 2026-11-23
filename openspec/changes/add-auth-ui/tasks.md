@@ -25,11 +25,11 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 2. Auth domain
 
-- [ ] 2.1 Add `AuthRepository`, `AuthError`, `AuthFieldError`, `AuthField` and `FieldErrorCode` to `:feature:auth:domain` (design "Auth repository and errors"). Write the success contract (session is `SignedIn` before the call returns) as KDoc on the interface. Verify: compiles.
-- [ ] 2.2 Add `EmailRule` with adversarial unit tests (design "Testing"). Verify: the tests pass on both targets, including the `domain-user` scenarios "Valid address", "Missing domain", "Non-ASCII address", "Comment in the address" and "Email over the limit". A 255-code-point email gives `TooLong` and not `InvalidFormat`. The 250 KB input finishes in under 100 ms.
-- [ ] 2.3 Add `PasswordRules` with adversarial unit tests. Verify: the tests pass, including the spec scenarios "Non-ASCII letters and digits", "Emoji counts once" and "Spaces are kept", and lengths 11, 12, 128 and 129.
-- [ ] 2.4 Add the `LoginForm` and `RegisterForm` validators (one error per field, the error order from design) with unit tests for every field combination in the spec requirement "Submit with errors shows every error". Verify: the tests pass on both targets.
-- [ ] 2.5 Run all gates. Verify they pass, then commit `feat(auth): add auth domain and form rules`.
+- [x] 2.1 Add `AuthRepository`, `AuthError`, `AuthFieldError`, `AuthField` and `FieldErrorCode` to `:feature:auth:domain` (design "Auth repository and errors"). Write the success contract (session is `SignedIn` before the call returns) as KDoc on the interface. Verify: compiles.
+- [x] 2.2 Add `EmailRule` with adversarial unit tests (design "Testing"). Verify: the tests pass on both targets, including the `domain-user` scenarios "Valid address", "Missing domain", "Non-ASCII address", "Comment in the address" and "Email over the limit". A 255-code-point email gives `TooLong` and not `InvalidFormat`. The 250 KB input finishes in under 100 ms.
+- [x] 2.3 Add `PasswordRules` with adversarial unit tests. Verify: the tests pass, including the spec scenarios "Non-ASCII letters and digits", "Emoji counts once" and "Spaces are kept", and lengths 11, 12, 128 and 129.
+- [x] 2.4 Add the `LoginForm` and `RegisterForm` validators (one error per field, the error order from design) with unit tests for every field combination in the spec requirement "Submit with errors shows every error". Verify: the tests pass on both targets.
+- [x] 2.5 Run all gates. Verify they pass, then commit `feat(auth): add auth domain and form rules`.
 
 ## 3. Log in screen
 
