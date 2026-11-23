@@ -80,7 +80,7 @@ Add the tooling to generate a test coverage report for the mobile code from the 
 
 ### D12 — Running diff-cover
 - **Question**: How is diff-cover installed and run?
-- **Decision**: diff-cover is https://github.com/Bachmann1234/diff_cover. It runs as `uvx diff-cover==<pinned>` from a Gradle task: `./gradlew diffCoverage [-Pcoverage.modules=…] [-Pcoverage.compareBranch=…]`. The task runs the tests and builds the Kover XML first, then passes the KMP source roots. No shell script. Output goes to the terminal, plus an HTML report under `build/`.
+- **Decision**: diff-cover is https://github.com/Bachmann1234/diff_cover. It runs as `uvx diff-cover==<pinned>` from a Gradle task: `./gradlew coverageDiff [-Pcoverage.modules=…] [-Pcoverage.compareBranch=…]`. The task runs the tests and builds the Kover XML first, then passes the KMP source roots. No shell script. Output goes to the terminal, plus an HTML report under `build/`.
 - **Alternatives**: a repo shell script; pipx global install with documented commands.
 - **Depends on**: D6, D11
 
@@ -92,7 +92,7 @@ Add the tooling to generate a test coverage report for the mobile code from the 
 
 ### D14 — Names shared across repos
 - **Question**: Should the command names match the other Cardigan repos?
-- **Decision**: Yes. Use the same task and property names as the backend: `coverageReport`, `diffCoverage`, `coverage.modules`, `coverage.compareBranch`, `coverage.minLine`, `coverage.minBranch`.
+- **Decision**: Yes. Use the same task and property names as the backend: `coverageReport`, `coverageDiff`, `coverage.modules`, `coverage.compareBranch`, `coverage.minLine`, `coverage.minBranch`.
 - **Depends on**: D6, D8, D12
 
 ### D15 — Where coverage policy lives
@@ -108,14 +108,14 @@ Add the tooling to generate a test coverage report for the mobile code from the 
 
 ### D17 — Normal test runs stay uninstrumented
 - **Question**: May Kover instrument or slow down normal test runs?
-- **Decision**: No. Kover instruments tests only when `coverageReport` or `diffCoverage` is part of the run. A normal `testAndroidHostTest` gate run is not instrumented and not slower. If that can't be guaranteed, the implementation reports it as a finding instead of accepting the slowdown.
+- **Decision**: No. Kover instruments tests only when `coverageReport` or `coverageDiff` is part of the run. A normal `testAndroidHostTest` gate run is not instrumented and not slower. If that can't be guaranteed, the implementation reports it as a finding instead of accepting the slowdown.
 - **Alternatives**: accept the instrumentation overhead on every test run.
 - **Why**: Coverage runs on demand only (D10).
 - **Depends on**: D10
 
 ### D18 — Untracked files count
 - **Question**: Do new, untracked files count in diff coverage?
-- **Decision**: Yes. `diffCoverage` passes `--include-untracked`.
+- **Decision**: Yes. `coverageDiff` passes `--include-untracked`.
 - **Depends on**: D11, D12
 
 ### D19 — Verifying build-logic
@@ -124,9 +124,24 @@ Add the tooling to generate a test coverage report for the mobile code from the 
 - **Depends on**: —
 
 ### D20 — Coverage task run without instrumentation
-- **Question**: What happens when `coverageReport` or `diffCoverage` runs without instrumentation (for example when called by an abbreviated name like `cR`)?
+- **Question**: What happens when `coverageReport` or `coverageDiff` runs without instrumentation (for example when called by an abbreviated name like `cR`)?
 - **Decision**: The build fails before any task runs, so no tests run and no report is written. The message is "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport." The approach and wording are the same as the backend repo.
 - **Depends on**: D14, D17
+
+### D21 — Name of the diff coverage task
+- **Question**: `./gradlew dC` is ambiguous between `deviceCheck` (AGP) and `diffCoverage`, so Gradle fails with its own message before the D20 guard runs. Keep the name?
+- **Decision**: Rename the task to `coverageDiff`. Property names stay `coverage.modules` and `coverage.compareBranch`. The backend renames its task too, so the commands match across repos, and it lines up with the web repo's `coverage:diff`. `./gradlew cD` resolves only to `coverageDiff` and hits the D20 guard.
+- **Alternatives**: keep `diffCoverage` and accept Gradle's ambiguity error for `dC`.
+- **Why**: Same names in every repo (D14), and the abbreviation gets the D20 message.
+- **Depends on**: D14, D20
+- **Decided**: 2026-11-23, after implementation, relayed by the orchestrator session (cardigan-3c).
+
+### D22 — Kover applied only on coverage runs
+- **Question**: With `instrumentation.disabledForAll`, Kover still adds `koverFindJar` to every host test task, so `check` would run a Kover task. How are gate runs kept free of Kover?
+- **Decision**: The module plugin applies Kover only when `coverageReport`, `coverageDiff` or a `kover*` task is requested. Otherwise it does nothing. The root plugin always applies Kover, so abbreviated Kover task names resolve and hit the D20 guard. The backend switches to the same approach.
+- **Alternatives**: apply Kover always and turn instrumentation off (leaves `koverFindJar` in every test run).
+- **Depends on**: D17, D20
+- **Decided**: 2026-11-23, after implementation, relayed by the orchestrator session (cardigan-3c).
 
 ## Facts
 

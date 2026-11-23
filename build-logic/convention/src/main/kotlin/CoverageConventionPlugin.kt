@@ -1,6 +1,6 @@
 import com.plcoding.cardiganapp.convention.COVERAGE_NEEDS_INSTRUMENTATION
 import com.plcoding.cardiganapp.convention.CoverageSummaryTask
-import com.plcoding.cardiganapp.convention.DiffCoverageTask
+import com.plcoding.cardiganapp.convention.CoverageDiffTask
 import com.plcoding.cardiganapp.convention.KOVER_CONVENTION_PLUGIN_ID
 import com.plcoding.cardiganapp.convention.applyCoverageExclusions
 import com.plcoding.cardiganapp.convention.isCoverageRequested
@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
 
 /**
- * Root plugin for `coverageReport` and `diffCoverage`. Merges the Kover data of the modules
+ * Root plugin for `coverageReport` and `coverageDiff`. Merges the Kover data of the modules
  * selected with `coverage.modules` (default: every module with the kover convention plugin).
  */
 class CoverageConventionPlugin : Plugin<Project> {
@@ -92,7 +92,7 @@ class CoverageConventionPlugin : Plugin<Project> {
                 minBranch?.let { this.minBranch.set(it) }
             }
 
-            tasks.register<DiffCoverageTask>("diffCoverage") {
+            tasks.register<CoverageDiffTask>("coverageDiff") {
                 group = COVERAGE_GROUP
                 description = "Shows coverage of the lines changed against coverage.compareBranch."
                 dependsOn("koverXmlReport")

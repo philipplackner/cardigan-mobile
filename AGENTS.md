@@ -244,7 +244,7 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 | `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` | Link the iOS framework |
 | `./gradlew connectedAndroidDeviceTest` | Android device tests (needs a running emulator). Not a gate. |
 | `./gradlew coverageReport` | Runs the host tests and writes a merged coverage report to `build/reports/kover/` (XML + HTML), then prints line and branch coverage. `-Pcoverage.modules=:core:data,:feature:boards:data` picks modules (default: all KMP modules). `-Pcoverage.minLine=<0-100>` / `-Pcoverage.minBranch=<0-100>` fail the run below that total. Use the full task name: abbreviations fail. Not a gate. |
-| `./gradlew diffCoverage` | Coverage of the lines changed against `origin/master` (committed, staged, unstaged and untracked), plus `build/reports/diff-coverage/index.html`. Takes `-Pcoverage.modules` and `-Pcoverage.compareBranch=<ref>`. Needs `uv`. Never fails on low coverage. Not a gate. |
+| `./gradlew coverageDiff` | Coverage of the lines changed against `origin/master` (committed, staged, unstaged and untracked), plus `build/reports/diff-coverage/index.html`. Takes `-Pcoverage.modules` and `-Pcoverage.compareBranch=<ref>`. Needs `uv`. Never fails on low coverage. Not a gate. |
 
 Tasks that don't exist yet get added in the change that sets up the tool.
 

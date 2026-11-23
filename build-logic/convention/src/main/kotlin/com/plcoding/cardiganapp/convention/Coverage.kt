@@ -8,10 +8,10 @@ internal const val KOVER_CONVENTION_PLUGIN_ID = "com.plcoding.cardiganapp.conven
 internal const val COVERAGE_NEEDS_INSTRUMENTATION =
     "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport."
 
-private val coverageTaskNames = setOf("coverageReport", "diffCoverage")
+private val coverageTaskNames = setOf("coverageReport", "coverageDiff")
 
 /**
- * True when the requested task names ask for coverage: `coverageReport`, `diffCoverage` or any
+ * True when the requested task names ask for coverage: `coverageReport`, `coverageDiff` or any
  * `kover*` task, matched on the last path segment. Abbreviated names such as `cR` don't match.
  */
 internal val Project.isCoverageRequested: Boolean

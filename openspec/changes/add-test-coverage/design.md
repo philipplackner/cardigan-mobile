@@ -16,7 +16,7 @@ What shapes the approach:
 **Goals:**
 - One plugin id per module to opt in. One root task for any combination of modules.
 - The same task and property names as the backend (D14).
-- No new tool to install for `coverageReport`. Only `uv` for `diffCoverage`.
+- No new tool to install for `coverageReport`. Only `uv` for `coverageDiff`.
 
 **Non-Goals:**
 - Making `*UiTest` run on the host, or measuring iOS or device tests.
@@ -28,7 +28,7 @@ What shapes the approach:
 ### 1. Two convention plugins
 
 - **`com.plcoding.cardiganapp.convention.kover`** (module). It applies `org.jetbrains.kotlinx.kover` and sets the report filters (decision 3). It doesn't add any tasks of its own. Each KMP module's `build.gradle.kts` adds `alias(libs.plugins.convention.kover)`.
-- **`com.plcoding.cardiganapp.convention.coverage`** (root). It applies Kover to the root project, adds each selected module as a `kover(project(path))` dependency, sets the same filters on the merged report, and registers `coverageReport` and `diffCoverage`.
+- **`com.plcoding.cardiganapp.convention.coverage`** (root). It applies Kover to the root project, adds each selected module as a `kover(project(path))` dependency, sets the same filters on the merged report, and registers `coverageReport` and `coverageDiff`.
 
 Alternative: let `convention.kmp.library` apply Kover by itself. Rejected, because D1 asks for opt-in with one plugin id. An explicit line per module also makes it obvious which modules are measured.
 
@@ -74,21 +74,21 @@ Task 1.2 checks which Kover variant name the AGP 9 KMP target produces. The root
 
 ### 4a. Instrumentation only for coverage runs (D17)
 
-The module plugin turns Kover instrumentation off unless a coverage task was requested:
+The module plugin applies Kover only when a coverage task was requested (D22):
 - At configuration time it reads `gradle.startParameter.taskNames`. That's part of the configuration-cache key, so this is safe with configuration cache.
-- If none of the names resolves to `coverageReport`, `diffCoverage` or a `kover*` task, it sets `kover { currentProject { instrumentation { disabledForAll = true } } }`.
-- Names are matched on the last path segment (`:coverageReport`, `coverageReport`). Gradle's abbreviated task names (`cR`) aren't matched, so instrumentation stays off. The guard below makes such a run fail before any task runs (D20).
-- The module plugin removes Kover's `koverVerify` from `check`, so `./gradlew check` and `./gradlew build` behave as before and never trigger the guard. Task 2.3 verifies `./gradlew :core:domain:check` succeeds.
+- If none of the names resolves to `coverageReport`, `coverageDiff` or a `kover*` task, the module plugin doesn't apply Kover at all. Turning instrumentation off with `disabledForAll` isn't enough: Kover still wires `koverFindJar` into every host `Test` task.
+- Names are matched on the last path segment (`:coverageReport`, `coverageReport`). Gradle's abbreviated task names (`cR`) aren't matched, so Kover isn't applied to the modules. The root plugin always applies Kover, so `kXR` still resolves (to the root task), and the guard below makes such a run fail before any task runs (D20).
+- When Kover is applied, the module plugin sets `verify.onCheck = false`, so `check` never runs `koverVerify`. Task 2.3 verifies `./gradlew :core:domain:check` succeeds.
 
 Test task outputs must not mix instrumented and plain runs. Instrumentation changes the test task's JVM arguments and adds a binary report output, so Gradle's up-to-date and build-cache checks treat the two runs as different. Task 2.3 confirms this in both directions: a gate run after a coverage run, and a coverage run after a gate run (which must rerun the tests with instrumentation, not report 0%).
 
 Alternative: check `gradle.taskGraph.whenReady`. Rejected, because Kover's instrumentation settings are read before the task graph is ready and that callback doesn't fit well with configuration cache.
 
-If Kover doesn't allow turning instrumentation off this way with the KMP Android target, task 2.3 reports it as a finding. The slowdown isn't accepted silently.
+Turning instrumentation off with `disabledForAll` was tried first. It kept the Kover agent out of the test JVM, but left `koverFindJar` in every test run, so it was replaced by not applying Kover at all (D22).
 
 Guard against an uninstrumented coverage run (D20), the same as in the backend repo:
 - The root plugin computes the same "coverage requested" flag from `startParameter.taskNames`.
-- In `gradle.taskGraph.whenReady`, if the flag is false and the graph contains `coverageReport`, `diffCoverage` or any Kover report task (root or module, matched by type or by a `kover` name prefix), it throws a `GradleException` with "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport."
+- In `gradle.taskGraph.whenReady`, if the flag is false and the graph contains `coverageReport`, `coverageDiff` or any Kover report task (root or module, matched by type or by a `kover` name prefix), it throws a `GradleException` with "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport."
 - This fails before any task runs, so no tests run.
 - With configuration cache: `whenReady` runs during configuration, and a configuration that throws isn't stored. So a repeated `cR` configures again and fails again, and never reuses a cache entry that skips the check.
 - Using `whenReady` here doesn't conflict with decision 4a. The instrumentation switch is still set from task names at configuration time; `whenReady` only checks the result.
@@ -114,9 +114,9 @@ Thresholds:
 
 Output paths are Kover's root defaults: `build/reports/kover/report.xml` and `build/reports/kover/html/`.
 
-### 6. `diffCoverage` (D9, D11, D12)
+### 6. `coverageDiff` (D9, D11, D12)
 
-`diffCoverage` is a root `Exec` task that depends on the root `koverXmlReport`. It runs:
+`coverageDiff` is a root `Exec` task that depends on the root `koverXmlReport`. It runs:
 
 ```
 uvx --exclude-newer <diffCoverExcludeNewer> diff-cover==<pinned> build/reports/kover/report.xml \

@@ -29,7 +29,7 @@ The coverage data SHALL come only from the Android host JVM test run of each sel
 - **THEN** the command fails with the test failure, and the XML and HTML reports at the fixed paths are not created or updated in this run, also when the command is run with `--continue`
 
 ### Requirement: Normal test runs are not instrumented
-Coverage instrumentation SHALL be active only when `coverageReport` or `diffCoverage` is requested in the same build. Any other run, including the `testAndroidHostTest` gate, SHALL run tests with no Kover agent in the test JVM's arguments and SHALL write no Kover binary report under any module's `build/kover/`.
+Coverage instrumentation SHALL be active only when `coverageReport` or `coverageDiff` is requested in the same build. Any other run, including the `testAndroidHostTest` gate, SHALL run tests with no Kover agent in the test JVM's arguments and SHALL write no Kover binary report under any module's `build/kover/`.
 
 #### Scenario: Gate run
 - **WHEN** a developer runs `./gradlew testAndroidHostTest`
@@ -49,10 +49,10 @@ Coverage instrumentation SHALL be active only when `coverageReport` or `diffCove
 - **THEN** the host tests of `:core:domain` run again with instrumentation, and the report shows covered lines for `normalizePassword`
 
 ### Requirement: Coverage tasks refuse to run uninstrumented
-If `coverageReport`, `diffCoverage` or any Kover report task is about to run while instrumentation is off, for example because it was called by an abbreviated name, the build SHALL fail before any task runs, with the message "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport." No test SHALL run and no report SHALL be written. `check` and `build` SHALL NOT run any Kover task.
+If `coverageReport`, `coverageDiff` or any Kover report task is about to run while instrumentation is off, for example because it was called by an abbreviated name, the build SHALL fail before any task runs, with the message "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport." No test SHALL run and no report SHALL be written. `check` and `build` SHALL NOT run any Kover task.
 
 #### Scenario: Abbreviated task name
-- **WHEN** a developer runs `./gradlew cR`, `./gradlew dC` or `./gradlew kXR`
+- **WHEN** a developer runs `./gradlew cR`, `./gradlew cD` or `./gradlew kXR`
 - **THEN** the build fails with that message before any task runs, and no test runs
 
 #### Scenario: Repeated abbreviated run
@@ -120,18 +120,18 @@ The reports SHALL leave out every `@Composable` function, previews included. The
 - **THEN** the command fails before any test runs, with a message that the value must be a number from 0 to 100
 
 ### Requirement: Diff coverage against a base branch
-`diffCoverage` SHALL report coverage only for lines changed against a base ref. Committed, staged, unstaged and untracked changes all count. The base SHALL be `origin/master` unless `coverage.compareBranch` names another ref. It SHALL accept `coverage.modules` with the same meaning and validation as `coverageReport`, and it SHALL build that report first.
+`coverageDiff` SHALL report coverage only for lines changed against a base ref. Committed, staged, unstaged and untracked changes all count. The base SHALL be `origin/master` unless `coverage.compareBranch` names another ref. It SHALL accept `coverage.modules` with the same meaning and validation as `coverageReport`, and it SHALL build that report first.
 
 #### Scenario: Default base
-- **WHEN** a developer on a feature branch runs `./gradlew diffCoverage`
+- **WHEN** a developer on a feature branch runs `./gradlew coverageDiff`
 - **THEN** the terminal shows, for each changed Kotlin file in the selected modules, the percentage of changed lines covered and the uncovered line numbers, plus the overall diff coverage
 
 #### Scenario: New untracked file
-- **WHEN** a developer adds a new, untracked Kotlin file with tested code in a selected module and runs `./gradlew diffCoverage`
+- **WHEN** a developer adds a new, untracked Kotlin file with tested code in a selected module and runs `./gradlew coverageDiff`
 - **THEN** that file's lines are included in the diff coverage
 
 #### Scenario: Other base
-- **WHEN** a developer runs `./gradlew diffCoverage -Pcoverage.compareBranch=HEAD~3`
+- **WHEN** a developer runs `./gradlew coverageDiff -Pcoverage.compareBranch=HEAD~3`
 - **THEN** only lines changed since `HEAD~3` are reported
 
 #### Scenario: Changed lines that aren't measured
@@ -143,19 +143,19 @@ The reports SHALL leave out every `@Composable` function, previews included. The
 - **THEN** the command fails with a message that names the ref
 
 ### Requirement: Diff coverage output and exit
-`diffCoverage` SHALL print its result to the terminal and write an HTML report to a fixed path under the root `build/reports/` directory. It SHALL NOT fail because diff coverage is low.
+`coverageDiff` SHALL print its result to the terminal and write an HTML report to a fixed path under the root `build/reports/` directory. It SHALL NOT fail because diff coverage is low.
 
 #### Scenario: Low diff coverage
 - **WHEN** none of the changed lines are covered
 - **THEN** the command succeeds, prints 0% diff coverage, and writes the HTML report
 
 ### Requirement: Diff coverage tool is fetched on demand
-`diffCoverage` SHALL run a pinned diff-cover version through `uv`, without a separate install step. If `uv` isn't available, the command SHALL fail with a message that says `uv` is needed and how to install it.
+`coverageDiff` SHALL run a pinned diff-cover version through `uv`, without a separate install step. If `uv` isn't available, the command SHALL fail with a message that says `uv` is needed and how to install it.
 
 #### Scenario: uv missing
-- **WHEN** a developer without `uv` on the `PATH` runs `./gradlew diffCoverage`
+- **WHEN** a developer without `uv` on the `PATH` runs `./gradlew coverageDiff`
 - **THEN** the command fails with a message that names `uv` and links its install instructions
 
 #### Scenario: Same version for everyone
-- **WHEN** two developers run `./gradlew diffCoverage` on the same commit
+- **WHEN** two developers run `./gradlew coverageDiff` on the same commit
 - **THEN** both runs use the same diff-cover version and resolve the same versions of its dependencies

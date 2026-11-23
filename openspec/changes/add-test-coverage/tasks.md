@@ -34,8 +34,8 @@
   - `-Pcoverage.minBranch=abc` and `-Pcoverage.minLine=120` fail before tests run
   - a run without thresholds always succeeds
   - the same command run twice reuses the configuration cache
-  - `./gradlew cR` and `./gradlew kXR` fail with "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport." before any task runs (no test task in the output), and fail the same way when repeated with configuration cache on. Check `./gradlew dC` the same way after 3.3
-- [x] 3.3 Register `diffCoverage`: depends on the root XML report, checks for `uv` and the base ref, and runs `uvx --exclude-newer <catalog date> diff-cover==<catalog version>` with the selected modules' existing `commonMain`/`androidMain` source roots, `--compare-branch` from `coverage.compareBranch` (default `origin/master`), `--include-untracked`, and the HTML report at `build/reports/diff-coverage/index.html`, without `--fail-under`. Verify:
+  - `./gradlew cR` and `./gradlew kXR` fail with "Coverage needs instrumentation. Run with the full task name, e.g. ./gradlew coverageReport." before any task runs (no test task in the output), and fail the same way when repeated with configuration cache on. Check `./gradlew cD` the same way after 3.3 (`coverageDiff` was named `diffCoverage` until D21, where `dC` clashed with `deviceCheck`)
+- [x] 3.3 Register `coverageDiff`: depends on the root XML report, checks for `uv` and the base ref, and runs `uvx --exclude-newer <catalog date> diff-cover==<catalog version>` with the selected modules' existing `commonMain`/`androidMain` source roots, `--compare-branch` from `coverage.compareBranch` (default `origin/master`), `--include-untracked`, and the HTML report at `build/reports/diff-coverage/index.html`, without `--fail-under`. Verify:
   - on a throwaway local change to a tested and an untested function in `:core:domain`, the terminal shows the file with uncovered line numbers, and the HTML exists
   - a new untracked Kotlin file in `:core:domain` shows up in the report
   - `-Pcoverage.compareBranch=HEAD~1` changes the reported lines
@@ -48,7 +48,7 @@
 
 - [x] 4.1 Update `CLAUDE.md` (the `AGENTS.md` it points to):
   - Tech Stack: a Coverage row for Kover (host tests only) and diff-cover via `uvx`
-  - Commands table: `coverageReport` and `diffCoverage` with their properties, marked "Not a gate"
+  - Commands table: `coverageReport` and `coverageDiff` with their properties, marked "Not a gate"
   - Testing: one short paragraph on the exclusions and the androidMain naming rules (`*.android.kt` facades, `Android*` classes)
   - API contract: generated DTOs go under a package with a `generated` segment
   Verify: every documented command runs as written.

@@ -23,7 +23,7 @@ import javax.inject.Inject
  * Never fails because of low coverage.
  */
 @DisableCachingByDefault(because = "Depends on the git working tree, which Gradle doesn't track")
-abstract class DiffCoverageTask @Inject constructor(
+abstract class CoverageDiffTask @Inject constructor(
     private val execOperations: ExecOperations,
 ) : DefaultTask() {
 
@@ -53,7 +53,7 @@ abstract class DiffCoverageTask @Inject constructor(
     fun run() {
         val workingDir = repositoryDir.get().asFile
         val uvx = findOnPath("uvx") ?: throw GradleException(
-            "diffCoverage needs uv on the PATH to run diff-cover. " +
+            "coverageDiff needs uv on the PATH to run diff-cover. " +
                 "Install it from https://docs.astral.sh/uv/getting-started/installation/",
         )
         val ref = compareBranch.get()
