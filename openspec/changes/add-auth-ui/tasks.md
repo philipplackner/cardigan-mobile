@@ -96,7 +96,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 7. Docs
 
-- [ ] 7.1 Update the repo's `CLAUDE.md` (D14):
+- [x] 7.1 Update the repo's `CLAUDE.md` (D14):
   - Authentication: login and register are rate limited per email only, with no IP limit. Refresh and logout are never limited.
   - Open Items: drop "Whether logout gets a rate limit".
 
