@@ -3,9 +3,13 @@ package com.plcoding.cardiganapp.di
 import androidx.lifecycle.SavedStateHandle
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import com.plcoding.cardiganapp.feature.boards.data.InMemoryBoardRepository
 import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureBoardDataSource
+import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureBoardDetailRepository
+import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureCardCreateRepository
+import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureLabelSource
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
 import com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListViewModel
@@ -126,5 +130,17 @@ class AppModulesTest {
         // No module binds BoardTransferRepository until mob-import-export-connect adds the Ktor one.
         val koin = koin()
         koin.resolveTransfer()
+    }
+
+    @Test
+    fun boardViewFixtureIsBoundAndLoadsTheSampleBoard() = runTest {
+        // TEMPORARY with the board view fixture (D6): without the test overrides, appModules binds it.
+        val koin = koinApplication {
+            modules(appModules() + module { single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) } })
+        }.also { apps += it }.koin
+        koin.get<BoardViewModel> { parametersOf(SavedStateHandle(mapOf(BoardViewModel.ARG_BOARD_ID to Uuid.random().toString()))) }
+        assertThat(koin.get<BoardDetailRepository>()).isInstanceOf<FixtureBoardDetailRepository>()
+        assertThat(koin.get<CardCreateRepository>()).isInstanceOf<FixtureCardCreateRepository>()
+        assertThat(koin.get<LabelSource>()).isInstanceOf<FixtureLabelSource>()
     }
 }

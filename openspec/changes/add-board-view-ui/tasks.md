@@ -32,7 +32,7 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 6. Fixture and manual check
 
-- [ ] 6.1 Add `FixtureBoardDetailRepository`, `FixtureCardCreateRepository` and `FixtureLabelSource` with the Figma sample board and a new-board sample, bound only when `isDebug` is true. Add a temporary debug entry if the board list doesn't open boards yet (D6). Verify: the Koin `verify()` test passes for both values of `isDebug`. Commit `chore(boards): add temporary board view fixture`.
+- [x] 6.1 Add `FixtureBoardDetailRepository`, `FixtureCardCreateRepository` and `FixtureLabelSource` with the Figma sample board and a new-board sample, bound only when `isDebug` is true. Add a temporary debug entry if the board list doesn't open boards yet (D6). Verify: the Koin `verify()` test passes for both values of `isDebug`. Commit `chore(boards): add temporary board view fixture`.
 - [ ] 6.2 Manual check on an Android emulator and the iOS simulator, phone and tablet, light and dark: every state from 4.2, quick add, column menu actions, refresh, both delete dialogs, and export from the board menu. Compare each screen with its Figma frame. Verify: the user confirms the check.
 
 ## 7. Clean-up
