@@ -39,7 +39,7 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 7. Clean-up
 
-- [ ] 7.1 Remove the fixtures, their Koin bindings and any debug entry in their own commit. Verify: no `Fixture*` class is left in `:feature:boards`, and all gates pass. Commit `chore(boards): remove temporary board view fixture`.
+- [x] 7.1 Remove the fixtures, their Koin bindings and any debug entry in their own commit. Verify: no `Fixture*` class is left in `:feature:boards`, and all gates pass. Commit `chore(boards): remove temporary board view fixture`.
 
 ## Workflow follow-up
 
