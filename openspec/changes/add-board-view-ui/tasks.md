@@ -8,8 +8,8 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 2. Domain
 
-- [ ] 2.1 Add `BoardContent`, `Column`, `Card` with `displayId(boardKey)`, `Label`, `LabelColor` (20 names), `LabelSource` and the label order to `:core:domain` (design "Domain models"). Unit test `displayId` (number 1, 109, large numbers, no leading zeros) and label order (`frontend`, `Bug`, `api` → `api`, `Bug`, `frontend`, equal names that differ only in case). Verify: the tests pass on Android host and the iOS simulator.
-- [ ] 2.2 Add `BoardDetailRepository`, `CardCreateRepository`, `BoardLoadError`, `ColumnWriteError` and `CardCreateError` to `:feature:boards:domain` (design "Repositories and errors"). Verify: compiles for Android and iOS. Commit `feat(core): ...` and `feat(boards): ...` separately.
+- [x] 2.1 Add `BoardContent`, `Column`, `Card` with `displayId(boardKey)`, `Label`, `LabelColor` (20 names), `LabelSource` and the label order to `:core:domain` (design "Domain models"). Unit test `displayId` (number 1, 109, large numbers, no leading zeros) and label order (`frontend`, `Bug`, `api` → `api`, `Bug`, `frontend`, equal names that differ only in case). Verify: the tests pass on Android host and the iOS simulator.
+- [x] 2.2 Add `BoardDetailRepository`, `CardCreateRepository`, `BoardLoadError`, `ColumnWriteError` and `CardCreateError` to `:feature:boards:domain` (design "Repositories and errors"). Verify: compiles for Android and iOS. Commit `feat(core): ...` and `feat(boards): ...` separately.
 
 ## 3. ViewModel
 
