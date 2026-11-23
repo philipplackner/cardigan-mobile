@@ -125,6 +125,8 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 - [ ] 9.1 Only once `mob-auth-connect` binds the real `SessionManager` and `AuthRepository`: delete the fixture, the overlay and their bindings and tests. Verify: `grep -rn "Fixture\|DebugOverlay" feature/auth composeApp` finds nothing, and all gates pass. Then commit `chore(auth): remove temporary fixture session and debug overlay`.
 
+  Archived open on 2026-11-23: the real bindings don't exist yet. The task is tracked in AGENTS.md under Authentication ("Temporary auth fixture") until the change that binds the real `SessionManager` and `AuthRepository` takes it over.
+
 ## Workflow follow-up
 
 - Send the board list change the `SessionManager` contract (state with email, `logout()`, `AppViewModel.onLogout()`), so its menu and sidebar use it (D2, D13). Also send `SessionScopedStore`: its `InMemoryBoardRepository` must bind it, reset `boards` to `null` in `clear()`, and drop results of requests started before the last `clear()`. This matches the board list review's S1 (`BoardRepository.clear()` plus a session counter), so that change can implement both with one `clear()`.
