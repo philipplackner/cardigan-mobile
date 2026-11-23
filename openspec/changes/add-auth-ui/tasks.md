@@ -90,9 +90,9 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 6. Splash
 
-- [ ] 6.1 Look up the latest stable `androidx.core:core-splashscreen` and add it to the version catalog and `:androidApp`. Add the starting theme with `postSplashScreenTheme`, and `installSplashScreen()` with `setKeepOnScreenCondition` on `isRestoringSession()` exposed by `:composeApp`. Use the launcher icon on `background/app`, with a night variant (D16). Verify: `:androidApp:assembleDebug` passes and the merged manifest uses the starting theme.
-- [ ] 6.2 iOS: add the launch background color asset (light and dark) and set it in `UILaunchScreen` with no image (D16). Verify: `xcodebuild` for the simulator passes.
-- [ ] 6.3 Run all gates plus `xcodebuild`. Verify they pass, then commit `feat(auth): keep the splash while the session restores`.
+- [x] 6.1 Look up the latest stable `androidx.core:core-splashscreen` and add it to the version catalog and `:androidApp`. Add the starting theme with `postSplashScreenTheme`, and `installSplashScreen()` with `setKeepOnScreenCondition` on `isRestoringSession()` exposed by `:composeApp`. Use the launcher icon on `background/app`, with a night variant (D16). Verify: `:androidApp:assembleDebug` passes and the merged manifest uses the starting theme.
+- [x] 6.2 iOS: add the launch background color asset (light and dark) and set it in `UILaunchScreen` with no image (D16). Verify: `xcodebuild` for the simulator passes.
+- [x] 6.3 Run all gates plus `xcodebuild`. Verify they pass, then commit `feat(auth): keep the splash while the session restores`.
 
 ## 7. Docs
 
