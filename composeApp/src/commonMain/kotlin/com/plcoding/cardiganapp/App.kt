@@ -16,13 +16,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.plcoding.cardiganapp.core.domain.session.SessionState
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
+import com.plcoding.cardiganapp.di.AppBuildInfo
+import com.plcoding.cardiganapp.feature.auth.data.fixture.InMemorySessionManager
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.navigation.AppNavHost
 import com.plcoding.cardiganapp.session.AppViewModel
+import com.plcoding.cardiganapp.session.DebugSessionOverlay
 import com.plcoding.cardiganapp.session.SessionGate
 import com.plcoding.cardiganapp.shell.AppShell
 import com.plcoding.cardiganapp.toast.AppToastController
 import com.plcoding.cardiganapp.toast.AppToastHost
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -82,6 +86,15 @@ fun App(
                         host(Modifier.fillMaxSize())
                     }
                 }
+            }
+            // TEMPORARY (D3): removed with the auth fixture in add-auth-ui task 9.1.
+            val fixtureSession = koinInject<AppBuildInfo>().takeIf { it.isDebug }?.let { getKoin().getOrNull<InMemorySessionManager>() }
+            if (fixtureSession != null && signedInEmail != null) {
+                DebugSessionOverlay(
+                    onExpireSession = fixtureSession::expire,
+                    onLogOut = appViewModel::onLogout,
+                    modifier = Modifier.align(Alignment.TopEnd),
+                )
             }
             AppToastHost(controller = toastController, modifier = Modifier.align(Alignment.BottomCenter))
         }
