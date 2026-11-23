@@ -27,8 +27,8 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 5. Navigation and wiring
 
-- [ ] 5.1 Add `BoardRoute(boardId, name = null, key = null)` and `boardViewDestination(...)` (design "Navigation and wiring"), and register the board view Koin module. Verify: the Koin `verify()` test passes.
-- [ ] 5.2 Wire `:composeApp`: open-board from the board list, `onBack`, `onExportClick` → `ExportBoardRoute` (`launchSingleTop`), `onBoardMissing` → board list reload (or removal from its store) and back to the board list, `onBoardDeleted` → back to the board list, `onCardClick` no-op, and the board list's rename/delete dialogs from the board menu. Verify: all gates pass, and a `*UiTest` in `:composeApp` or the feature checks that "Export as JSON" navigates with the board's ID and name. Commit `feat(boards): wire board view navigation`.
+- [x] 5.1 Add `BoardRoute(boardId, name = null, key = null)` and `boardViewDestination(...)` (design "Navigation and wiring"), and register the board view Koin module. Verify: the Koin `verify()` test passes.
+- [x] 5.2 Wire `:composeApp`: open-board from the board list, `onBack`, `onExportClick` → `ExportBoardRoute` (`launchSingleTop`), `onBoardMissing` → board list reload (or removal from its store) and back to the board list, `onBoardDeleted` → back to the board list, `onCardClick` no-op, and the board list's rename/delete dialogs from the board menu. Verify: all gates pass, and a `*UiTest` in `:composeApp` or the feature checks that "Export as JSON" navigates with the board's ID and name. Commit `feat(boards): wire board view navigation`.
 
 ## 6. Fixture and manual check
 

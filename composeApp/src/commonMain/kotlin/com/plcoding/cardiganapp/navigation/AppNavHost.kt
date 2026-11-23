@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardViewDestination
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardsGraph
 import com.plcoding.cardiganapp.feature.boards.presentation.util.boardsReloadFailedToast
 import com.plcoding.cardiganapp.core.domain.util.onFailure
@@ -56,6 +57,18 @@ fun AppNavHost(
             onImportClick = navController::navigateToImport,
             onLabelsClick = onLabelsClick,
             onLogOutClick = onLogOut,
+        )
+        boardViewDestination(
+            navController = navController,
+            onBack = { navController.popBackStack() },
+            // TODO(card-detail): open the card once mob-card-detail-ui lands.
+            onCardClick = { _, _ -> },
+            onExportClick = navController::navigateToExport,
+            onBoardMissing = {
+                reloadBoards()
+                navController.popBackStack(BoardListRoute, inclusive = false)
+            },
+            onBoardDeleted = { navController.popBackStack(BoardListRoute, inclusive = false) },
         )
         transferGraph(
             onImported = { reloadBoards() },

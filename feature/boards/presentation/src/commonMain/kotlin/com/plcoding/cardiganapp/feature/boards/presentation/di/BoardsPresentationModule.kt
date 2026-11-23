@@ -2,6 +2,7 @@ package com.plcoding.cardiganapp.feature.boards.presentation.di
 
 import com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.deleteboard.DeleteBoardViewModel
+import com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
@@ -23,6 +24,7 @@ val boardsPresentationModule = module {
     viewModelOf(::BoardListViewModel)
     viewModelOf(::NewBoardViewModel)
     viewModelOf(::BoardsSidebarViewModel)
+    viewModelOf(::BoardViewModel)
     viewModel { params -> RenameBoardViewModel(params.get(), get(), get(), get()) }
     viewModel { params -> DeleteBoardViewModel(params.get(), get(), get()) }
 }

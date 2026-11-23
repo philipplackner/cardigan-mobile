@@ -10,6 +10,13 @@ import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
 import com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.deleteboard.DeleteBoardViewModel
+import com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel
+import com.plcoding.cardiganapp.core.domain.label.LabelSource
+import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardDetailRepository
+import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateRepository
+import com.plcoding.cardiganapp.fakes.FakeBoardDetailRepository
+import com.plcoding.cardiganapp.fakes.FakeCardCreateRepository
+import com.plcoding.cardiganapp.fakes.FakeLabelSource
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
@@ -64,6 +71,9 @@ class AppModulesTest {
     }
 
     private val testRepository = module {
+        single<BoardDetailRepository> { FakeBoardDetailRepository() }
+        single<CardCreateRepository> { FakeCardCreateRepository() }
+        single<LabelSource> { FakeLabelSource() }
         single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) }
         single<BoardTransferRepository> {
             object : BoardTransferRepository {
@@ -96,6 +106,7 @@ class AppModulesTest {
         get<NewBoardViewModel> { parametersOf(SavedStateHandle()) }
         get<RenameBoardViewModel> { parametersOf(Uuid.random().toString(), SavedStateHandle()) }
         get<DeleteBoardViewModel> { parametersOf(Uuid.random().toString()) }
+        get<BoardViewModel> { parametersOf(SavedStateHandle(mapOf(BoardViewModel.ARG_BOARD_ID to Uuid.random().toString()))) }
     }
 
     @Test
