@@ -173,7 +173,7 @@ Scope is **register, login, refresh, logout only**. No email verification, no pa
 - Logout is triggered from menus in other features, so the logout call and session clearing sit behind an interface in `:core:domain`, implemented in `:core:data`.
 - On logout or a failed refresh: clear both tokens, clear the Ktor bearer token cache, clear in-memory feature data, go to login. The "Session expired" state in Figma is shown when the session ended without an explicit logout.
 - **Backend dependency:** the body-based refresh token for mobile needs a backend change. Until the spec shows it, don't build the refresh flow against a guessed contract. Ask.
-- Rate limiting follows the shared `api-auth-tokens` and `api-errors` specs. Login, register and refresh are rate limited, counted per client IP, and login also per email. A request over the limit gets `429` with code `RATE_LIMITED` and a `Retry-After` header in whole seconds. Use only `Retry-After` to decide when to try again. There is no design for this state yet, so ask before building its UI.
+- Rate limiting follows the shared `api-auth-tokens` and `api-errors` specs. Only login and register are rate limited, counted per email only (normalized and lowercased), separately for each, with no IP limit. Refresh and logout are never rate limited and never answer `429`. A request over the limit gets `429` with code `RATE_LIMITED` and a `Retry-After` header in whole seconds. Use only `Retry-After` to decide when to try again. There is no design for this state yet, so ask before building its UI.
 
 ### Local data
 
@@ -277,7 +277,6 @@ Ask before building anything that depends on these:
 - The backend's OpenAPI snapshot. The backend is still the Spring Initializr skeleton and doesn't have the snapshot folder yet. Until it exists, there is no contract to generate from.
 - The backend change for the body-based refresh token for mobile.
 - Designs for: rate limit (`429`), network error, offline.
-- Whether logout gets a rate limit. The shared spec rate limits only login, register and refresh.
 - Production URL and any staging environment.
 - How ProblemDetail `code` values reach feature error types.
 - Drag & drop implementation (Compose foundation or a library).
