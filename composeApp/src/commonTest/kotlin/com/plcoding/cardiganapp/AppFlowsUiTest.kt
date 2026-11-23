@@ -13,7 +13,19 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
+import com.plcoding.cardiganapp.core.domain.label.LabelSource
+import com.plcoding.cardiganapp.fakes.FakeBoardDetailRepository
+import com.plcoding.cardiganapp.fakes.FakeCardCreateRepository
+import com.plcoding.cardiganapp.fakes.FakeLabelSource
+import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardDetailRepository
+import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateRepository
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.navigateToBoard
+import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.ExportBoardRoute
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
@@ -57,6 +69,9 @@ class AppFlowsUiTest {
                     single<BoardTransferRepository> { transfer }
                     single<ExportFileChecker> { FakeExportFileChecker(fileKey) }
                     single<ToastController> { toasts }
+                    single<BoardDetailRepository> { FakeBoardDetailRepository() }
+                    single<CardCreateRepository> { FakeCardCreateRepository() }
+                    single<LabelSource> { FakeLabelSource() }
                 },
             )
         }
@@ -67,12 +82,14 @@ class AppFlowsUiTest {
         stopKoin()
     }
 
+    private var navController: NavHostController? = null
+
     private fun ComposeUiTest.showApp() {
         setContent {
             AppTheme(darkTheme = false, windowClass = WindowClass.Phone) {
                 Box(Modifier.requiredSize(390.dp, 844.dp)) {
                     AppNavHost(
-                        navController = rememberNavController(),
+                        navController = rememberNavController().also { navController = it },
                         startDestination = BoardListRoute,
                         accountEmail = null,
                         onLogOut = {},
@@ -145,4 +162,27 @@ class AppFlowsUiTest {
         waitUntil(timeoutMillis = 5_000) { onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
     }
 
+    @Test
+    fun exportFromTheBoardMenuOpensTheExportForThatBoard() = runComposeUiTest {
+        val remote = FakeRemoteBoardDataSource(listOf(cardigan))
+        start(remote, FakeBoardTransferRepository(Result.Error(ImportError.Failed)), fileKey = null)
+        showApp()
+        awaitBoard("Cardigan v1")
+        val exports = mutableListOf<ExportBoardRoute>()
+        runOnIdle {
+            val controller = navController!!
+            // The export dialog may close again on its own, so record it as it opens.
+            controller.addOnDestinationChangedListener { _, destination, _ ->
+                if (destination.hasRoute<ExportBoardRoute>()) exports += controller.currentBackStackEntry!!.toRoute<ExportBoardRoute>()
+            }
+            controller.navigateToBoard(cardigan.id.toString(), cardigan.name, cardigan.key)
+        }
+
+        waitUntil(timeoutMillis = 5_000) { onAllNodes(hasContentDescription("Board actions")).fetchSemanticsNodes().isNotEmpty() }
+        onNodeWithContentDescription("Board actions").performClick()
+        onNodeWithText("Export as JSON").performClick()
+
+        waitUntil(timeoutMillis = 5_000) { exports.isNotEmpty() }
+        assertThat(exports).containsExactly(ExportBoardRoute(cardigan.id.toString(), "Cardigan v1"))
+    }
 }

@@ -19,6 +19,7 @@ import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.di.AppBuildInfo
 import com.plcoding.cardiganapp.feature.auth.data.fixture.InMemorySessionManager
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.navigateToBoard
 import com.plcoding.cardiganapp.navigation.AppNavHost
 import com.plcoding.cardiganapp.session.AppViewModel
 import com.plcoding.cardiganapp.session.DebugSessionOverlay
@@ -55,8 +56,7 @@ fun App(
             if (session != SessionState.Restoring) {
                 val accountEmail by rememberUpdatedState(signedInEmail)
                 val onLogOut = appViewModel::onLogout
-                // TODO(board-view): navigate to BoardRoute(boardId, name, key) once add-board-view-ui lands.
-                val onOpenBoard: (String, String, String) -> Unit = { _, _, _ -> }
+                val onOpenBoard: (String, String, String) -> Unit = { id, name, key -> navController.navigateToBoard(id, name, key) }
                 // TODO(labels): navigate to the labels page once mob-labels-ui lands.
                 val onLabelsClick = {}
                 SessionGate(session = session, navController = navController) { startDestination ->

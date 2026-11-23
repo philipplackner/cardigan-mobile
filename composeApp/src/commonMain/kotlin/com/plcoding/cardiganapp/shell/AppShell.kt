@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.toRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import cardiganapp.composeapp.generated.resources.Res
@@ -31,6 +32,7 @@ import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.LocalWindowClass
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardRoute
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.navigateToNewBoard
 import com.plcoding.cardiganapp.feature.boards.presentation.sidebar.BoardsSidebarSection
 import org.jetbrains.compose.resources.stringResource
@@ -86,12 +88,19 @@ fun AppShell(
                 BoardsSidebarSection(
                     onOpenBoard = onOpenBoard,
                     onNewBoardClick = navController::navigateToNewBoard,
+                    selectedBoardId = backStackEntry?.let { navController.openBoardId() },
                 )
             },
         )
         // The sidebar pads its content by the start inset, so the screen next to it must not again.
         content(Modifier.weight(1f).fillMaxHeight().consumeWindowInsets(startInset))
     }
+}
+
+/** The board shown by the screen under any open dialog, or null when that screen isn't a board. */
+private fun NavHostController.openBoardId(): String? {
+    val screen = currentBackStack.value.lastOrNull { it.destination.navigatorName != "dialog" && it.destination.navigatorName != "navigation" }
+    return screen?.takeIf { it.destination.hasRoute<BoardRoute>() }?.toRoute<BoardRoute>()?.boardId
 }
 
 /**

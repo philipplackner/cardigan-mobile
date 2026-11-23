@@ -5,6 +5,15 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasContentDescription
+import androidx.navigation.toRoute
+import com.plcoding.cardiganapp.core.domain.label.LabelSource
+import com.plcoding.cardiganapp.fakes.FakeBoardDetailRepository
+import com.plcoding.cardiganapp.fakes.FakeCardCreateRepository
+import com.plcoding.cardiganapp.fakes.FakeLabelSource
+import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardDetailRepository
+import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateRepository
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardRoute
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
@@ -87,6 +96,9 @@ class SessionGateUiTest {
                     single<RemoteBoardDataSource> { FakeRemoteBoardDataSource(listOf(cardigan)) }
                     single<BoardTransferRepository> { PendingExportRepository() }
                     single<ExportFileChecker> { FakeExportFileChecker(null) }
+                    single<BoardDetailRepository> { FakeBoardDetailRepository() }
+                    single<CardCreateRepository> { FakeCardCreateRepository() }
+                    single<LabelSource> { FakeLabelSource() }
                 },
             )
         }.koin
@@ -177,6 +189,21 @@ class SessionGateUiTest {
 
         runOnIdle { navController.popBackStack() }
         assertThat(screens()).isEmpty()
+    }
+
+    @Test
+    fun signedInUserOpensABoardFromTheList() = runComposeUiTest {
+        showApp(SessionState.SignedIn("ann@example.com"))
+        awaitBoardList()
+        waitUntil(timeoutMillis = 5_000) {
+            onAllNodes(hasContentDescription("Cardigan v1,", substring = true)).fetchSemanticsNodes().isNotEmpty()
+        }
+        onAllNodes(hasContentDescription("Cardigan v1,", substring = true))[0].performClick()
+
+        awaitScreen { it.hasRoute<BoardRoute>() }
+        val route = runOnIdle { navController.currentBackStackEntry!!.toRoute<BoardRoute>() }
+        assertThat(route).isEqualTo(BoardRoute(cardigan.id.toString(), "Cardigan v1", "CRD"))
+        assertThat(screens().map { it.hasRoute<BoardListRoute>() }).containsExactly(true, false)
     }
 
     @Test

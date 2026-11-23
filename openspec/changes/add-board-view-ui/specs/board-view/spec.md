@@ -173,7 +173,7 @@ Column names and card titles, including the quick add field, SHALL be checked on
 - **THEN** no error shows and the confirm button is enabled
 
 ### Requirement: Quick add card
-"Add card" SHALL open a title field at the bottom of its column. Enter or "Add card" SHALL create the card at the bottom of the column. After success the field SHALL stay open, empty and focused. Empty or whitespace-only input SHALL do nothing. Cancel or back SHALL close the field and drop its text without asking. A tap outside SHALL keep the field open if it has text and close it if it is empty.
+"Add card" SHALL open a title field at the bottom of its column. Enter or "Add card" SHALL create the card at the bottom of the column. After success the field SHALL stay open, empty and focused. Empty or whitespace-only input SHALL do nothing. Cancel or back SHALL close the field and drop its text without asking. A tap outside SHALL keep the field open if it has text and close it if it is empty. While the field is open in an empty column, "No cards yet" SHALL be hidden (D43).
 
 #### Scenario: Add two cards in a row
 - **WHEN** the user types "Write docs", presses Enter, then types "Ship it" and presses Enter
@@ -223,11 +223,15 @@ Only one inline field (a quick add field or the add column field) SHALL be open 
 - **THEN** the field closes and the text is dropped without a question
 
 ### Requirement: Add column
-"Add column" SHALL open an inline name field at the end of the column strip with "Add column" and "Cancel", on every window class. On a board without columns, the field SHALL open in place of the empty state. The new column SHALL be added as the last column after the server confirms it. Then the field SHALL close and the strip SHALL scroll to the new column.
+"Add column" SHALL open an inline name field at the end of the column strip with "Add column" and "Cancel", on every window class. On a board without columns, the field SHALL open in place of the empty state. A tap outside the field SHALL behave as for quick add: it closes an empty field and keeps a field with text open (D42). The new column SHALL be added as the last column after the server confirms it. Then the field SHALL close and the strip SHALL scroll to the new column.
 
 #### Scenario: Add a column
 - **WHEN** the user enters "Blocked" and confirms
 - **THEN** once the server confirms it, "Blocked" shows as the last column, the field closes and the strip scrolls to "Blocked"
+
+#### Scenario: Tap outside
+- **WHEN** the add column field is open and the user taps outside it
+- **THEN** an empty field closes, and a field with text stays open with its text
 
 #### Scenario: Board without columns
 - **WHEN** the user taps "Add column" in the "This board has no columns" state

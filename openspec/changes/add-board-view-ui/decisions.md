@@ -206,6 +206,37 @@ The follow-up answers below (D32–D40) were confirmed by the user via the coord
 - **Why**: The user doesn't want typed text dropped silently. Confirmed by the user via the coordinator on 2026-11-21, the same for web.
 - **Depends on**: D22, D32, D36
 
+### D42 — Tap outside the add column field
+- **Question**: What does a tap outside the add column field do? Figma and D22 only cover quick add.
+- **Decision**: The same as quick add (D22): a tap outside closes the field when it is empty and keeps it open with its text when it holds text. No discard dialog.
+- **Alternatives**: Keep the field open on any outside tap; only Cancel, back and Escape close it.
+- **Why**: User decision on 2026-11-23. Both inline fields behave the same.
+- **Depends on**: D22, D32
+
+### D43 — "No cards yet" while quick add is open
+- **Question**: Does an empty column show "No cards yet" while its quick add field is open?
+- **Decision**: No. The quick add field takes its place. "No cards yet" shows again when the field closes.
+- **Alternatives**: Show both.
+- **Why**: User decision on 2026-11-23. Figma doesn't draw this combination.
+- **Depends on**: D22, D30
+
+### D44 — Discard dialog after process death
+- **Question**: Is an open "Discard changes?" dialog restored after process death?
+- **Decision**: No. The open inline field comes back with its text; the pending switch is dropped. The user taps the other field again if they still want to switch.
+- **Alternatives**: Restore the dialog with its pending target.
+- **Why**: User decision on 2026-11-23.
+- **Depends on**: D41
+
+## Board list hooks (task 1.1, 2026-11-23)
+
+The board list change (`add-board-list-ui`) is merged into the base branch. The board view uses these parts of it, as they exist in the code:
+
+- **Rename and delete board dialogs (D5, D34):** the board ⋯ menu calls `NavController.navigateToRenameBoard(boardId)` and `navigateToDeleteBoard(boardId)` from `BoardsGraph.kt`. The dialogs report back to the entry that opened them through its saved state, read with `ObserveBoardDialogResults(entry, onRenamed, onDeleted)`. The board view's destination calls it with its own back stack entry: `onRenamed(newName)` updates the header, `onDeleted()` leads to `onBoardDeleted` (back to the board list, no toast). The dialogs update the board list store themselves.
+- **Open board (D39):** `boardsGraph(onOpenBoard = (boardId, name, key) -> Unit)` already passes the board's name and key. `:composeApp` maps it to `BoardRoute(boardId, name, key)`, so the header can show them while the board loads.
+- **Missing board (D23, review D2):** `onBoardMissing` calls `BoardListReloader.reload()` and pops back to `BoardListRoute`. The reload drops the board from the list and the sidebar. A failed reload shows `boardsReloadFailedToast()`, as every other caller does.
+- **Shared name rule and strings (D35):** `normalizeText`, `validateName` and `codePointLength` in `core/domain/.../text/TextRules.kt`, `NameError` and `NameError.toUiText()` in `:core:presentation` (with the D13 strings). Column names use `validateName(normalized, 30)`, card titles `validateName(normalized, 200)`. Plurals use `UiText.PluralResource`.
+- **App shell:** `AppShell` draws the sidebar and phone menu. The board view draws only its content area and handles window insets like the board list (safeDrawing, including the display cutout).
+
 ## Facts
 
 - The shared specs are the OpenSpec store `cardigan-shared-specs` at `~/openspec/cardigan-shared-specs`. `~/cardigan-specs` is an old layout and is not used. — source: `openspec store list`

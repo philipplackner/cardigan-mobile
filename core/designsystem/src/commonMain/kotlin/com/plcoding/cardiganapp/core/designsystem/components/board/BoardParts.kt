@@ -125,7 +125,9 @@ fun AddColumnButton(
  * Board column: header with name, card count and [menuButton], cards in [cards], and an Add card
  * button when [addCard] is set. The board view sets the column width.
  *
- * Draws its shape without clipping, so the small header button keeps its 48dp touch area.
+ * Draws its shape without clipping, so the small header button keeps its 48dp touch area. When the
+ * column's height is bounded, [cards] gets the space left after the header and [addCard], so it
+ * can hold a scrolling list.
  */
 @Composable
 fun BoardColumn(
@@ -152,19 +154,30 @@ fun BoardColumn(
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = name,
-                style = AppTheme.textStyles.sans13_5SemiBold100,
-                color = AppTheme.colors.text.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            Text(text = count, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
-            Box(modifier = Modifier.weight(1f))
+            // One weighted child takes all free space; two would split it and stop the button short of the end.
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = name,
+                    style = AppTheme.textStyles.sans13_5SemiBold100,
+                    color = AppTheme.colors.text.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Text(text = count, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
+            }
             menuButton()
         }
-        Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8), content = cards)
+        // Measured after the header and Add card, so a scrolling cards list never pushes them out.
+        Column(
+            modifier = Modifier.weight(1f, fill = false),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+            content = cards,
+        )
         addCard?.invoke()
     }
 }

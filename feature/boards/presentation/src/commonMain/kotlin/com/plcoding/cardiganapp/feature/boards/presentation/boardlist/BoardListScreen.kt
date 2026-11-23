@@ -9,21 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -35,8 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -95,6 +83,9 @@ import com.plcoding.cardiganapp.core.designsystem.icons.CardiganIcons
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.LocalWindowClass
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
+import com.plcoding.cardiganapp.feature.boards.presentation.components.ProvideConsumedInsets
+import com.plcoding.cardiganapp.feature.boards.presentation.components.contentInsets
+import com.plcoding.cardiganapp.feature.boards.presentation.components.plus
 import com.plcoding.cardiganapp.feature.boards.presentation.util.boardCountText
 import com.plcoding.cardiganapp.core.presentation.util.UiText
 import androidx.compose.ui.tooling.preview.Preview
@@ -542,34 +533,6 @@ private fun Modifier.drawDividerAbove(color: Color): Modifier = drawBehind {
  * landscape) and the bottom. The top belongs to the app bar or page header above the content, and
  * insets a parent already consumed (the sidebar's start side) are left out.
  */
-@Composable
-private fun contentInsets(): PaddingValues =
-    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-        .exclude(LocalConsumedInsets.current)
-        .asPaddingValues()
-
-private val LocalConsumedInsets = compositionLocalOf { WindowInsets(0, 0, 0, 0) }
-
-/** Makes the insets consumed above this point visible to [contentInsets] below it. */
-@Composable
-private fun ProvideConsumedInsets(content: @Composable () -> Unit) {
-    var consumed by remember { mutableStateOf(WindowInsets(0, 0, 0, 0)) }
-    Box(modifier = Modifier.fillMaxSize().onConsumedWindowInsetsChanged { consumed = it }) {
-        CompositionLocalProvider(LocalConsumedInsets provides consumed, content = content)
-    }
-}
-
-@Composable
-private operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
-    val direction = LocalLayoutDirection.current
-    return PaddingValues(
-        start = calculateStartPadding(direction) + other.calculateStartPadding(direction),
-        top = calculateTopPadding() + other.calculateTopPadding(),
-        end = calculateEndPadding(direction) + other.calculateEndPadding(direction),
-        bottom = calculateBottomPadding() + other.calculateBottomPadding(),
-    )
-}
-
 /** Test tags for the board list's scroll containers and collapsed bar. */
 object BoardListTestTags {
     const val List = "board_list"
