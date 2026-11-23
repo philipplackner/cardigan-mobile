@@ -60,7 +60,7 @@ Each group ends with the gates from CLAUDE.md (`:androidApp:assembleDebug`, `tes
 
 ## 10. Remove the temporary fixture
 
-- [ ] 10.1 Delete `boards:data/fixture` and `fixtureBoardsModule` (the D3 debug entry), and leave `RemoteBoardDataSource` unbound with a TODO for `mob-boards-connect`, or bind a source that returns `Network` errors if Koin needs a binding to start. Verify with the gates, then commit `chore(boards): remove temporary board fixture`.
+- [x] 10.1 Delete `boards:data/fixture` and `fixtureBoardsModule` (the D3 debug entry), and leave `RemoteBoardDataSource` unbound with a TODO for `mob-boards-connect`, or bind a source that returns `Network` errors if Koin needs a binding to start. Verify with the gates, then commit `chore(boards): remove temporary board fixture`.
 
 ## Workflow follow-up
 

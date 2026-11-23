@@ -6,7 +6,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import com.plcoding.cardiganapp.feature.boards.data.InMemoryBoardRepository
-import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureBoardDataSource
+import com.plcoding.cardiganapp.fakes.FakeRemoteBoardDataSource
+import com.plcoding.cardiganapp.fakes.summary
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
 import com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListViewModel
@@ -25,9 +26,9 @@ import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardVie
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.sidebar.BoardsSidebarViewModel
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyOwnerLookup
-import kotlin.time.Duration
 import kotlinx.coroutines.test.runTest
 import com.plcoding.cardiganapp.core.domain.board.Board
+import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.core.presentation.toast.ToastController
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
@@ -77,7 +78,7 @@ class AppModulesTest {
         single<BoardDetailRepository> { FakeBoardDetailRepository() }
         single<CardCreateRepository> { FakeCardCreateRepository() }
         single<LabelSource> { FakeLabelSource() }
-        single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) }
+        single<RemoteBoardDataSource> { FakeRemoteBoardDataSource(listOf(summary("0b5c8a6e-1f00-4a3c-9a43-6f5e0e3c1d2a", "Cardigan v1", "CRD"))) }
         single<BoardTransferRepository> {
             object : BoardTransferRepository {
                 override suspend fun exportBoard(boardId: Uuid): Result<ExportedFile, ExportError> = Result.Error(ExportError.Failed)
@@ -132,11 +133,11 @@ class AppModulesTest {
     }
 
     @Test
-    fun boardViewSourcesFailUntilTheConnectChanges() = runTest {
+    fun boardSourcesFailUntilTheConnectChanges() = runTest {
         // Without the test overrides, appModules binds sources that fail until the connect changes.
-        val koin = koinApplication {
-            modules(appModules() + module { single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) } })
-        }.also { apps += it }.koin
+        val koin = koinApplication { modules(appModules()) }.also { apps += it }.koin
+        assertThat(koin.get<BoardRepository>().refresh()).isEqualTo(Result.Error(DataError.Network.UNKNOWN))
+        get(koin)
         assertThat(koin.get<BoardDetailRepository>().loadBoard(Uuid.random())).isEqualTo(Result.Error(BoardLoadError.Failed))
         assertThat(koin.get<CardCreateRepository>().createCard(Uuid.random(), Uuid.random(), "Card"))
             .isEqualTo(Result.Error(CardCreateError.Failed))

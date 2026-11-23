@@ -2,7 +2,6 @@ package com.plcoding.cardiganapp.di
 
 import com.plcoding.cardiganapp.core.data.di.coreDataModule
 import com.plcoding.cardiganapp.feature.boards.data.di.boardsDataModule
-import com.plcoding.cardiganapp.feature.boards.data.fixture.fixtureBoardsModule
 import com.plcoding.cardiganapp.feature.boards.presentation.di.boardsPresentationModule
 import com.plcoding.cardiganapp.feature.transfer.data.di.transferDataModule
 import com.plcoding.cardiganapp.feature.transfer.presentation.di.transferPresentationModule
@@ -22,8 +21,6 @@ fun appModules(): List<Module> = listOf(
     coreDataModule,
     appModule,
     boardsDataModule,
-    // TEMPORARY: the in-memory board fixture (D3) until mob-boards-connect binds the Ktor data source.
-    fixtureBoardsModule,
     boardsPresentationModule,
     transferDataModule,
     transferPresentationModule,
