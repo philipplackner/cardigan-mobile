@@ -15,7 +15,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 1. Core: text helpers and session interface
 
-- [ ] 1.1 Check whether add-board-list-ui already added `toNfc()`, `normalizeText(input, multiLine)` and `codePointLength` to `:core:domain`. If not, add them with exactly the names and signatures from its design. Then add (design "Text rules"):
+- [x] 1.1 Check whether add-board-list-ui already added `toNfc()`, `normalizeText(input, multiLine)` and `codePointLength` to `:core:domain`. If not, add them with exactly the names and signatures from its design. Then add (design "Text rules"):
   - `normalizePassword`, `forEachCodePoint`, `hasInvalidCharacter` (or reuse the board list's character check)
   - the `expect`/`actual` `codePointCategory` for Android and iOS
 

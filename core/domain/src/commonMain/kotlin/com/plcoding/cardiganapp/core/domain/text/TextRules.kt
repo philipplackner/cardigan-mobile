@@ -33,7 +33,37 @@ fun codePointLength(text: String): Int {
     return count
 }
 
-private fun hasInvalidNameCharacter(text: String): Boolean {
+/**
+ * Normalizes a password per cardigan-shared-specs `text-length` "Passwords are normalized without
+ * trimming": NFC only. Line breaks and surrounding whitespace are kept.
+ */
+fun normalizePassword(input: String): String = input.toNfc()
+
+/**
+ * Calls [action] with every Unicode code point of [text]. A valid surrogate pair gives one code
+ * point; an unpaired surrogate is passed on as its own code unit value.
+ */
+inline fun forEachCodePoint(text: String, action: (codePoint: Int) -> Unit) {
+    var index = 0
+    while (index < text.length) {
+        val high = text[index]
+        if (high.isHighSurrogate() && index + 1 < text.length && text[index + 1].isLowSurrogate()) {
+            val low = text[index + 1]
+            action(0x10000 + ((high.code - 0xD800) shl 10) + (low.code - 0xDC00))
+            index += 2
+        } else {
+            action(high.code)
+            index++
+        }
+    }
+}
+
+/**
+ * True when [text] holds a character that cardigan-shared-specs `text-length` "Invalid characters
+ * are rejected" forbids: an unpaired surrogate or U+0000–U+001F. Tab, LF and CR are allowed only
+ * when [multiLine] is true.
+ */
+fun hasInvalidCharacter(text: String, multiLine: Boolean): Boolean {
     var index = 0
     while (index < text.length) {
         val char = text[index]
@@ -44,12 +74,14 @@ private fun hasInvalidNameCharacter(text: String): Boolean {
                 continue
             }
             char.isLowSurrogate() -> return true
-            char.code <= 0x1F -> return true
+            char.code <= 0x1F && !(multiLine && char.isAllowedMultiLineControl()) -> return true
         }
         index++
     }
     return false
 }
+
+private fun Char.isAllowedMultiLineControl(): Boolean = this == '\t' || this == '\n' || this == '\r'
 
 /**
  * Validates an already normalized single-line name and returns the first broken rule in the
@@ -57,7 +89,7 @@ private fun hasInvalidNameCharacter(text: String): Boolean {
  */
 fun validateName(normalized: String, max: Int): NameError? = when {
     normalized.isEmpty() -> NameError.Required
-    hasInvalidNameCharacter(normalized) -> NameError.InvalidCharacter
+    hasInvalidCharacter(normalized, multiLine = false) -> NameError.InvalidCharacter
     codePointLength(normalized) > max -> NameError.TooLong(max)
     else -> null
 }
