@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.convention.kmp.library)
     alias(libs.plugins.convention.buildkonfig)
     alias(libs.plugins.convention.kover)
+    alias(libs.plugins.convention.mutation)
 }
 
 kotlin {

@@ -28,6 +28,7 @@ kotlinx-datetime = "0.8.0"
 kotlinx-serialization = "1.13.0"
 ktor = "3.6.1"
 material3 = "1.12.0-alpha03"
+pitest = "1.30.2"
 turbine = "1.2.1"
 
 [libraries]
@@ -85,6 +86,9 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 
+pitest-commandLine = { module = "org.pitest:pitest-command-line", version.ref = "pitest" }
+pitest-aggregator = { module = "org.pitest:pitest-aggregator", version.ref = "pitest" }
+
 [bundles]
 ktor-common = ["ktor-client-core", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json", "ktor-client-auth", "ktor-client-logging"]
 
@@ -107,3 +111,5 @@ convention-android-application-compose = { id = "com.plcoding.cardiganapp.conven
 convention-buildkonfig = { id = "com.plcoding.cardiganapp.convention.buildkonfig" }
 convention-kover = { id = "com.plcoding.cardiganapp.convention.kover" }
 convention-coverage = { id = "com.plcoding.cardiganapp.convention.coverage" }
+convention-mutation = { id = "com.plcoding.cardiganapp.convention.mutation" }
+convention-mutation-root = { id = "com.plcoding.cardiganapp.convention.mutation.root" }

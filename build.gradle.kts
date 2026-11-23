@@ -9,4 +9,5 @@ plugins {
     alias(libs.plugins.buildkonfig) apply false
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.convention.coverage)
+    alias(libs.plugins.convention.mutation.root)
 }

@@ -60,5 +60,13 @@ gradlePlugin {
             id = libs.plugins.convention.coverage.get().pluginId
             implementationClass = "CoverageConventionPlugin"
         }
+        register("mutation") {
+            id = libs.plugins.convention.mutation.asProvider().get().pluginId
+            implementationClass = "MutationConventionPlugin"
+        }
+        register("mutationRoot") {
+            id = libs.plugins.convention.mutation.root.get().pluginId
+            implementationClass = "MutationRootConventionPlugin"
+        }
     }
 }

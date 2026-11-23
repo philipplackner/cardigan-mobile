@@ -28,30 +28,8 @@ internal fun isCoverageTaskName(name: String): Boolean =
 internal fun KoverReportFiltersConfig.applyCoverageExclusions() {
     excludes {
         annotatedBy("androidx.compose.runtime.Composable")
-        classes(
-            "*ComposableSingletons*",
-            "*PreviewKt",
-            "*PreviewKt\$*",
-            "*PreviewsKt",
-            "*PreviewsKt\$*",
-            "*PreviewState",
-            "*PreviewState\$*",
-            "*.BuildKonfig",
-            "*.BuildKonfig\$*",
-            "*Debug*Overlay*",
-            "*_androidKt",
-            "*_androidKt\$*",
-            "*.Android*",
-            "*Activity",
-            "*Activity\$*",
-        )
-        packages(
-            "*.generated.*",
-            "*.di",
-            "*.di.*",
-            "*.fixture",
-            "*.fixture.*",
-        )
+        classes(CodeExclusions.classes)
+        packages(CodeExclusions.packages)
         // Kover only sees the direct library superclass, not android.app.Activity further up.
         // Nested classes of an activity are caught by the *Activity$* name pattern instead.
         inheritedFrom("android.app.Activity", "androidx.activity.ComponentActivity")

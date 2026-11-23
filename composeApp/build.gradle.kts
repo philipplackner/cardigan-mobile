@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.convention.cmp.application)
     alias(libs.plugins.convention.kover)
+    alias(libs.plugins.convention.mutation)
 }
 
 kotlin {
