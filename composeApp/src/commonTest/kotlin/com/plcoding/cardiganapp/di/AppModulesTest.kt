@@ -2,9 +2,18 @@ package com.plcoding.cardiganapp.di
 
 import androidx.lifecycle.SavedStateHandle
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.plcoding.cardiganapp.core.domain.session.SessionManager
+import com.plcoding.cardiganapp.core.domain.session.SessionScopedStore
+import com.plcoding.cardiganapp.fakes.FakeAuthRepository
+import com.plcoding.cardiganapp.fakes.FakeSessionManager
+import com.plcoding.cardiganapp.feature.auth.domain.AuthRepository
+import com.plcoding.cardiganapp.feature.auth.presentation.login.LoginViewModel
+import com.plcoding.cardiganapp.feature.auth.presentation.register.RegisterViewModel
 import com.plcoding.cardiganapp.feature.boards.data.InMemoryBoardRepository
+import com.plcoding.cardiganapp.session.AppViewModel
 import com.plcoding.cardiganapp.feature.boards.data.fixture.FixtureBoardDataSource
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
@@ -43,7 +52,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
-/** Resolves the board and transfer definitions of [appModules]. */
+/** Resolves the auth, session, board and transfer definitions of [appModules]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppModulesTest {
 
@@ -64,6 +73,9 @@ class AppModulesTest {
     }
 
     private val testRepository = module {
+        // No module binds the session or the auth repository until mob-auth-connect adds the real ones.
+        single<SessionManager> { FakeSessionManager() }
+        single<AuthRepository> { FakeAuthRepository(get<SessionManager>() as FakeSessionManager) }
         single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) }
         single<BoardTransferRepository> {
             object : BoardTransferRepository {
@@ -96,6 +108,15 @@ class AppModulesTest {
         get<NewBoardViewModel> { parametersOf(SavedStateHandle()) }
         get<RenameBoardViewModel> { parametersOf(Uuid.random().toString(), SavedStateHandle()) }
         get<DeleteBoardViewModel> { parametersOf(Uuid.random().toString()) }
+    }
+
+    @Test
+    fun authAndSessionDefinitionsResolveWithTheSessionFromATestModule() {
+        val koin = koin()
+        koin.get<AppViewModel>()
+        koin.get<LoginViewModel> { parametersOf(true, SavedStateHandle()) }
+        koin.get<RegisterViewModel> { parametersOf(SavedStateHandle()) }
+        assertThat(koin.getAll<SessionScopedStore>()).containsExactly(koin.get<InMemoryBoardRepository>())
     }
 
     @Test

@@ -76,9 +76,9 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 5. Navigation and session gate
 
-- [ ] 5.1 Add `authGraph(navController)` with the Log in ↔ Register navigation (design "Navigation"), and the auth presentation Koin module. Verify: a UI test that "Create one" opens Register and back returns to Log in with its values kept.
-- [ ] 5.2 In `:composeApp`, add `AppViewModel`, which calls `restore()` once and exposes `onLogout()`. Add the start destination and transition handling from design "Navigation and the session gate", with `AppStartRoute` standing in for the board list until the board list change replaces it. On every change to `SignedOut`, `AppViewModel` calls `clear()` on all Koin-bound `SessionScopedStore`s before the gate navigates (design "Clearing user data on sign-out"). Unit test `AppViewModel` with a `FakeSessionManager` and fake stores, including that `clear()` runs for `LoggedOut` and `Expired` and before navigation. Verify: the tests pass.
-- [ ] 5.3 Add `SessionGateUiTest` in `:composeApp` with a `FakeSessionManager` and `FakeAuthRepository`. Cover:
+- [x] 5.1 Add `authGraph(navController)` with the Log in ↔ Register navigation (design "Navigation"), and the auth presentation Koin module. Verify: a UI test that "Create one" opens Register and back returns to Log in with its values kept.
+- [x] 5.2 In `:composeApp`, add `AppViewModel`, which calls `restore()` once and exposes `onLogout()`. Add the start destination and transition handling from design "Navigation and the session gate", with `AppStartRoute` standing in for the board list until the board list change replaces it. On every change to `SignedOut`, `AppViewModel` calls `clear()` on all Koin-bound `SessionScopedStore`s before the gate navigates (design "Clearing user data on sign-out"). Unit test `AppViewModel` with a `FakeSessionManager` and fake stores, including that `clear()` runs for `LoggedOut` and `Expired` and before navigation. Verify: the tests pass.
+- [x] 5.3 Add `SessionGateUiTest` in `:composeApp` with a `FakeSessionManager` and `FakeAuthRepository`. Cover:
   - each start state (`SignedIn`, `NoSession`, `Expired`, and `SignedIn` reported after a restore that couldn't reach the backend, D18)
   - nothing drawn while `Restoring`
   - login → board list, where back leaves the NavHost empty and no auth route remains
@@ -86,7 +86,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - expiry with a transfer dialog open → login with the banner and no dialog
 
   Verify: `iosSimulatorArm64Test` passes.
-- [ ] 5.4 Register the auth modules in `appModules()`. Add a Koin `verify()` test with the session and repository supplied by a test module. Verify: all gates pass, then commit `feat(auth): add session gate and auth navigation`.
+- [x] 5.4 Register the auth modules in `appModules()`. Add a Koin `verify()` test with the session and repository supplied by a test module. Verify: all gates pass, then commit `feat(auth): add session gate and auth navigation`.
 
 ## 6. Splash
 

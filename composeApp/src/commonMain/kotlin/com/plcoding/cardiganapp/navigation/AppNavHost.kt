@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.plcoding.cardiganapp.feature.auth.presentation.navigation.authGraph
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
-import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardsGraph
 import com.plcoding.cardiganapp.feature.boards.presentation.util.boardsReloadFailedToast
 import com.plcoding.cardiganapp.core.domain.util.onFailure
@@ -24,12 +24,14 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 /**
- * The app's navigation. [accountEmail] and [onLogOut] come from the session; [onOpenBoard] and
- * [onLabelsClick] lead to screens other features own. [filePicker] is replaced in tests.
+ * The app's navigation. [startDestination] comes from the session gate. [accountEmail] and
+ * [onLogOut] come from the session; [onOpenBoard] and [onLabelsClick] lead to screens other
+ * features own. [filePicker] is replaced in tests.
  */
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    startDestination: Any,
     accountEmail: String?,
     onLogOut: () -> Unit,
     onOpenBoard: (boardId: String, name: String, key: String) -> Unit,
@@ -48,7 +50,8 @@ fun AppNavHost(
         scope.launch { reloader.reload().onFailure { toastController.show(boardsReloadFailedToast()) } }
         Unit
     }
-    NavHost(navController = navController, startDestination = BoardListRoute, modifier = modifier) {
+    NavHost(navController = navController, startDestination = startDestination, modifier = modifier) {
+        authGraph(navController)
         boardsGraph(
             navController = navController,
             accountEmail = { currentEmail },

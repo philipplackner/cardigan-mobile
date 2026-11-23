@@ -1,5 +1,6 @@
 package com.plcoding.cardiganapp.feature.boards.data
 
+import com.plcoding.cardiganapp.core.domain.session.SessionScopedStore
 import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.EmptyResult
 import com.plcoding.cardiganapp.core.domain.util.Result
@@ -36,7 +37,7 @@ import kotlinx.coroutines.sync.withLock
 class InMemoryBoardRepository(
     private val remote: RemoteBoardDataSource,
     private val scope: CoroutineScope,
-) : BoardRepository {
+) : BoardRepository, SessionScopedStore {
 
     private val store = MutableStateFlow(Snapshot(session = 0, boards = null))
     override val boards: StateFlow<List<BoardSummary>?> = BoardsView(store)
@@ -83,7 +84,7 @@ class InMemoryBoardRepository(
     }
 
     /** Resets [boards] to null and drops the results of requests that are still running. */
-    fun clear() {
+    override fun clear() {
         store.update { Snapshot(session = it.session + 1, boards = null) }
     }
 

@@ -29,6 +29,7 @@ import com.plcoding.cardiganapp.fakes.FakeFilePicker
 import com.plcoding.cardiganapp.fakes.FakeRemoteBoardDataSource
 import com.plcoding.cardiganapp.fakes.summary
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
+import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
 import com.plcoding.cardiganapp.feature.transfer.domain.ImportError
@@ -72,6 +73,7 @@ class AppFlowsUiTest {
                 Box(Modifier.requiredSize(390.dp, 844.dp)) {
                     AppNavHost(
                         navController = rememberNavController(),
+                        startDestination = BoardListRoute,
                         accountEmail = null,
                         onLogOut = {},
                         onOpenBoard = { _, _, _ -> },
