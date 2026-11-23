@@ -28,6 +28,7 @@ This file is the project's system prompt. The `kmp-*` skills in `.claude/skills/
 | Lint / format | None for now. `kotlin.code.style=official` and the IDE formatter. |
 | Tests | `kotlin.test`, AssertK, Turbine, kotlinx-coroutines-test, Ktor `MockEngine`, Compose `ui-test` (`runComposeUiTest`) |
 | Coverage | Kover, Android host tests only. diff-cover (pinned in the version catalog) through `uvx`. On demand, not a gate. |
+| Mutation testing | PIT (pinned in the version catalog), Android host tests only, run through our own convention plugin. On demand, not a gate. |
 
 **Current state:** the module skeleton is in place: `build-logic` convention plugins, `:composeApp`, the four core modules, and `domain`/`data`/`presentation` modules for all five features. Feature modules contain only build files. The core modules have `Result`/`DataError`, `UiText`, `ObserveAsEvents`, the `HttpClientFactory` and safe call helpers, and Koin starts on both platforms. There is no navigation, no theme and no screen yet. `App()` is empty.
 
@@ -231,6 +232,7 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 - No tests against a running backend or any deployed environment.
 - A test is done when it's green on Android and iOS.
 - Coverage reports leave out `@Composable` functions (previews included), `*Preview.kt`/`*Previews.kt` files, generated code, `di` and `fixture` packages, and androidMain code. Kover filters by class, so androidMain code must follow two naming rules: top-level `actual` functions go in `*.android.kt` files, and classes start with `Android` (activities end with `Activity`). Code that breaks a rule shows up in the report. Non-composable lambdas inside a composable (for example `onClick = { … }`) can still show up, because Kover can't filter them.
+- Mutation testing uses the same name and package exclusions as coverage (one shared list in `build-logic`), but keeps `@Composable` code: PIT can't filter by annotation. Its mutants show as "no coverage", so read test strength for composable-heavy modules. Methods named `equals`, `hashCode`, `toString`, `copy` and `component<N>` are never mutated.
 - `@Preview`s live in `commonMain` next to their composables and are for the user to look at in the IDE. Don't render them with the Android CLI (`android studio render-compose-preview`) or the `android-preview-figma-verify` skill: those only work for `androidMain`, and previews don't go there. Check a component against Figma in code instead (values from `get_design_context`).
 
 ### Commands
@@ -245,6 +247,7 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 | `./gradlew connectedAndroidDeviceTest` | Android device tests (needs a running emulator). Not a gate. |
 | `./gradlew coverageReport` | Runs the host tests and writes a merged coverage report to `build/reports/kover/` (XML + HTML), then prints line and branch coverage. `-Pcoverage.modules=:core:data,:feature:boards:data` picks modules (default: all KMP modules). `-Pcoverage.minLine=<0-100>` / `-Pcoverage.minBranch=<0-100>` fail the run below that total. Use the full task name: abbreviations fail. Not a gate. |
 | `./gradlew coverageDiff` | Coverage of the lines changed against `origin/master` (committed, staged, unstaged and untracked), plus `build/reports/diff-coverage/index.html`. Takes `-Pcoverage.modules` and `-Pcoverage.compareBranch=<ref>`. Needs `uv`. Never fails on low coverage. Not a gate. |
+| `./gradlew mutationReport` | Runs PIT on the host tests of the selected modules, one module at a time, and writes a combined HTML report to `build/reports/pitest/index.html`. Prints mutation score and test strength per module and in total. `-Pmutation.modules=:core:domain,:feature:boards:data` picks modules (default: all KMP modules; an empty value or entry fails). `-Pmutation.threads=<n>` sets PIT threads (default: all processors). `-Pmutation.minScore=<0-100>` fails the run below that total score. Use the full task name: abbreviations fail. Not a gate. |
 
 Tasks that don't exist yet get added in the change that sets up the tool.
 
