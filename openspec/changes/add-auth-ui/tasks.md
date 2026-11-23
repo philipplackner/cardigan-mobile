@@ -105,7 +105,7 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 ## 8. Manual verification (temporary)
 
 - [x] 8.1 Add `InMemorySessionManager` and `FixtureAuthRepository` in `:feature:auth:data/fixture` (design "Temporary fixture"), bound only for debug builds. Add the debug overlay ("Expire session", "Log out") in `:composeApp`. Verify: a unit test for each fixture email, and the Koin `verify()` test for debug and release. Then commit `chore(auth): add temporary fixture session and debug overlay`, with a body saying both are removed before archive (group 9).
-- [ ] 8.2 On the Android emulator and the iOS simulator, on a phone and a tablet, in portrait and landscape, and in light and dark, check each spec scenario that the tests can't fully show:
+- [x] 8.2 On the Android emulator and the iOS simulator, on a phone and a tablet, in portrait and landscape, and in light and dark, check each spec scenario that the tests can't fully show:
   - the splash at start
   - password manager offers (Android autofill service, iOS Passwords)
   - the keyboard types and Next/Done
@@ -113,6 +113,13 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - logout and expiry from the debug overlay
 
   Verify: a short result checklist is added under this task, and every check passes.
+
+  Result: Manual check by the user on 2026-11-23: all checks passed. Android emulator and iOS simulator, phone and tablet, portrait and landscape, light and dark.
+  - Passed: the splash at start
+  - Passed: password manager offers (Android autofill service, iOS Passwords)
+  - Passed: the keyboard types and Next/Done
+  - Passed: scrolling above the keyboard in landscape
+  - Passed: logout and expiry from the debug overlay
 
 ## 9. Remove temporary verification code (right before archive)
 
