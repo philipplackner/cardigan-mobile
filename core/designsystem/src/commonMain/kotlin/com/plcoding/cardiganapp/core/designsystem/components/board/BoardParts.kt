@@ -154,16 +154,22 @@ fun BoardColumn(
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = name,
-                style = AppTheme.textStyles.sans13_5SemiBold100,
-                color = AppTheme.colors.text.primary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            Text(text = count, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
-            Box(modifier = Modifier.weight(1f))
+            // One weighted child takes all free space; two would split it and stop the button short of the end.
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = name,
+                    style = AppTheme.textStyles.sans13_5SemiBold100,
+                    color = AppTheme.colors.text.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Text(text = count, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
+            }
             menuButton()
         }
         // Measured after the header and Add card, so a scrolling cards list never pushes them out.

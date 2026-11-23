@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isCloseTo
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isGreaterThanOrEqualTo
 import assertk.assertions.isLessThan
@@ -265,5 +266,33 @@ class BoardScreenUiTest {
         show(loaded(field = InlineField(InlineTarget.QuickAdd(review.id))), WindowClass.Desktop)
         onNodeWithText("No cards yet").assertDoesNotExist()
         onNodeWithTag(BoardTestTags.InlineField).assertExists()
+    }
+
+    /**
+     * Figma column header: the 28dp menu button sits 2dp inside the header's end and top, and the
+     * header sits in the column's 8dp padding. Figma also counts the 1dp border, which `BoardColumn` draws on top.
+     */
+    private fun ComposeUiTest.assertMenuButtonAtHeaderEnd(columnName: String) {
+        val column = onNodeWithTag(BoardTestTags.column(columnName)).fetchSemanticsNode().boundsInRoot
+        val button = onNodeWithContentDescription("Actions for column “$columnName”").fetchSemanticsNode().boundsInRoot
+        with(density) {
+            assertThat((column.right - button.right).toDp().value).isCloseTo(10f, 0.5f)
+            assertThat((button.top - column.top).toDp().value).isCloseTo(10f, 0.5f)
+            assertThat(button.width.toDp().value).isCloseTo(28f, 0.5f)
+        }
+    }
+
+    @Test
+    fun columnMenuButtonSitsAtTheHeaderEndOnPhone() = runComposeUiTest {
+        show(loaded())
+        assertMenuButtonAtHeaderEnd("To do")
+        assertTouchTarget("Actions for column “To do”")
+    }
+
+    @Test
+    fun columnMenuButtonSitsAtTheHeaderEndOnDesktop() = runComposeUiTest {
+        show(loaded(boardContent(column("To do"), column("A rather long column name here"))), WindowClass.Desktop)
+        assertMenuButtonAtHeaderEnd("To do")
+        assertMenuButtonAtHeaderEnd("A rather long column name here")
     }
 }
