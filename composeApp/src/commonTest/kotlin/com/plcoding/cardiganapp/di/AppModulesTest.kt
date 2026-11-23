@@ -138,7 +138,7 @@ class AppModulesTest {
         val koin = koinApplication {
             modules(appModules() + module { single<RemoteBoardDataSource> { FixtureBoardDataSource(latency = Duration.ZERO) } })
         }.also { apps += it }.koin
-        koin.get<BoardViewModel> { parametersOf(SavedStateHandle(mapOf(BoardViewModel.ARG_BOARD_ID to Uuid.random().toString()))) }
+        // No BoardViewModel here: its first load would outlive the test on the fixture's delay.
         assertThat(koin.get<BoardDetailRepository>()).isInstanceOf<FixtureBoardDetailRepository>()
         assertThat(koin.get<CardCreateRepository>()).isInstanceOf<FixtureCardCreateRepository>()
         assertThat(koin.get<LabelSource>()).isInstanceOf<FixtureLabelSource>()

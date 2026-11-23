@@ -19,6 +19,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.percentOffset
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
@@ -226,5 +229,24 @@ class BoardRootUiTest {
         }
         waitUntil(timeoutMillis = 5_000) { missing == 1 }
         assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+    }
+
+    @Test
+    fun outsideTapClosesAnEmptyAddColumnFieldAndKeepsOneWithText() = runComposeUiTest {
+        show()
+        fun tapOutside() = onNodeWithTag(BoardTestTags.Strip).performTouchInput { click(percentOffset(0.05f, 0.4f)) }
+
+        onNodeWithText("Add column").performClick()
+        onNodeWithTag(BoardTestTags.InlineField).performTextReplacement("Blocked")
+        tapOutside()
+        waitForIdle()
+        onNodeWithText("Blocked").assertExists()
+        onNodeWithText("Discard changes?").assertDoesNotExist()
+
+        onNodeWithTag(BoardTestTags.InlineField).performTextReplacement("")
+        tapOutside()
+        waitUntil(timeoutMillis = 5_000) { onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty() }
+        onNodeWithTag(BoardTestTags.AddColumn).assertExists()
+        assertThat(repository.calls).containsExactly("load")
     }
 }

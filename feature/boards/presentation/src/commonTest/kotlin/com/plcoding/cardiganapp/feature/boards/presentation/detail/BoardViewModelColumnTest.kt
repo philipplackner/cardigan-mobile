@@ -36,6 +36,7 @@ import kotlinx.coroutines.test.runTest
  *   dismiss while saving
  * - delete: success, ColumnNotFound counts as done, failure keeps the dialog, board missing
  * - back-to-back writes apply in the order they arrive
+ * - outside tap on the add column field: empty closes, text stays, ignored while saving (D42)
  */
 class BoardViewModelColumnTest : BoardViewModelTestBase() {
 
@@ -451,4 +452,32 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         assertThat(viewModel.columnNames).containsExactly("To do", "In progress", "Review", "Done", "Blocked")
     }
 
+    @Test
+    fun outsideTapClosesAnEmptyAddColumnField() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.OpenAddColumn)
+        viewModel.onAction(BoardAction.InlineTextChange("   "))
+        viewModel.onAction(BoardAction.InlineOutsideTap)
+        assertThat(viewModel.state.value.inlineField).isNull()
+        assertThat(viewModel.state.value.dialog).isNull()
+    }
+
+    @Test
+    fun outsideTapKeepsAnAddColumnFieldWithText() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.OpenAddColumn)
+        viewModel.onAction(BoardAction.InlineTextChange("Blocked"))
+        viewModel.onAction(BoardAction.InlineOutsideTap)
+        assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.AddColumn, "Blocked"))
+        assertThat(viewModel.state.value.dialog).isNull()
+    }
+
+    @Test
+    fun outsideTapWhileAddingAColumnIsIgnored() {
+        val viewModel = viewModel()
+        repository.gates += CompletableDeferred()
+        viewModel.addColumn("Blocked")
+        viewModel.onAction(BoardAction.InlineOutsideTap)
+        assertThat(viewModel.state.value.inlineField!!.isSaving).isTrue()
+    }
 }

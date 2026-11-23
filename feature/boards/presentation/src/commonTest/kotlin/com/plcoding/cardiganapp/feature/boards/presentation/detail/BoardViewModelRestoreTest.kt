@@ -10,7 +10,7 @@ import kotlin.test.Test
 /*
  * Break vectors: process death with each field and dialog open (quick add, add column, rename,
  * delete), with errors already showing, and with the field's or dialog's column gone after the
- * load. Saving flags are not restored.
+ * load. Saving flags and the discard dialog (D44) are not restored.
  */
 class BoardViewModelRestoreTest : BoardViewModelTestBase() {
 
@@ -96,5 +96,16 @@ class BoardViewModelRestoreTest : BoardViewModelTestBase() {
             onAction(BoardAction.DialogDismiss)
         }
         assertThat(viewModel.state.value.dialog).isNull()
+    }
+
+    @Test
+    fun discardDialogIsNotRestoredButTheFieldIs() {
+        val viewModel = restored {
+            onAction(BoardAction.OpenQuickAdd(todo.id))
+            onAction(BoardAction.InlineTextChange("Write docs"))
+            onAction(BoardAction.OpenQuickAdd(done.id))
+        }
+        assertThat(viewModel.state.value.dialog).isNull()
+        assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(todo.id), "Write docs"))
     }
 }

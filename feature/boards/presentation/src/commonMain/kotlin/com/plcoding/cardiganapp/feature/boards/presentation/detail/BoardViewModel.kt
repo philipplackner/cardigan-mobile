@@ -84,7 +84,7 @@ class BoardViewModel(
             BoardAction.InlineSubmit -> submitInline()
             BoardAction.InlineCancel -> updateField { if (it.isSaving) it else null }
             BoardAction.InlineOutsideTap -> updateField { field ->
-                val closes = !field.isSaving && field.target is InlineTarget.QuickAdd && normalizeText(field.text).isEmpty()
+                val closes = !field.isSaving && normalizeText(field.text).isEmpty()
                 if (closes) null else field
             }
             BoardAction.DiscardKeepEditing -> keepEditing()

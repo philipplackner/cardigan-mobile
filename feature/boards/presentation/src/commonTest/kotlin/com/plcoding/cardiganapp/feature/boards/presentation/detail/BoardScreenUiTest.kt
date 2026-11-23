@@ -259,4 +259,11 @@ class BoardScreenUiTest {
         onNodeWithText("Add column").performClick()
         assertThat(actions).contains(BoardAction.OpenAddColumn)
     }
+
+    @Test
+    fun noCardsYetIsHiddenWhileQuickAddIsOpenInThatColumn() = runComposeUiTest {
+        show(loaded(field = InlineField(InlineTarget.QuickAdd(review.id))), WindowClass.Desktop)
+        onNodeWithText("No cards yet").assertDoesNotExist()
+        onNodeWithTag(BoardTestTags.InlineField).assertExists()
+    }
 }

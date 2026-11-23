@@ -90,7 +90,7 @@ One `BoardViewModel` per board route, with `boardId` from `SavedStateHandle`.
   - `ColumnNotFound`: close the dialog or field, reload the board, and show D23's "no longer exists" toast with the column name captured before the write.
   - `Stale` (move only): reload the board and show D40's "The board changed on another device" toast.
   - `BoardNotFound` from any call: show the "This board no longer exists." toast and emit `BoardEvent.BoardMissing`. The Root calls `onBoardMissing`.
-- **Process death**: the route argument, the open field or dialog (column ID, kind) and its text are saved in `SavedStateHandle`. Saving flags are not saved. After a restore, the user submits again.
+- **Process death**: the route argument, the open field or dialog (column ID, kind) and its text are saved in `SavedStateHandle`. Saving flags are not saved, and a "Discard changes?" dialog is not restored (D44). After a restore, the user submits again.
 - **Pull to refresh with an open field** (D37): the refresh replaces `content`. After any load (first load, restore, refresh), a quick add field, rename dialog or delete dialog whose column is gone closes. Other fields and dialogs keep their text.
 
 ### Layout per window class (D20, D24)
@@ -189,4 +189,4 @@ Read on 2026-11-23 from page 9:6 with `get_design_context`, `get_screenshot` and
 | Rename column | `CardiganDialog` "Rename column" with `Field` "Name" + `Input`, Secondary "Cancel", Primary "Save" (desktop frame, D20) | same |
 | Delete column | `CardiganDialog` title "Delete column “{name}”?", description with the card count, Secondary "Cancel", Danger "Delete column and {n} cards"; phone uses Touch buttons that fill | same |
 
-Annotations on the page: phone column width (above), column menu disabled items (above), quick add "Title only. Enter adds the card and keeps the field open for the next one (proposal)." The drag & drop, move failed and search & filter frames belong to later changes. Figma has no rule for a tap outside the add column field; see the assumptions in the task report.
+Annotations on the page: phone column width (above), column menu disabled items (above), quick add "Title only. Enter adds the card and keeps the field open for the next one (proposal)." The drag & drop, move failed and search & filter frames belong to later changes. A tap outside the add column field follows the quick add rule (D42). "No cards yet" is hidden while quick add is open in that column (D43).
