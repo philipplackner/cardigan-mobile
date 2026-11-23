@@ -28,6 +28,8 @@ import kotlinx.coroutines.test.setMain
 
 /*
  * Break vectors:
+ * - email field cap: a 600-character paste keeps 500, a surrogate pair at the cut isn't split,
+ *   edits up to 500 are untouched, passwords are never cut
  * - blur timing: no error while typing, error after the first focus loss, the initial unfocused
  *   callback before any focus doesn't count, live after the blur
  * - email: empty and whitespace-only are Required; a malformed email is sent; values go out as typed
@@ -300,5 +302,38 @@ class LoginViewModelTest {
         val handle = SavedStateHandle()
         viewModel(handle, sessionExpired = true).onAction(LoginAction.Submit)
         assertThat(viewModel(handle, sessionExpired = true).s.banner).isNull()
+    }
+
+    @Test
+    fun pastedEmailIsCutToFiveHundredCharacters() {
+        val viewModel = viewModel()
+        viewModel.onAction(LoginAction.EmailChange("a".repeat(600)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(500))
+    }
+
+    @Test
+    fun emailCutDoesNotSplitASurrogatePair() {
+        val viewModel = viewModel()
+        viewModel.onAction(LoginAction.EmailChange("a".repeat(499) + "😀" + "a".repeat(100)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(499))
+        viewModel.onAction(LoginAction.EmailChange("a".repeat(498) + "😀" + "a".repeat(100)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(498) + "😀")
+    }
+
+    @Test
+    fun emailEditsUpToFiveHundredCharactersAreKept() {
+        val viewModel = viewModel()
+        val email = " " + "😀".repeat(10) + "a".repeat(479)
+        viewModel.onAction(LoginAction.EmailChange(email))
+        assertThat(viewModel.s.email).isEqualTo(email)
+        viewModel.onAction(LoginAction.EmailChange("Ann@Example.com "))
+        assertThat(viewModel.s.email).isEqualTo("Ann@Example.com ")
+    }
+
+    @Test
+    fun passwordIsNotCut() {
+        val viewModel = viewModel()
+        viewModel.onAction(LoginAction.PasswordChange("a".repeat(600)))
+        assertThat(viewModel.s.password.length).isEqualTo(600)
     }
 }

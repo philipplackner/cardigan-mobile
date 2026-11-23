@@ -11,6 +11,7 @@ import com.plcoding.cardiganapp.feature.auth.domain.FieldErrorCode
 import com.plcoding.cardiganapp.feature.auth.domain.validation.LoginForm
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthBanner
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthInputField
+import com.plcoding.cardiganapp.feature.auth.presentation.components.capEmailInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,7 +40,7 @@ class LoginViewModel(
         if (_state.value.isLoading) return
         when (action) {
             is LoginAction.EmailChange -> update {
-                copy(email = action.email, emailServerRequired = false, banner = banner.clearedByEdit())
+                copy(email = capEmailInput(action.email), emailServerRequired = false, banner = banner.clearedByEdit())
             }
             is LoginAction.PasswordChange -> update {
                 copy(password = action.password, passwordServerRequired = false, banner = banner.clearedByEdit())

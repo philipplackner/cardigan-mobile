@@ -28,6 +28,8 @@ import kotlinx.coroutines.test.setMain
 
 /*
  * Break vectors:
+ * - email field cap: a 600-character paste keeps 500, a surrogate pair at the cut isn't split,
+ *   edits up to 500 are untouched, passwords are never cut
  * - live rules on every change, before any blur
  * - errors only after the first blur, then live; the first-focus callback doesn't count
  * - mismatch follows both passwords; exact text compared
@@ -312,5 +314,38 @@ class RegisterViewModelTest {
         assertThat(restored.s.emailBlurred).isTrue()
         assertThat(restored.s.repeatPasswordBlurred).isTrue()
         assertThat(restored.s.passwordBlurred).isFalse()
+    }
+
+    @Test
+    fun pastedEmailIsCutToFiveHundredCharacters() {
+        val viewModel = viewModel()
+        viewModel.onAction(RegisterAction.EmailChange("a".repeat(600)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(500))
+    }
+
+    @Test
+    fun emailCutDoesNotSplitASurrogatePair() {
+        val viewModel = viewModel()
+        viewModel.onAction(RegisterAction.EmailChange("a".repeat(499) + "😀" + "a".repeat(100)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(499))
+        viewModel.onAction(RegisterAction.EmailChange("a".repeat(498) + "😀" + "a".repeat(100)))
+        assertThat(viewModel.s.email).isEqualTo("a".repeat(498) + "😀")
+    }
+
+    @Test
+    fun emailEditsUpToFiveHundredCharactersAreKept() {
+        val viewModel = viewModel()
+        val email = " " + "😀".repeat(10) + "a".repeat(479)
+        viewModel.onAction(RegisterAction.EmailChange(email))
+        assertThat(viewModel.s.email).isEqualTo(email)
+        viewModel.onAction(RegisterAction.EmailChange("Ann@Example.com "))
+        assertThat(viewModel.s.email).isEqualTo("Ann@Example.com ")
+    }
+
+    @Test
+    fun passwordIsNotCut() {
+        val viewModel = viewModel()
+        viewModel.onAction(RegisterAction.PasswordChange("a".repeat(600)))
+        assertThat(viewModel.s.password.length).isEqualTo(600)
     }
 }

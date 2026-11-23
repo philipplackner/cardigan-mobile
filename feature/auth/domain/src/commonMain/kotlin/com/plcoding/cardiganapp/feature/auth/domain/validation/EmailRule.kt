@@ -7,78 +7,37 @@ import com.plcoding.cardiganapp.core.domain.text.normalizeText
 enum class EmailProblem { Required, TooLong, InvalidFormat }
 
 /**
- * The cardigan-shared-specs `domain-user` email rule: 1–254 code points after `text-length`
- * normalization, and an RFC 5322 `addr-spec` in ASCII without comments or folding whitespace.
+ * The reference pattern from cardigan-shared-specs `domain-user` "Email format has one reference
+ * pattern". Copied exactly; every platform must accept the same emails.
+ */
+const val EMAIL_PATTERN =
+    """^(?=[^@]{1,64}@)[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$"""
+
+/**
+ * The cardigan-shared-specs `domain-user` email rule for Register: 1–254 code points after
+ * `text-length` normalization, no `text-length` invalid characters, and a full match of
+ * [EMAIL_PATTERN]. Log in doesn't use it ("Login does not check the email format").
  */
 object EmailRule {
     const val MAX_LENGTH = 254
 
-    /** Returns the first broken rule in the backend's order (empty, too long, invalid character, format), or null. */
+    private val emailRegex = Regex(EMAIL_PATTERN)
+
+    /**
+     * Returns the first broken rule in the `api-errors` order: required, invalid character, too
+     * long, format. An invalid character shows the same message as a wrong format, so both are
+     * [EmailProblem.InvalidFormat].
+     */
     fun check(raw: String): EmailProblem? {
         val email = normalizeText(raw)
         return when {
             email.isEmpty() -> EmailProblem.Required
-            codePointLength(email) > MAX_LENGTH -> EmailProblem.TooLong
             hasInvalidCharacter(email, multiLine = false) -> EmailProblem.InvalidFormat
-            !isAddrSpec(email) -> EmailProblem.InvalidFormat
+            codePointLength(email) > MAX_LENGTH -> EmailProblem.TooLong
+            !hasValidFormat(email) -> EmailProblem.InvalidFormat
             else -> null
         }
     }
 
-    // A single forward scan instead of a regex, so no input can make the check backtrack.
-    internal fun isAddrSpec(text: String): Boolean {
-        val localEnd = if (text.startsWith('"')) quotedStringEnd(text) else text.indexOf('@')
-        if (localEnd <= 0 || localEnd >= text.length || text[localEnd] != '@') return false
-        val local = text.substring(0, localEnd)
-        val domain = text.substring(localEnd + 1)
-        val localValid = local.startsWith('"') || isDotAtom(local)
-        return localValid && (isDomainLiteral(domain) || isDotAtom(domain))
-    }
-
-    /** Index right after the closing quote of a quoted string at the start of [text], or -1. */
-    private fun quotedStringEnd(text: String): Int {
-        var index = 1
-        while (index < text.length) {
-            val code = text[index].code
-            when {
-                code == '"'.code -> return index + 1
-                code == '\\'.code -> {
-                    if (index + 1 >= text.length || text[index + 1].code !in 0x20..0x7E) return -1
-                    index += 2
-                }
-                code == 0x21 || code in 0x23..0x5B || code in 0x5D..0x7E -> index++
-                else -> return -1
-            }
-        }
-        return -1
-    }
-
-    private fun isDotAtom(text: String): Boolean {
-        if (text.isEmpty()) return false
-        var previousWasDot = true
-        for (char in text) {
-            if (char == '.') {
-                if (previousWasDot) return false
-                previousWasDot = true
-            } else {
-                if (!char.isAtext()) return false
-                previousWasDot = false
-            }
-        }
-        return !previousWasDot
-    }
-
-    private fun isDomainLiteral(text: String): Boolean {
-        if (text.length < 2 || text.first() != '[' || text.last() != ']') return false
-        for (index in 1 until text.length - 1) {
-            val code = text[index].code
-            if (code !in 0x21..0x5A && code !in 0x5E..0x7E) return false
-        }
-        return true
-    }
-
-    private fun Char.isAtext(): Boolean =
-        this in 'A'..'Z' || this in 'a'..'z' || this in '0'..'9' || this in ATEXT_SYMBOLS
-
-    private const val ATEXT_SYMBOLS = "!#$%&'*+/=?^_`{|}~-"
+    internal fun hasValidFormat(email: String): Boolean = emailRegex.matches(email)
 }

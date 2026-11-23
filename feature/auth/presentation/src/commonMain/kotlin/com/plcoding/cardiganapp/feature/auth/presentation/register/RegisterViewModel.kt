@@ -13,6 +13,7 @@ import com.plcoding.cardiganapp.feature.auth.domain.validation.RegisterForm
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthBanner
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthFieldMessage
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthInputField
+import com.plcoding.cardiganapp.feature.auth.presentation.components.capEmailInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,7 @@ class RegisterViewModel(
         if (_state.value.isLoading) return
         when (action) {
             is RegisterAction.EmailChange -> update {
-                copy(email = action.email, emailAlreadyUsed = false, emailServerError = null)
+                copy(email = capEmailInput(action.email), emailAlreadyUsed = false, emailServerError = null)
             }
             is RegisterAction.PasswordChange -> update { copy(password = action.password, passwordServerError = null) }
             is RegisterAction.RepeatPasswordChange -> update { copy(repeatPassword = action.repeatPassword) }

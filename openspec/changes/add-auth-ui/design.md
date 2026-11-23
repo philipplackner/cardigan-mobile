@@ -97,7 +97,8 @@ enum class FieldErrorCode { Required, TooShort, TooLong, InvalidCharacter, Inval
   - iOS: `Char.category` for BMP code points. For supplementary code points, `NSCharacterSet.lowercaseLetterCharacterSet`, `uppercaseLetterCharacterSet` and `decimalDigitCharacterSet` with `longCharacterIsMember`. Apple's uppercase set also contains Lt, but every Lt character is in the BMP, so the BMP path gives the exact Ll/Lu/Nd answer.
   - Alternative: BMP only in common code. Rejected, because `𝟙` (U+1D7D9, Nd) and other supplementary letters would disagree with the backend.
 - **`:feature:auth:domain`:**
-  - `EmailRule.check(raw): EmailProblem?` returns `Required`, `TooLong`, `InvalidFormat` or `null`. `InvalidFormat` also covers invalid characters. It uses the same addr-spec shape as be-auth: dot-atom or quoted-string local part, dot-atom or domain-literal domain, ASCII only. The regex has no nested quantifiers, so a long input can't backtrack. The order is the backend's: empty, over 254 code points, invalid character, format.
+  - `EmailRule.check(raw): EmailProblem?` returns `Required`, `TooLong`, `InvalidFormat` or `null`. `InvalidFormat` also covers invalid characters, which show the same message. The format check is a full match of the reference pattern from `domain-user` "Email format has one reference pattern", copied byte for byte into one constant (`EMAIL_PATTERN`): a dot-atom local part of 1–64 characters, a domain of two or more labels, a last label of 2–63 letters, ASCII only (also "Email local part is a dot-atom" and "Email domain has at least two labels"). The order follows `domain-user` "Register enforces the email format": empty, invalid character, over 254 code points, format. Log in doesn't use it ("Login does not check the email format").
+  - **Email field cap (D22):** the Log in and Register ViewModels cut the email value to its first 500 UTF-16 characters on every change, without splitting a surrogate pair. No counter or message. Passwords aren't cut.
   - `PasswordRules.check(raw): PasswordCheck` gives the four live flags, `tooLong`, `invalidCharacter` and `isEmpty`.
   - `LoginForm` and `RegisterForm` validators turn the field values into one error per field. These are pure functions, so the ViewModels and unit tests share them.
 
@@ -171,10 +172,11 @@ enum class FieldErrorCode { Required, TooShort, TooLong, InvalidCharacter, Inval
 - **Unit tests in `commonTest`, adversarial (break vectors first):**
   - **Text helpers:** CRLF and lone CR, decomposed `é`, whitespace-only text including U+3000, emoji, ZWJ sequences (5 code points), a lone high surrogate, a lone low surrogate, U+0000, a tab in single-line and multi-line mode, and a supplementary Nd/Lu/Ll character.
   - **`EmailRule`:**
-    - the `domain-user` scenarios
-    - the be-auth list: plus address, `ann@`, non-ASCII, a comment, 254 and 255 code points, a quoted local part, leading and trailing dots, consecutive dots, a domain literal
-    - a tab inside the address
-    - a 250 KB near-match that must finish quickly
+    - the scenarios of the `domain-user` email requirements: accepted shapes (`a@b.co`, subdomains, punycode below the top level, a 64-character local part) and rejected ones (single-label domain, domain literal, trailing dot, hyphen at a label edge, bad top-level label, a 65-character local part, misplaced dots, quoted local parts, a comment, two `@`, non-ASCII)
+    - 254 and 255 code points, 255 characters without `@` giving `TooLong`
+    - a tab, NUL and a lone surrogate inside the address
+    - the spec's 250 KB near-match through `EmailRule.check()`, which gives `TooLong` within 100 ms; the pattern itself on 254- and 500-character near-matches, rejected quickly
+  - **Email field cap:** a 600-character paste keeps 500, a surrogate pair at the cut isn't split, edits up to 500 are kept, passwords are never cut.
   - **`PasswordRules`:** lengths 11, 12, 128 and 129 in code points, each missing class, non-ASCII classes, astral characters counted once, only spaces, leading and trailing spaces kept, control characters.
   - **ViewModels:** blur timing, first-focus-only, submit with every combination of broken fields, double submit, every `AuthError` case, each clearing rule, the session expired banner kept while typing and removed on submit and on "Create one", and saved-state restore without passwords.
   - **`AppViewModel` and session-gate logic:** each start state, each transition, `restore()` called once.
@@ -186,7 +188,8 @@ enum class FieldErrorCode { Required, TooShort, TooLong, InvalidCharacter, Inval
 
 ## Risks / Trade-offs
 
-- [The client email regex can drift from the backend's] → It is written against the same rule list and the be-auth test vectors. The backend stays authoritative, and `INVALID_FORMAT` from the server maps to the same message.
+- [The client email check can drift from the backend's] → Both use the one reference pattern from `domain-user` "Email format has one reference pattern", copied byte for byte. The backend stays authoritative, and `INVALID_FORMAT` from the server maps to the same message.
+- [The reference email pattern overflows the stack on very long input (found 2026-11-23)] → `java.util.regex` (Android) throws `StackOverflowError` and Kotlin/Native's engine crashes the process (signal 11) on a domain-shaped near-match of about 10,000 characters, because each repetition of the domain-label group adds a recursion level. Up to about 2,000 characters both are fast. So the pattern never sees more than 254 code points: the length check runs first, and the email fields keep at most 500 characters as defense in depth against huge pastes (D22). The spec's 250 KB scenario is tested through `EmailRule.check()`, which gives `TooLong`.
 - [Compose autofill semantics may be incomplete on iOS in the catalog's Compose version] → The task checks it and reports a gap instead of adding a native workaround.
 - [Debug builds can't start between removing the fixture and `mob-auth-connect`] → The removal commit is made only right before archive, and archive waits for `mob-auth-connect`.
 - [The email sits in secure storage next to the refresh token (D15)] → It is cleared with the tokens, and the storage is the same encrypted store CLAUDE.md requires for the token.

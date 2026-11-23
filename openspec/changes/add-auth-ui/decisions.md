@@ -178,13 +178,27 @@ Build the mobile auth UI for chunk `mob-auth-ui` in the `auth` feature: Log in a
 - **Why**: Every control already has visible text that names it.
 - **Depends on**: —
 
+### D21 — Email format follows the shared reference pattern
+- **Question**: The shared email rule changed. Which format does Register check?
+- **Decision**: User decision on 2026-11-23. Register checks the `domain-user` requirements "Email local part is a dot-atom", "Email domain has at least two labels", "Email format has one reference pattern" and "Register enforces the email format", with the reference pattern copied byte for byte. Log in still checks only for an empty email ("Login does not check the email format", D5). Order: required, invalid character, too long, format; non-ASCII is a format error.
+- **Alternatives**: Keep the RFC 5322 addr-spec check.
+- **Why**: The shared rule changed: the RFC 5322 requirement was removed because it accepted likely typos such as `mail@pl-coding`. Source: the archived shared-specs change `practical-email-format` (2026-11-23). It also replaces the hand-written one-pass addr-spec check from task 2.2, which was used instead of the regex the design named.
+- **Depends on**: D5
+
+### D22 — Email fields keep at most 500 characters
+- **Question**: The reference email pattern overflows the stack on very long input. How is that kept away from users?
+- **Decision**: User decision on 2026-11-23. The email fields on Log in and Register keep at most 500 characters: the ViewModel cuts a longer edit or paste to its first 500 UTF-16 characters and never splits a surrogate pair. No counter and no message; "Email can't be longer than 254 characters." still shows, because 500 is above 254. Passwords aren't capped. The shared pattern stays unchanged.
+- **Alternatives**: Change the shared pattern; rely only on the length check before the pattern.
+- **Why**: The pattern overflows the stack on `java.util.regex` and Kotlin/Native at around 10,000 characters (design "Risks / Trade-offs"). The length check before the pattern already makes Register safe; the cap is defense in depth against huge pastes.
+- **Depends on**: D21
+
 ## Facts
 
 - be-auth isn't implemented. The backend's committed OpenAPI snapshot has only labels and `GET /users/me`, so there are no auth DTOs to generate yet. — source: `~/IdeaProjects/cardigan/app/src/test/resources/openapi/openapi.json`, `openspec/changes/be-auth/tasks.md` in the backend
 - The planned response shapes: `AuthSessionDto(accessToken, accessTokenExpiresAt, refreshToken?, user: CurrentUserDto)` for login and register, and `AuthTokensDto(accessToken, accessTokenExpiresAt, refreshToken?)` for refresh, with no user. — source: backend `openspec/changes/be-auth/design.md`
 - This repo has no `api/openapi.json` yet. — source: repo listing
 - The password rule: 12–128 code points after NFC, with at least one Ll, one Lu and one Nd. No control characters. Not trimmed. — source: cardigan-shared-specs `domain-user` "Passwords follow one composition rule", `text-length` "Passwords are normalized without trimming", "Invalid characters are rejected"
-- The email rule: 1–254 code points after text-length normalization, RFC 5322 addr-spec, ASCII only. The client sends it as entered. — source: `domain-user` "Email is stored lowercased and identifies one user", "Email follows the RFC 5322 address format"
+- The email rule: 1–254 code points after text-length normalization, a dot-atom local part of 1–64 characters, a domain of at least two labels with a 2–63-letter last label, ASCII only, and exactly the emails the reference pattern matches. Register checks the format; Log in doesn't. The client sends the email as entered. — source: `domain-user` "Email is stored lowercased and identifies one user", "Email local part is a dot-atom", "Email domain has at least two labels", "Email format has one reference pattern", "Register enforces the email format", "Login does not check the email format" (D21)
 - Clients must apply the same rules before sending. — source: `text-length` "Clients validate with the same rule"
 - Login failures for an unknown email and a wrong password look the same: 401 `INVALID_CREDENTIALS`. — source: `api-errors` "Login failures look the same"
 - A used email gives 409 `CONFLICT` with field error `email`/`ALREADY_USED`. — source: `api-errors` "Uniqueness clashes are conflicts"

@@ -74,7 +74,8 @@ Approved by the user (D17):
 This change implements or depends on:
 - cardigan-shared-specs `domain-user`:
   - "Email is stored lowercased and identifies one user": the email length limit and sending the email as entered.
-  - "Email follows the RFC 5322 address format": the register email check.
+  - "Email local part is a dot-atom", "Email domain has at least two labels", "Email format has one reference pattern", "Register enforces the email format": the register email check.
+  - "Login does not check the email format": the empty-only check on Log in.
   - "Passwords follow one composition rule": the live rules and the register check.
 - cardigan-shared-specs `text-length`:
   - "Text is normalized before validation", "Passwords are normalized without trimming", "Length is counted in Unicode code points", "Invalid characters are rejected": the client checks.

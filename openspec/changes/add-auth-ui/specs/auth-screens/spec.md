@@ -22,7 +22,7 @@ Before sending a login, the app SHALL check only that the email is not empty aft
 - **THEN** no request is sent and the password field shows "Enter your password."
 
 ### Requirement: Register checks the shared email rule
-On register, the app SHALL check the email with the `domain-user` rules ("Email is stored lowercased and identifies one user", "Email follows the RFC 5322 address format") after `text-length` normalization. An empty email SHALL show "Enter your email.". An email over 254 code points SHALL show "Email can't be longer than 254 characters.". Any other broken email SHALL show "Enter a valid email address.".
+On register, the app SHALL check the email after `text-length` normalization with the `domain-user` requirements "Email is stored lowercased and identifies one user", "Email local part is a dot-atom", "Email domain has at least two labels", "Email format has one reference pattern" and "Register enforces the email format". Empty: "Enter your email.". Over 254 code points: "Email can't be longer than 254 characters.". Otherwise broken: "Enter a valid email address.".
 
 #### Scenario: Empty register email
 - **WHEN** the register email is empty or only whitespace and the field has lost focus
@@ -30,6 +30,10 @@ On register, the app SHALL check the email with the `domain-user` rules ("Email 
 
 #### Scenario: Missing domain
 - **WHEN** the register email is `ann@` and the field has lost focus
+- **THEN** it shows "Enter a valid email address."
+
+#### Scenario: Single-label domain
+- **WHEN** the register email is `mail@pl-coding` and the field has lost focus
 - **THEN** it shows "Enter a valid email address."
 
 #### Scenario: Non-ASCII email
@@ -229,6 +233,17 @@ The email field SHALL use an email keyboard and the email autofill hint. The log
 #### Scenario: Password manager
 - **WHEN** a password manager is set up on the device and the user focuses the login email field
 - **THEN** the system offers saved credentials for the app
+
+### Requirement: Email field keeps at most 500 characters
+On Log in and Register, the email field SHALL keep at most 500 characters. An edit or paste that would go past 500 SHALL be cut to the first 500, without splitting a character made of a surrogate pair. No counter or extra message SHALL show (D22).
+
+#### Scenario: Huge paste into the email field
+- **WHEN** the user pastes 600 characters into the email field on Register
+- **THEN** the field keeps the first 500 and shows "Email can't be longer than 254 characters." after the first blur
+
+#### Scenario: Emoji at the cut
+- **WHEN** a pasted email has an emoji whose first half would be its 500th character
+- **THEN** the field keeps the first 499 characters
 
 ### Requirement: Switching between Log in and Register
 "Create one" on the Log in screen SHALL open Register. "Log in" on the Register screen SHALL open Log in. The back action on Register SHALL return to Log in. On Log in, the back action SHALL leave the app as the platform does.
