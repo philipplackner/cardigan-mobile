@@ -24,4 +24,23 @@
     <string name="login_create_one">Create one</string>
     <string name="login_error_wrong_credentials">Email or password is incorrect.</string>
     <string name="login_session_expired">Your session has expired. Log in again to continue.</string>
+
+    <string name="register_title">Create your account</string>
+    <string name="register_password_placeholder">Create a password</string>
+    <string name="register_repeat_password_label">Repeat password</string>
+    <string name="register_repeat_password_placeholder">Type it again</string>
+    <string name="register_create_account">Create account</string>
+    <string name="register_loading">Creating account…</string>
+    <string name="register_have_account">Already have an account?</string>
+    <string name="register_rule_length">12+ characters</string>
+    <string name="register_rule_lowercase">Lowercase letter</string>
+    <string name="register_rule_uppercase">Uppercase letter</string>
+    <string name="register_rule_digit">Digit</string>
+    <string name="register_error_email_invalid">Enter a valid email address.</string>
+    <string name="register_error_email_too_long">Email can't be longer than 254 characters.</string>
+    <string name="register_error_email_used">An account with this email already exists.</string>
+    <string name="register_error_password_too_long">Password can't be longer than 128 characters.</string>
+    <string name="register_error_password_invalid_character">Password can't contain tabs or line breaks.</string>
+    <string name="register_error_repeat_required">Repeat your password.</string>
+    <string name="register_error_password_mismatch">Passwords don’t match.</string>
 </resources>

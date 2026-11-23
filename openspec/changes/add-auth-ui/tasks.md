@@ -57,8 +57,8 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
 
 ## 4. Register screen
 
-- [ ] 4.1 Add the Register strings, including the two password messages from D17. Verify: every Register string in proposal "Copy" exists once.
-- [ ] 4.2 Add `RegisterRoute` and `RegisterViewModel`, with unit tests for:
+- [x] 4.1 Add the Register strings, including the two password messages from D17. Verify: every Register string in proposal "Copy" exists once.
+- [x] 4.2 Add `RegisterRoute` and `RegisterViewModel`, with unit tests for:
   - live rule flags on every change
   - errors only after blur
   - mismatch updating when either password changes
@@ -70,9 +70,9 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - double submit
 
   Verify: the tests pass on both targets.
-- [ ] 4.3 Add the Register composables and `RegisterRoot` with the same layout, keyboard and autofill rules as 3.3 (new-password hints). Verify: previews for default, live rules with mismatch, email already registered, an empty submit and loading, in light and dark at phone and desktop classes, then the Figma check against the Register, Live password check and mismatch, and Email already registered frames.
-- [ ] 4.4 Add `RegisterUiTest`. Cover: rules change while typing, no error before blur, the error after blur, the empty-submit errors, the used-email error clearing on edit, the loading text "Creating account…", and the "Log in" link callback. Verify: `iosSimulatorArm64Test` passes.
-- [ ] 4.5 Run all gates. Verify they pass, then commit `feat(auth): add register screen`.
+- [x] 4.3 Add the Register composables and `RegisterRoot` with the same layout, keyboard and autofill rules as 3.3 (new-password hints). Verify: previews for default, live rules with mismatch, email already registered, an empty submit and loading, in light and dark at phone and desktop classes, then the Figma check against the Register, Live password check and mismatch, and Email already registered frames.
+- [x] 4.4 Add `RegisterUiTest`. Cover: rules change while typing, no error before blur, the error after blur, the empty-submit errors, the used-email error clearing on edit, the loading text "Creating account…", and the "Log in" link callback. Verify: `iosSimulatorArm64Test` passes.
+- [x] 4.5 Run all gates. Verify they pass, then commit `feat(auth): add register screen`.
 
 ## 5. Navigation and session gate
 
