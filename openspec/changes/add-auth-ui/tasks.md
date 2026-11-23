@@ -20,8 +20,8 @@ Frame IDs come from `get_metadata` on page `9:4`. Don't copy them from this file
   - the `expect`/`actual` `codePointCategory` for Android and iOS
 
   List the break vectors from design "Testing" first, then write one test per angle. Verify: the tests pass on Android host and the iOS simulator, including `"👨‍👩‍👧"` = 5, decomposed `é` composed, U+1D7D9 as `Digit` on both platforms, and a lone surrogate rejected.
-- [ ] 1.2 Add `SessionManager` (with the `logout()` ordering in its KDoc), `SessionState`, `SignOutReason` and `SessionScopedStore` to `:core:domain` (design "Session interface"). Verify: compiles for Android and iOS.
-- [ ] 1.3 Run all gates. Verify they pass, then commit `feat(core): add text rules` (1.1) and `feat(core): add session interface` (1.2) as two commits.
+- [x] 1.2 Add `SessionManager` (with the `logout()` ordering in its KDoc), `SessionState`, `SignOutReason` and `SessionScopedStore` to `:core:domain` (design "Session interface"). Verify: compiles for Android and iOS.
+- [x] 1.3 Run all gates. Verify they pass, then commit `feat(core): add text rules` (1.1) and `feat(core): add session interface` (1.2) as two commits.
 
 ## 2. Auth domain
 
