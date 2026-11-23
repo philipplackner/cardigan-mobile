@@ -27,6 +27,7 @@ This file is the project's system prompt. The `kmp-*` skills in `.claude/skills/
 | Logging | Kermit, debug builds only |
 | Lint / format | None for now. `kotlin.code.style=official` and the IDE formatter. |
 | Tests | `kotlin.test`, AssertK, Turbine, kotlinx-coroutines-test, Ktor `MockEngine`, Compose `ui-test` (`runComposeUiTest`) |
+| Coverage | Kover, Android host tests only. diff-cover (pinned in the version catalog) through `uvx`. On demand, not a gate. |
 
 **Current state:** the module skeleton is in place: `build-logic` convention plugins, `:composeApp`, the four core modules, and `domain`/`data`/`presentation` modules for all five features. Feature modules contain only build files. The core modules have `Result`/`DataError`, `UiText`, `ObserveAsEvents`, the `HttpClientFactory` and safe call helpers, and Koin starts on both platforms. There is no navigation, no theme and no screen yet. `App()` is empty.
 
@@ -155,7 +156,7 @@ The backend generates its OpenAPI spec from code and commits it as a snapshot. T
 - The location of the local backend checkout is set per developer as `cardigan.backend.dir` in `local.properties`. Use only that path for the backend, never another checkout or a guessed location. If the property is missing, ask the user for it. The backend's committed spec snapshot lives in `app/src/test/resources/openapi/` inside that repo.
 - The Gradle task `syncOpenApiSpec` copies the spec from there to `api/openapi.json` in this repo. It fails with a clear message if the property or the file is missing. The copy is committed, so contract changes show up in this repo's diff.
 - Read the backend repo when you need context (its `AGENTS.md`, controllers, DTOs, error codes), but never change files there.
-- DTOs are **generated** from `api/openapi.json` with OpenAPI Generator (`kotlin` generator, multiplatform, kotlinx.serialization, **models only**) into the build directory of `:core:data`. Generated code isn't committed and is never edited. No generated API client classes: requests go through our own Ktor data sources and safe call helpers from `kmp-error-handling`.
+- DTOs are **generated** from `api/openapi.json` with OpenAPI Generator (`kotlin` generator, multiplatform, kotlinx.serialization, **models only**) into the build directory of `:core:data`, under a package with a `generated` segment so coverage reports leave them out. Generated code isn't committed and is never edited. No generated API client classes: requests go through our own Ktor data sources and safe call helpers from `kmp-error-handling`.
 - Feature data modules keep the rest of `kmp-data-layer`: data source interfaces in `domain`, Ktor implementations in `data`, hand-written mappers from generated DTOs to domain models, `Result` and `DataError` for failures. Generated DTOs never leave the `data` layer.
 - **Never invent an endpoint, field, enum value or error code.** If the spec doesn't have what a screen needs, stop and tell the user what's missing. The backend may not have built it yet.
 - Errors come back as ProblemDetail with a `code` property. Each operation in the spec lists the codes it can return. Known codes map to feature error types (implementing `Error`) in the feature's data layer. `DataError` stays generic. How the code travels from the safe call helper to the feature isn't built yet. Propose it when the first endpoint needs it.
@@ -229,6 +230,7 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 - Fakes, not mocks. No MockK or Mockito in `commonTest`.
 - No tests against a running backend or any deployed environment.
 - A test is done when it's green on Android and iOS.
+- Coverage reports leave out `@Composable` functions (previews included), `*Preview.kt`/`*Previews.kt` files, generated code, `di` and `fixture` packages, and androidMain code. Kover filters by class, so androidMain code must follow two naming rules: top-level `actual` functions go in `*.android.kt` files, and classes start with `Android` (activities end with `Activity`). Code that breaks a rule shows up in the report. Non-composable lambdas inside a composable (for example `onClick = { … }`) can still show up, because Kover can't filter them.
 - `@Preview`s live in `commonMain` next to their composables and are for the user to look at in the IDE. Don't render them with the Android CLI (`android studio render-compose-preview`) or the `android-preview-figma-verify` skill: those only work for `androidMain`, and previews don't go there. Check a component against Figma in code instead (values from `get_design_context`).
 
 ### Commands
@@ -241,6 +243,8 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 | `./gradlew iosSimulatorArm64Test` | All shared tests on the iOS simulator, all modules |
 | `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` | Link the iOS framework |
 | `./gradlew connectedAndroidDeviceTest` | Android device tests (needs a running emulator). Not a gate. |
+| `./gradlew coverageReport` | Runs the host tests and writes a merged coverage report to `build/reports/kover/` (XML + HTML), then prints line and branch coverage. `-Pcoverage.modules=:core:data,:feature:boards:data` picks modules (default: all KMP modules). `-Pcoverage.minLine=<0-100>` / `-Pcoverage.minBranch=<0-100>` fail the run below that total. Use the full task name: abbreviations fail. Not a gate. |
+| `./gradlew diffCoverage` | Coverage of the lines changed against `origin/master` (committed, staged, unstaged and untracked), plus `build/reports/diff-coverage/index.html`. Takes `-Pcoverage.modules` and `-Pcoverage.compareBranch=<ref>`. Needs `uv`. Never fails on low coverage. Not a gate. |
 
 Tasks that don't exist yet get added in the change that sets up the tool.
 
