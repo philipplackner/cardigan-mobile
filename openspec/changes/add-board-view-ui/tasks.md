@@ -4,7 +4,7 @@ All gates from CLAUDE.md (`:androidApp:assembleDebug`, `testAndroidHostTest`, `i
 
 ## 1. Prerequisites
 
-- [ ] 1.1 Rebase onto the merged `add-board-list-ui` work. Note in decisions.md how the board view uses the board list's rename/delete board dialogs, its open-board callback (passing name and key for D39) and the shared name rule and strings in core (D35). Verify: the branch builds with all gates green before any board view code is added.
+- [x] 1.1 Rebase onto the merged `add-board-list-ui` work. Note in decisions.md how the board view uses the board list's rename/delete board dialogs, its open-board callback (passing name and key for D39) and the shared name rule and strings in core (D35). Verify: the branch builds with all gates green before any board view code is added.
 
 ## 2. Domain
 
