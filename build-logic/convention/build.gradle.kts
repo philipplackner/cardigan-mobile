@@ -14,6 +14,7 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.composeMultiplatform.gradlePlugin)
     compileOnly(libs.buildkonfig.gradlePlugin)
+    compileOnly(libs.kover.gradlePlugin)
 }
 
 tasks.validatePlugins {
@@ -50,6 +51,14 @@ gradlePlugin {
         register("buildkonfig") {
             id = libs.plugins.convention.buildkonfig.get().pluginId
             implementationClass = "BuildKonfigConventionPlugin"
+        }
+        register("kover") {
+            id = libs.plugins.convention.kover.get().pluginId
+            implementationClass = "KoverConventionPlugin"
+        }
+        register("coverage") {
+            id = libs.plugins.convention.coverage.get().pluginId
+            implementationClass = "CoverageConventionPlugin"
         }
     }
 }

@@ -17,8 +17,11 @@ androidx-navigation = "2.10.0"
 androidx-savedstate = "1.4.0"
 assertk = "0.28.1"
 buildkonfig = "0.23.0"
+diffCover = "11.0.4"
+diffCoverExcludeNewer = "2026-11-20"
 composeMultiplatform = "1.12.1"
 koin = "4.2.2"
+kover = "0.9.11"
 kotlin = "2.4.20"
 kotlinx-coroutines = "1.11.0"
 kotlinx-datetime = "0.8.0"
@@ -33,6 +36,7 @@ kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 compose-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 composeMultiplatform-gradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
 buildkonfig-gradlePlugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfig" }
+kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -92,11 +96,14 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
-convention-kmp-library = { id = "com.plcoding.cardiganapp.convention.kmp.library", version = "unspecified" }
-convention-cmp-library = { id = "com.plcoding.cardiganapp.convention.cmp.library", version = "unspecified" }
-convention-cmp-feature = { id = "com.plcoding.cardiganapp.convention.cmp.feature", version = "unspecified" }
-convention-cmp-application = { id = "com.plcoding.cardiganapp.convention.cmp.application", version = "unspecified" }
-convention-android-application = { id = "com.plcoding.cardiganapp.convention.android.application", version = "unspecified" }
-convention-android-application-compose = { id = "com.plcoding.cardiganapp.convention.android.application.compose", version = "unspecified" }
-convention-buildkonfig = { id = "com.plcoding.cardiganapp.convention.buildkonfig", version = "unspecified" }
+convention-kmp-library = { id = "com.plcoding.cardiganapp.convention.kmp.library" }
+convention-cmp-library = { id = "com.plcoding.cardiganapp.convention.cmp.library" }
+convention-cmp-feature = { id = "com.plcoding.cardiganapp.convention.cmp.feature" }
+convention-cmp-application = { id = "com.plcoding.cardiganapp.convention.cmp.application" }
+convention-android-application = { id = "com.plcoding.cardiganapp.convention.android.application" }
+convention-android-application-compose = { id = "com.plcoding.cardiganapp.convention.android.application.compose" }
+convention-buildkonfig = { id = "com.plcoding.cardiganapp.convention.buildkonfig" }
+convention-kover = { id = "com.plcoding.cardiganapp.convention.kover" }
+convention-coverage = { id = "com.plcoding.cardiganapp.convention.coverage" }
