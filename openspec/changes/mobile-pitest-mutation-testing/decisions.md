@@ -103,6 +103,7 @@ Add a manual `mutationReport` task that runs PIT on the Android host JVM tests o
 ### D14 — Thresholds
 - **Question**: Can a low score fail the run?
 - **Decision**: Only with an optional `-Pmutation.minScore=<0-100>`. It is never set by default and fails the run only when passed and not met. The backend has the same property; web gets an optional break value.
+- **Score**: killed / all mutants. Killed means PIT's detected statuses: `KILLED`, `TIMED_OUT`, `MEMORY_ERROR`, `RUN_ERROR` and `NON_VIABLE`, so the terminal numbers match the HTML report. Aligned with the backend by the user on 2026-11-24.
 - **Alternatives**: no thresholds at all.
 - **Depends on**: D7
 

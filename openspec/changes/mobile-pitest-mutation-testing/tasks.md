@@ -19,6 +19,7 @@
 - [x] 3.3 Add `mutation.threads` and `mutation.minScore`. Verify: `-Pmutation.threads=2` runs PIT with 2 threads; `0`, `-1` and `abc` fail before tests run; a run without `minScore` succeeds at any score; `-Pmutation.minScore=100` writes the report and then fails with score and threshold; `-Pmutation.minScore=0` and `0.5` succeed; a threshold equal to the score succeeds; `minScore` with no mutants succeeds; `120` and `abc` fail before tests run; `./gradlew :core:domain:pitestAndroidHost -Pmutation.threads=abc` fails before tests run; an abbreviated task name such as `mR` fails with a message to use the full name.
 - [x] 3.4 Verify no history is used (D12, incremental dropped): two runs of `./gradlew mutationReport -Pmutation.modules=:core:domain` both execute PIT and analyze every mutant, and no `history.bin` is written under `core/domain/build/`.
 - [x] 3.5 Verify the workflow is untouched: `./gradlew testAndroidHostTest` and `./gradlew :core:domain:check` run no PIT task and download no PIT artifact; all four gates pass.
+- [x] 3.6 Count `KILLED`, `TIMED_OUT`, `MEMORY_ERROR`, `RUN_ERROR` and `NON_VIABLE` as killed in the summary and for `mutation.minScore` (D14). Verify: unit tests in `build-logic` for the counting pass, and a `mutationReport` run prints the same totals as the HTML report.
 
 ## 4. Docs
 

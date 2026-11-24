@@ -14,6 +14,13 @@ Running `./gradlew mutationReport` SHALL run mutation testing for the selected m
 - **THEN** the HTML report exists at `build/reports/pitest/index.html` and contains mutants from `:core:domain` and `:feature:boards:presentation`
 - **AND** the terminal shows the mutation score, test strength, mutant counts and the report path
 
+### Requirement: Score and test strength use PIT's detected statuses
+The mutation score SHALL be killed mutants divided by all mutants. Test strength SHALL be killed mutants divided by mutants with coverage. Mutants with the PIT statuses `KILLED`, `TIMED_OUT`, `MEMORY_ERROR`, `RUN_ERROR` and `NON_VIABLE` SHALL count as killed, for the summary and for `mutation.minScore`.
+
+#### Scenario: Detected statuses count as killed
+- **WHEN** a module's results contain mutants with the statuses `KILLED`, `TIMED_OUT`, `MEMORY_ERROR`, `RUN_ERROR` and `NON_VIABLE`
+- **THEN** the summary counts all of them as killed, and its numbers match the HTML report
+
 ### Requirement: Modules opt in with one plugin id
 A module SHALL be mutation tested only if it applies the mutation convention plugin. All KMP modules opt in. `:androidApp` does not. Opted-in modules without host tests SHALL be skipped with a note instead of failing. A module whose classes are all excluded SHALL be treated like a module without host tests. When no selected module produces mutants, the command SHALL succeed, write no combined report, print that there were no mutants, and ignore `mutation.minScore`.
 

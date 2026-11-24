@@ -13,9 +13,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import java.io.File
-import java.util.Locale
 import javax.inject.Inject
-import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * Merges the PIT results of the selected modules into one HTML report, prints mutation score and
@@ -56,7 +54,7 @@ abstract class MutationReportTask : DefaultTask() {
     fun report() {
         val results = modulePaths.get().zip(moduleReportDirs.get()).mapNotNull { (path, dir) ->
             val xml = File(dir, "mutations.xml")
-            if (xml.isFile) ModuleResult(path, File(dir), readCounts(xml)) else null
+            if (xml.isFile) ModuleResult(path, File(dir), readMutationCounts(xml)) else null
         }
         val withMutants = results.filter { it.counts.total > 0 }
 
@@ -79,49 +77,20 @@ abstract class MutationReportTask : DefaultTask() {
         val moduleLabel = if (withMutants.size == 1) "module" else "modules"
         logger.lifecycle("Mutation testing (${withMutants.size} $moduleLabel with mutants):")
         withMutants.forEach { logger.lifecycle("  ${it.path}: ${it.counts.describe()}") }
-        val total = withMutants.map { it.counts }.reduce(Counts::plus)
+        val total = withMutants.map { it.counts }.reduce(MutationCounts::plus)
         logger.lifecycle("Total: ${total.describe()}")
         logger.lifecycle("HTML: ${htmlReportPath.get()}")
 
         val threshold = minScore.orNull ?: return
         if (total.score < threshold) {
             throw GradleException(
-                "Mutation score ${total.score.format()} is below mutation.minScore=${threshold.formatThreshold()}",
+                "Mutation score ${total.score.formatPercent()} is below mutation.minScore=${threshold.formatThreshold()}",
             )
         }
     }
 
-    private fun readCounts(xml: File): Counts {
-        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
-        val mutations = document.getElementsByTagName("mutation")
-        var detected = 0
-        var noCoverage = 0
-        for (i in 0 until mutations.length) {
-            val element = mutations.item(i) as org.w3c.dom.Element
-            if (element.getAttribute("detected") == "true") detected++
-            if (element.getAttribute("status") == "NO_COVERAGE") noCoverage++
-        }
-        return Counts(total = mutations.length, detected = detected, noCoverage = noCoverage)
-    }
-
-    private class ModuleResult(val path: String, val reportDir: File, val counts: Counts)
-
-    private data class Counts(val total: Int, val detected: Int, val noCoverage: Int) {
-        val covered: Int get() = total - noCoverage
-        val score: Double get() = detected * 100.0 / total
-        val strength: Double? get() = if (covered == 0) null else detected * 100.0 / covered
-
-        operator fun plus(other: Counts) =
-            Counts(total + other.total, detected + other.detected, noCoverage + other.noCoverage)
-
-        fun describe(): String =
-            "mutation score ${score.format()}, test strength ${strength.format()} " +
-                "($detected killed, ${total - detected - noCoverage} survived, $noCoverage no coverage, $total total)"
-    }
+    private class ModuleResult(val path: String, val reportDir: File, val counts: MutationCounts)
 }
-
-private fun Double?.format(): String =
-    if (this == null) "n/a" else String.format(Locale.ROOT, "%.1f%%", this)
 
 private fun Double.formatThreshold(): String =
     if (this % 1.0 == 0.0) toLong().toString() else toString()

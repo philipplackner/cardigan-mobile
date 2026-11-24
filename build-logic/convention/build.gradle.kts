@@ -15,6 +15,8 @@ dependencies {
     compileOnly(libs.composeMultiplatform.gradlePlugin)
     compileOnly(libs.buildkonfig.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
+
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.validatePlugins {
