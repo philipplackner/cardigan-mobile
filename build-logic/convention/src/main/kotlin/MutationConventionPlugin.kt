@@ -1,5 +1,7 @@
 import com.plcoding.cardiganapp.convention.CodeExclusions
 import com.plcoding.cardiganapp.convention.MUTATION_GROUP
+import com.plcoding.cardiganapp.convention.MutationExclusions
+import com.plcoding.cardiganapp.convention.PITEST_FILTERS_DEPENDENCY
 import com.plcoding.cardiganapp.convention.MutationSettings
 import com.plcoding.cardiganapp.convention.PITEST_RUN_LOCK
 import com.plcoding.cardiganapp.convention.PITEST_TASK
@@ -55,10 +57,11 @@ class MutationConventionPlugin : Plugin<Project> {
                     pitestClasspath.from(
                         configurations.detachedConfiguration(
                             dependencies.create(libs.library("pitest-commandLine").get()),
+                            dependencies.create(PITEST_FILTERS_DEPENDENCY),
                         ),
                     )
                     targetClasses.set("com.plcoding.cardiganapp.*")
-                    excludedClasses.set(CodeExclusions.pitClassGlobs)
+                    excludedClasses.set(CodeExclusions.pitClassGlobs + MutationExclusions.classGlobs)
                     threads.set(settings.threads)
                     reportDir.set(layout.buildDirectory.dir("reports/pitest"))
                 }

@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 }
 
 include(":convention")
+include(":pitest-filters")

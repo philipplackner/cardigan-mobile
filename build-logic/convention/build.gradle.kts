@@ -17,6 +17,8 @@ dependencies {
     compileOnly(libs.kover.gradlePlugin)
 
     testImplementation(libs.kotlin.test)
+    testImplementation(project(":pitest-filters"))
+    testImplementation(libs.pitest.entry)
 }
 
 tasks.validatePlugins {

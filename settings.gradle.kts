@@ -29,6 +29,9 @@ dependencyResolutionManagement {
     }
 }
 
+// Also included as a normal build, so PIT tasks can resolve build-logic:pitest-filters as a dependency.
+includeBuild("build-logic")
+
 include(":androidApp")
 include(":composeApp")
 

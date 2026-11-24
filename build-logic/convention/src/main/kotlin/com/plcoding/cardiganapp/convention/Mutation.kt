@@ -12,6 +12,9 @@ internal const val PITEST_TASK = "pitestAndroidHost"
 internal const val PITEST_RUN_LOCK = "pitestRunLock"
 internal const val MUTATION_GROUP = "verification"
 
+/** The PIT plugin from `build-logic:pitest-filters`, resolved from the included build. */
+internal const val PITEST_FILTERS_DEPENDENCY = "com.plcoding.cardiganapp.buildlogic:pitest-filters"
+
 internal const val MUTATION_NEEDS_FULL_TASK_NAME =
     "Mutation testing needs the full task name, e.g. ./gradlew mutationReport."
 
