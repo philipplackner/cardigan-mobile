@@ -78,22 +78,40 @@ If a host test of a selected module fails without mutation, the command SHALL fa
 - **THEN** the command fails, names the failing test, and no combined report exists at `build/reports/pitest/index.html`, even if an earlier run wrote one
 
 ### Requirement: Excluded code
-Generated code, Koin DI modules, debug-only fixtures, previews and androidMain `actual`s SHALL NOT be mutated. They SHALL be matched by name or package pattern, so new code that follows the project layout is excluded without a build change. `@Composable` functions SHALL stay in the report.
+Generated code, Koin DI modules, debug-only fixtures, previews and androidMain `actual`s SHALL NOT be mutated. Design tokens in the design system theme and navigation routes and graphs SHALL NOT be mutated either. All of them SHALL be matched by name or package pattern, so new code that follows the project layout is excluded without a build change. Window size logic in the theme package and code outside `navigation` packages SHALL stay in.
 
 #### Scenario: Generated and wiring code
 - **WHEN** a full report is generated
 - **THEN** it has no mutants in BuildKonfig, Compose resources (`Res`), `di` or `fixture` packages, `ComposableSingletons`, `*PreviewKt`/`*PreviewsKt` classes, or classes matching `*Debug*Overlay*`, `*_androidKt`, `*.Android*` or `*Activity`
 
-#### Scenario: Composable code is kept
+#### Scenario: Tokens and navigation wiring
+- **WHEN** a full report is generated
+- **THEN** it has no mutants in `AppSpacing`, `LabelColors`, `ShadowsKt`, `*Route` classes or `*GraphKt`/`*NavHostKt` classes in `navigation` packages
+- **AND** it still has mutants in `WindowClassKt`, `BoardListReloader` and `AppShellKt`
+
+### Requirement: Compose UI code is not mutated
+Methods annotated `@Composable`, methods that return `Modifier`, lambdas declared in either, and classes they enclose SHALL NOT be mutated. Other code in the same files SHALL stay in. The mutation report SHALL exclude this code although the coverage report only excludes `@Composable` methods.
+
+#### Scenario: Screen file
 - **WHEN** a report is generated for `:feature:boards:presentation`
-- **THEN** it lists mutants in `BoardListScreen` as not covered, and the summary's test strength leaves them out
+- **THEN** it has no mutants in `BoardListScreen`, in its `onClick` lambdas, in `drawDividerAbove`, or in the `LaunchedEffect` lambdas of `BoardScreen`
+- **AND** `BoardViewModel` still has mutants
+
+#### Scenario: Non-UI function next to composables
+- **WHEN** a report is generated for `:composeApp`
+- **THEN** `destinationFor` in `SessionGateKt` and `openBoardId` in `AppShellKt` have mutants
 
 ### Requirement: Kotlin compiler noise is filtered
-Calls into `kotlin.jvm.internal` and `kotlin.ResultKt` SHALL NOT be mutated. Methods named `equals`, `hashCode`, `toString`, `copy`, `copy$default` and `component<N>`, and classes ending in `$WhenMappings`, SHALL NOT be mutated.
+Calls into `kotlin.jvm.internal`, `kotlin.ResultKt` and `co.touchlab.kermit` SHALL NOT be mutated. Methods named `equals`, `hashCode`, `toString`, `copy`, `copy$default` and `component<N>`, and classes matching `*$WhenMappings`, `*$$serializer` or `*$$inlined$*`, SHALL NOT be mutated. Coroutine `invokeSuspend` methods SHALL stay in.
 
 #### Scenario: No mutants in compiler-generated code
 - **WHEN** a report is generated for `:feature:boards:domain`
 - **THEN** it has no mutant in a `kotlin.jvm.internal.Intrinsics` call, in a `$WhenMappings` class, or in an `equals`, `hashCode`, `toString`, `copy` or `component<N>` method
+
+#### Scenario: Serializers and inline copies
+- **WHEN** a full report is generated
+- **THEN** it has no mutant in a `$$serializer` class or a `$$inlined$` class
+- **AND** `invokeSuspend` methods of `BoardViewModel` still have mutants
 
 ### Requirement: Thread count
 The run SHALL use as many threads as the machine has processors. `-Pmutation.threads=<n>` SHALL override it with a positive whole number. Any other value SHALL fail the build before any test runs. Module runs SHALL NOT overlap, so the thread count is the total for the machine.

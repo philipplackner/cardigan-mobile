@@ -25,6 +25,12 @@
 
 - [x] 4.1 Update `CLAUDE.md`: a Mutation testing row in Tech Stack (PIT, host tests only), and `mutationReport` with `mutation.modules`, `mutation.threads` and `mutation.minScore` in the Commands table, marked "Not a gate". Verify: every documented command runs as written. Run `openspec validate mobile-pitest-mutation-testing --strict`.
 
+## 5. Leave out Compose UI and other noise (amendment 2026-11-24)
+
+- [x] 5.1 Add the `pitest-filters` Java project to `build-logic` with `ComposeUiFilter` and its factory (D18), the `pitest-entry` catalog entry, and the `build-logic` include outside `pluginManagement`. Verify: unit tests with synthetic `ClassNode`s pass, covering composable and `Modifier` roots, nested and mangled lambdas, a same-prefix sibling, an overload, enclosed classes at two levels and a class enclosed by a plain method.
+- [x] 5.2 Add `MutationExclusions` (PIT-only globs, FANN annotations, `co.touchlab.kermit`) and pass FANN and `FCOMPOSEUI` to PIT. Kover is unchanged. Verify: glob unit tests show tokens, routes, graphs, serializers and `$$inlined$` classes excluded, and `WindowClassKt`, `WindowBreakpoints`, `BoardListReloader`, `AppShellKt` and `SessionGateKt` kept.
+- [x] 5.3 Run the full `./gradlew mutationReport`. Verify: no mutants in composable functions, their lambdas or enclosed classes; `destinationFor`, `openBoardId` and `BoardViewModel` `invokeSuspend` methods still have mutants; record the new totals in review.md.
+
 ## Workflow follow-up
 
 - Commits follow CLAUDE.md (commit once the gates pass), as relayed by the orchestrator with the user's approval to implement.

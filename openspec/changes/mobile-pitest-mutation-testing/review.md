@@ -140,10 +140,35 @@ Checked all 10 requirements and 20 scenarios in `specs/mutation-testing/spec.md`
 Checked on the reports of all 20 modules after the first full run (20,469 mutants):
 - No mutants in BuildKonfig, `Res`, `di`, `fixture`, `*Debug*Overlay*`, `*PreviewKt`/`*PreviewsKt`, `ComposableSingletons`, `Android*`, `*_androidKt`, `*Activity` or `$WhenMappings` classes.
 - No mutants in `equals`, `hashCode`, `toString`, `copy`, `copy$default` or `component<N>` methods, and none in `kotlin.jvm.internal` or `kotlin.ResultKt` calls.
-- `BoardListScreenKt` in `:feature:boards:presentation` has 1,483 mutants, all `NO_COVERAGE`, as D11 intends.
 - `:feature:auth:data` contains only fixture code, so PIT finds no mutants and the module is skipped with a note.
 
-Remaining noise categories (accepted under D8 and D11):
-- **Composable code** is most of the mutants. `:core:designsystem` alone has about 10,500, almost all `NO_COVERAGE`. That keeps module mutation scores low, so test strength is the useful number for presentation and design system modules.
-- **Preview-only helpers** that don't follow the `*Preview(s).kt` naming, for example `PreviewInteractionKt` in `:core:designsystem` (46 mutants). Kover drops them through `@Composable`; PIT can't.
-- **Coroutine state machines**: 371 mutants in `invokeSuspend` methods. Some of them are in compiler-generated branches that no test can kill.
+The remaining-noise notes from this first run were superseded by the amendment below.
+
+## Implementation notes (amendment, task 5.3)
+
+The first run kept Compose UI code in (old D11). It had 20,469 mutants, 88% of them in `@Composable` methods, so the total score was about 5%. After the amendment (D8, D10, D11, D18–D20), a full `./gradlew mutationReport` gives:
+
+| Module | Mutants | Score | Test strength |
+|---|---|---|---|
+| `:composeApp` | 36 | 22.2% | 88.9% |
+| `:core:data` | 76 | 15.8% | 75.0% |
+| `:core:designsystem` | 47 | 19.1% | 100.0% |
+| `:core:domain` | 161 | 68.9% | 86.0% |
+| `:core:presentation` | 7 | 42.9% | 100.0% |
+| `:feature:auth:domain` | 74 | 97.3% | 100.0% |
+| `:feature:auth:presentation` | 213 | 81.7% | 88.3% |
+| `:feature:boards:data` | 71 | 63.4% | 83.3% |
+| `:feature:boards:domain` | 36 | 75.0% | 90.0% |
+| `:feature:boards:presentation` | 605 | 70.9% | 78.7% |
+| `:feature:transfer:data` | 16 | 87.5% | 87.5% |
+| `:feature:transfer:domain` | 40 | 85.0% | 91.9% |
+| `:feature:transfer:presentation` | 95 | 75.8% | 81.8% |
+| **Total** | **1,477** | **68.4%** | **83.8%** |
+
+Checked against the first run's reports:
+- No mutant is left in a `@Composable` method, in a lambda declared in one, or in a class enclosed by one.
+- No mutant in `$$serializer`, `$$inlined$`, theme token, `*Route`, `*GraphKt`, `*NavigationKt` or `*NavHostKt` classes.
+- Still mutated: `destinationFor` (`SessionGateKt`), `openBoardId` (`AppShellKt`), `WindowClassKt`, `WindowBreakpoints`, `BoardListReloader`, and 137 `invokeSuspend` mutants in `BoardViewModel`.
+- The only killed mutants that left the report are 31 in `$$serializer` classes of `:feature:transfer:presentation`, which the tests reach through `SavedStateHandle`. They are compiler-generated, so dropping them is intended.
+- The `Modifier` rule also drops `inlineFieldKeys` in `BoardColumnParts.kt` (7 mutants, none covered). It maps Enter and Escape to `BoardAction.InlineSubmit` and `InlineCancel`, so it is real logic that only UI tests reach. Moving the key mapping into a plain function would bring it back into the report.
+- Remaining known effects: about 60 uncovered mutants in `:core:data` are lambda classes declared inside `suspend inline` functions (`safeCall`, `get`, `post`, ...), which no test can kill because tests run the inlined copies. Timeouts in inlined `MutableStateFlow.update {}` loops count as killed (D8).

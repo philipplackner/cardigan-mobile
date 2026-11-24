@@ -26,15 +26,16 @@ What shapes the approach:
 
 ### 1. Run PIT's CLI from our own convention plugin (D1)
 
-`convention.mutation` registers `pitestAndroidHost`, a `JavaExec` task per module that runs `org.pitest.mutationtest.commandline.MutationCoverageReport`. Inputs come from the module's `testAndroidHostTest` task: its `classpath` (main classes, test classes, dependencies, the Android stub jar) and `testClassesDirs`. The task's `jvmArgs` and `systemProperties` are passed through `--jvmArgs`. PIT's own classpath comes from a detached configuration with the catalog's `pitest-command-line`, resolved only at execution, so nothing is downloaded unless the task runs.
+`convention.mutation` registers `pitestAndroidHost`, a `JavaExec` task per module that runs `org.pitest.mutationtest.commandline.MutationCoverageReport`. Inputs come from the module's `testAndroidHostTest` task: its `classpath` (main classes, test classes, dependencies, the Android stub jar) and `testClassesDirs`. The task's `jvmArgs` and `systemProperties` are passed through `--jvmArgs`. PIT's own classpath comes from a detached configuration with the catalog's `pitest-command-line` and `build-logic:pitest-filters`, resolved only at execution, so nothing is downloaded unless the task runs.
 
 Arguments:
 - `--targetClasses com.plcoding.cardiganapp.*`
 - `--targetTests com.plcoding.cardiganapp.*`, `--excludedTestClasses *UiTest`
 - `--sourceDirs` the module's existing `commonMain/kotlin` and `androidMain/kotlin`
 - `--mutators DEFAULTS` (D9)
-- `--excludedClasses` the coverage name and package patterns translated to PIT globs (D10), plus `*$WhenMappings`. The patterns move to a shared list in build-logic, so coverage and mutation can't drift apart.
-- `--excludedMethods equals,hashCode,toString,copy,copy$default,component*` and `--avoidCallsTo kotlin.jvm.internal,kotlin.ResultKt` (D8). PIT can't tell data classes apart, so these names are excluded on all classes. Hand-written `equals`, `hashCode`, `toString` and `copy` are not mutated (accepted, D8).
+- `--excludedClasses` the coverage name and package patterns translated to PIT globs (`CodeExclusions`, shared with Kover), plus the PIT-only `MutationExclusions` list: `*$WhenMappings`, `*$$serializer`, `*$$inlined$*`, design tokens and navigation wiring (D10, D20).
+- `--excludedMethods equals,hashCode,toString,copy,copy$default,component*` and `--avoidCallsTo kotlin.jvm.internal,kotlin.ResultKt,co.touchlab.kermit` (D8).
+- `--features=+FANN(annotation[Composable] annotation[Generated] annotation[DoNotMutate] annotation[CoverageIgnore]),+FCOMPOSEUI` (D11, D18). PIT can't tell data classes apart, so these names are excluded on all classes. Hand-written `equals`, `hashCode`, `toString` and `copy` are not mutated (accepted, D8).
 - `--threads` from `mutation.threads`, default `Runtime.availableProcessors()` (D13). The module PIT tasks share one Gradle `BuildService` with `maxParallelUsages = 1`, so only one module runs PIT at a time even though configuration cache runs tasks of different projects in parallel. Each run uses `mutation.threads` threads.
 - `--failWhenNoMutations=false`, so a module whose classes are all excluded is treated like a module without host tests
 - `--outputFormats HTML,XML`, `--exportLineCoverage`, `--timestampedReports=false`, report dir `<module>/build/reports/pitest/`
@@ -59,14 +60,22 @@ The root part goes into a new root plugin `convention.mutation.root`, applied in
 
 Module PIT tasks run only when `mutationReport` or a module task is requested by name, so `check`, `build` and the gates never reach them.
 
-### 3. Composables (D11)
+### 3. Compose UI code (D11, D18)
 
-Kept in. Uncovered mutants are cheap and show as "no coverage". The summary prints test strength next to the score.
+Left out in two layers:
+- PIT's built-in `FANN` filter drops methods annotated `@Composable`. The annotation has binary retention, and FANN reads invisible annotations from the bytecode. Composable lambda bodies are static `<name>$lambda$N` methods with the same annotation, so they are dropped too.
+- `ComposeUiFilter` in `build-logic/pitest-filters` (feature `FCOMPOSEUI`, on by default) drops what FANN misses. Its roots are methods annotated `@Composable` and methods whose descriptor returns `androidx.compose.ui.Modifier`. It also drops every method in the same class named `<root>$lambda…`, with `-` in mangled names replaced by `_` as Kotlin does, and every class whose `EnclosingMethod`, directly or through outer classes, is a root or one of those lambdas. Outer classes are read through `InterceptorParameters.source()`.
+
+The filter is plain Java against `pitest-entry`, which bundles ASM, so PIT's process needs nothing else. It is registered in `META-INF/services/org.pitest.mutationtest.build.MutationInterceptorFactory`. The root build also includes `build-logic` outside `pluginManagement`, so the PIT task's detached configuration can resolve it. Unit tests build synthetic ASM `ClassNode`s.
+
+Kover's `annotatedBy` only drops the annotated methods, so the mutation report excludes more code than the coverage report (D20).
 
 ## Risks / Trade-offs
 
 - [Kotlin noise lowers scores] → D8 filters cover the most common cases. Remaining noise is accepted for a baseline.
 - [Host tests that depend on the working directory or Compose resources behave differently under PIT] → each module runs with its own host test classpath, JVM args and working dir. Checked per module in task 2.3.
 - [Coroutine tests time out under mutation] → PIT's default timeouts. Raise them only if task 2.3 shows false timeouts.
+- [Mutants in inlined `MutableStateFlow.update {}` loops time out and count as killed] → accepted (D8). The score is a few points higher than the tests deserve.
+- [A `Modifier`-returning function with real logic is hidden] → none exists today. Logic that needs tests belongs in a plain function.
 - [Long runs on presentation modules] → `mutation.modules`, `mutation.threads`.
 - [AGP adds test-task setup PIT doesn't see] → task 1.3 compares PIT's test discovery with the host test report.
