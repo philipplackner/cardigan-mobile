@@ -32,6 +32,8 @@ import kotlinx.coroutines.test.setMain
  *   edits up to 500 are untouched, passwords are never cut
  * - live rules on every change, before any blur
  * - errors only after the first blur, then live; the first-focus callback doesn't count
+ * - broken values in every field before any blur or submit show no error and no error state
+ * - a valid password after its blur has no error; a server password error marks the field
  * - mismatch follows both passwords; exact text compared
  * - empty submit shows every error; unmet rules give the error state with no message
  * - limits: 129 code points, a pasted tab; no request in either case
@@ -39,7 +41,7 @@ import kotlinx.coroutines.test.setMain
  *   PASSWORD_TOO_WEAK, TOO_SHORT and Other go to the banner; mapped + unmapped show both;
  *   rate limit with and without a usable header; InvalidCredentials and Unavailable go to the banner
  * - double submit sends one request; values go out as typed; success stays loading
- * - saved state: email and blur flags restored, passwords never written
+ * - saved state: email and each blur flag restored, passwords never written
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
@@ -106,12 +108,32 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun noErrorsBeforeAnyBlurOrSubmit() {
+        val viewModel = viewModel()
+        viewModel.fill(email = "ann@", password = "a\tb", repeat = "x")
+        assertThat(viewModel.s.emailError).isNull()
+        assertThat(viewModel.s.passwordError).isNull()
+        assertThat(viewModel.s.passwordIsError).isFalse()
+        assertThat(viewModel.s.repeatPasswordError).isNull()
+    }
+
+    @Test
     fun emptyPasswordAfterBlur() {
         val viewModel = viewModel()
         viewModel.blur(AuthInputField.Password)
         assertThat(viewModel.s.passwordError).isEqualTo(AuthFieldMessage.PasswordRequired)
         assertThat(viewModel.s.passwordIsError).isTrue()
         assertThat(viewModel.s.rules.hasMinLength || viewModel.s.rules.hasDigit).isFalse()
+    }
+
+    @Test
+    fun validPasswordAfterBlurHasNoError() {
+        val viewModel = viewModel()
+        viewModel.onAction(RegisterAction.PasswordChange(goodPassword))
+        viewModel.blur(AuthInputField.Password)
+        assertThat(viewModel.s.passwordBlurred).isTrue()
+        assertThat(viewModel.s.passwordError).isNull()
+        assertThat(viewModel.s.passwordIsError).isFalse()
     }
 
     @Test
@@ -220,6 +242,13 @@ class RegisterViewModelTest {
     }
 
     @Test
+    fun serverPasswordErrorMarksAValidPasswordField() {
+        val viewModel = viewModel()
+        viewModel.submitWith(AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Password, FieldErrorCode.TooLong))))
+        assertThat(viewModel.s.passwordIsError).isTrue()
+    }
+
+    @Test
     fun serverFieldErrorsClearOnTheirFieldsEdit() {
         val viewModel = viewModel()
         viewModel.submitWith(
@@ -314,6 +343,13 @@ class RegisterViewModelTest {
         assertThat(restored.s.emailBlurred).isTrue()
         assertThat(restored.s.repeatPasswordBlurred).isTrue()
         assertThat(restored.s.passwordBlurred).isFalse()
+    }
+
+    @Test
+    fun savedStateKeepsThePasswordBlur() {
+        val handle = SavedStateHandle()
+        viewModel(handle).blur(AuthInputField.Password)
+        assertThat(viewModel(handle).s.passwordBlurred).isTrue()
     }
 
     @Test

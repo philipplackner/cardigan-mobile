@@ -31,16 +31,17 @@ import kotlinx.coroutines.test.setMain
  * - email field cap: a 600-character paste keeps 500, a surrogate pair at the cut isn't split,
  *   edits up to 500 are untouched, passwords are never cut
  * - blur timing: no error while typing, error after the first focus loss, the initial unfocused
- *   callback before any focus doesn't count, live after the blur
+ *   callback before any focus doesn't count, live after the blur; the same for the password field
  * - email: empty and whitespace-only are Required; a malformed email is sent; values go out as typed
  * - double submit: one request; every action ignored while loading
- * - errors: InvalidCredentials, EmailAlreadyUsed, RateLimited(n), RateLimited(null), RateLimited(0),
- *   InvalidFields with mapped Required, with unmapped codes, with no fields, Unavailable
+ * - errors: InvalidCredentials, EmailAlreadyUsed, RateLimited(n), RateLimited(1) at the boundary,
+ *   RateLimited(null), RateLimited(0), InvalidFields with mapped Required, with unmapped codes,
+ *   with Required on an unknown field, with no fields, Unavailable
  * - clearing: wrong credentials on any edit, server Required on its field's edit, rate limit and
  *   unavailable on the next submit, success keeps loading
  * - session expired: from the route, kept while typing, cleared by any submit (even an invalid
  *   one) and by "Create one"
- * - saved state: email and blur flags restored, password never written, a cleared banner stays cleared
+ * - saved state: email and both blur flags restored, password never written, a cleared banner stays cleared
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
@@ -97,6 +98,17 @@ class LoginViewModelTest {
         viewModel.focus(AuthInputField.Password, false)
         assertThat(viewModel.s.emailBlurred).isFalse()
         assertThat(viewModel.s.passwordBlurred).isFalse()
+    }
+
+    @Test
+    fun passwordErrorShowsAfterItsFirstBlur() {
+        val viewModel = viewModel()
+        viewModel.focus(AuthInputField.Password, true)
+        assertThat(viewModel.s.passwordError).isNull()
+        viewModel.focus(AuthInputField.Password, false)
+        assertThat(viewModel.s.passwordBlurred).isTrue()
+        assertThat(viewModel.s.passwordError).isEqualTo(AuthFieldMessage.PasswordRequired)
+        assertThat(viewModel.s.emailError).isNull()
     }
 
     @Test
@@ -184,6 +196,15 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun rateLimitedForOneSecondShowsTheSeconds() {
+        repository.failWith(AuthError.RateLimited(1))
+        val viewModel = viewModel()
+        viewModel.fill("ann@example.com", "secret")
+        viewModel.onAction(LoginAction.Submit)
+        assertThat(viewModel.s.banner).isEqualTo(AuthBanner.RateLimited(1))
+    }
+
+    @Test
     fun rateLimitedWithoutUsableHeaderShowsGenericBanner() {
         for (seconds in listOf(null, 0, -5)) {
             repository.failWith(AuthError.RateLimited(seconds))
@@ -241,6 +262,17 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun requiredOnAnUnknownFieldShowsGenericBanner() {
+        repository.failWith(AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Other, FieldErrorCode.Required))))
+        val viewModel = viewModel()
+        viewModel.fill("ann@example.com", "secret")
+        viewModel.onAction(LoginAction.Submit)
+        assertThat(viewModel.s.banner).isEqualTo(AuthBanner.Unavailable)
+        assertThat(viewModel.s.emailError).isNull()
+        assertThat(viewModel.s.passwordError).isNull()
+    }
+
+    @Test
     fun emptyFieldErrorListShowsGenericBanner() {
         repository.failWith(AuthError.InvalidFields(emptyList()))
         val viewModel = viewModel()
@@ -289,12 +321,15 @@ class LoginViewModelTest {
         first.focus(AuthInputField.Email, true)
         first.fill("ann@", "secret")
         first.focus(AuthInputField.Email, false)
+        first.focus(AuthInputField.Password, true)
+        first.focus(AuthInputField.Password, false)
 
         assertThat(handle.keys().none { handle.get<Any?>(it) == "secret" }).isTrue()
         val restored = viewModel(handle)
         assertThat(restored.s.email).isEqualTo("ann@")
         assertThat(restored.s.password).isEqualTo("")
         assertThat(restored.s.emailBlurred).isTrue()
+        assertThat(restored.s.passwordBlurred).isTrue()
     }
 
     @Test
