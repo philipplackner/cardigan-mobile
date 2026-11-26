@@ -66,13 +66,13 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 9. Transfer and auth
 
-- [ ] 9.1 `:feature:transfer:presentation`: `ImportBoardViewModel` (`onUploadFailed`, `upload`, `finish`, `onImportWithKey`, `onKeyChange`), `ExportBoardViewModel` coroutine paths, and `TransferUiText`. Verify: module score ≥ 80%, and the tests pass on the host and iOS. Commit `test(transfer): …`.
-- [ ] 9.2 `:feature:auth:presentation`: `LoginViewModel` (`withError`, `onFocusChange`, restore/save), `RegisterState` and `LoginState` derived fields. Verify: the module stays ≥ 80% with margin. Commit `test(auth): …`.
-- [ ] 9.3 Check that `:feature:transfer:data`, `:feature:transfer:domain` and `:feature:auth:domain` are still ≥ 80%, and kill the `JsonExportFileChecker` survivors if the score dropped. Verify: per-module scores ≥ 80%.
+- [x] 9.1 `:feature:transfer:presentation`: `ImportBoardViewModel` (`onUploadFailed`, `upload`, `finish`, `onImportWithKey`, `onKeyChange`), `ExportBoardViewModel` coroutine paths, and `TransferUiText`. Verify: module score ≥ 80%, and the tests pass on the host and iOS. Commit `test(transfer): …`.
+- [x] 9.2 `:feature:auth:presentation`: `LoginViewModel` (`withError`, `onFocusChange`, restore/save), `RegisterState` and `LoginState` derived fields. Verify: the module stays ≥ 80% with margin. Commit `test(auth): …`.
+- [x] 9.3 Check that `:feature:transfer:data`, `:feature:transfer:domain` and `:feature:auth:domain` are still ≥ 80%, and kill the `JsonExportFileChecker` survivors if the score dropped. Verify: per-module scores ≥ 80%.
 
 ## 10. Preview data and dead code
 
-- [ ] 10.1 Move the preview data lists from `RegisterRoot`, `LoginRoot`, `NewBoardRoot`, `RenameBoardRoot`, `BoardListScreen` and `ImportBoardScreen` into `*Previews.kt` files in the same package. Previews must look the same. Verify: the previews still compile (`:androidApp:assembleDebug`), and the coverage report no longer lists those lines. Commit `refactor: move preview data into preview files`.
+- [x] 10.1 Move the preview data lists from `RegisterRoot`, `LoginRoot`, `NewBoardRoot`, `RenameBoardRoot`, `BoardListScreen` and `ImportBoardScreen` into `*Previews.kt` files in the same package. Previews must look the same. Verify: the previews still compile (`:androidApp:assembleDebug`), and the coverage report no longer lists those lines. Commit `refactor: move preview data into preview files`.
 - [ ] 10.2 Remove any dead code found during groups 5–9, with behavior unchanged, one commit each. If a change would affect anything users can see, ask the user first. Verify: gates green.
 
 ## 11. Final check
