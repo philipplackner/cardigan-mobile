@@ -30,6 +30,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
+/*
+ * Break vectors:
+ * - name and card count shown; body text for zero, one and many cards
+ * - success, already gone on the server (counts as deleted), network failure (toast, stays)
+ * - deleting ignores Cancel and a second Delete
+ * - board not in the list closes; actions before the board is found are ignored
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 class DeleteBoardViewModelTest {
 
@@ -115,5 +122,19 @@ class DeleteBoardViewModelTest {
     fun missingBoardCloses() = runTest {
         val viewModel = viewModel(id = "00000000-0000-0000-0000-000000000000")
         viewModel.events.test { assertThat(awaitItem()).isEqualTo(DeleteBoardEvent.Close) }
+    }
+
+    @Test
+    fun actionsBeforeTheBoardIsFoundAreIgnored() = runTest {
+        repository.state.value = null
+        repository.serverBoards = listOf(cardigan)
+        repository.gate = CompletableDeferred()
+        val viewModel = viewModel()
+        viewModel.events.test {
+            viewModel.onAction(DeleteBoardAction.Delete)
+            viewModel.onAction(DeleteBoardAction.Cancel)
+            expectNoEvents()
+        }
+        assertThat(repository.deleteCalls).isEmpty()
     }
 }

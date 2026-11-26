@@ -35,7 +35,8 @@ import kotlinx.coroutines.test.setMain
 
 /*
  * Break vectors:
- * - the board isn't loaded yet (loads first), isn't in the list, or the load fails (closes)
+ * - the board isn't loaded yet (loads first), is loaded (no second load), isn't in the list, or the
+ *   load fails (closes); actions before the board is found
  * - unchanged name, including only added whitespace: closes, no request
  * - empty name: error, no request
  * - success reports the server's name
@@ -43,7 +44,7 @@ import kotlinx.coroutines.test.setMain
  * - network: toast, stays open with the input
  * - server name error under the field
  * - saving ignores Cancel and edits
- * - process death restores the typed name
+ * - process death restores the typed name, and the error after a submit
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RenameBoardViewModelTest {
@@ -78,6 +79,28 @@ class RenameBoardViewModelTest {
         val viewModel = viewModel()
         assertThat(repository.ensureLoadedCalls).isEqualTo(1)
         assertThat(viewModel.state.value.boardName).isEqualTo("Raytracer")
+    }
+
+    @Test
+    fun loadedListIsNotLoadedAgain() {
+        viewModel()
+        assertThat(repository.ensureLoadedCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun actionsBeforeTheBoardIsFoundAreIgnored() = runTest {
+        repository.state.value = null
+        repository.serverBoards = listOf(raytracer)
+        repository.gate = CompletableDeferred()
+        val viewModel = viewModel()
+        viewModel.events.test {
+            viewModel.onAction(RenameBoardAction.NameChange("Path"))
+            viewModel.onAction(RenameBoardAction.Save)
+            viewModel.onAction(RenameBoardAction.Cancel)
+            expectNoEvents()
+        }
+        assertThat(viewModel.state.value).isEqualTo(RenameBoardState())
+        assertThat(repository.renameCalls).isEmpty()
     }
 
     @Test
@@ -191,5 +214,17 @@ class RenameBoardViewModelTest {
         viewModel(handle = handle).onAction(RenameBoardAction.NameChange("Path"))
         assertThat(viewModel(handle = handle).state.value.name).isEqualTo("Path")
         assertThat(viewModel(handle = handle).state.value.canSave).isTrue()
+    }
+
+    @Test
+    fun restoresTheErrorAfterASubmit() {
+        val handle = SavedStateHandle()
+        viewModel(handle = handle).apply {
+            onAction(RenameBoardAction.NameChange(""))
+            onAction(RenameBoardAction.Save)
+        }
+        val restored = viewModel(handle = handle).state.value
+        assertThat(restored.submitted).isTrue()
+        assertThat(restored.nameError).isEqualTo(NameError.Required)
     }
 }

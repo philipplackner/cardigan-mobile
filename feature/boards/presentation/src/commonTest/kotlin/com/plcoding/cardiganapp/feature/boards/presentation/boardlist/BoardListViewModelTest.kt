@@ -40,6 +40,7 @@ import kotlinx.datetime.TimeZone
  * - the refreshing flag follows the reloader
  * - open a board passes id, name and key; an unknown id does nothing
  * - the phone menu opens and closes, and every menu action closes it
+ * - actions the Root handles (new, rename, delete) leave the state alone
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoardListViewModelTest {
@@ -222,6 +223,21 @@ class BoardListViewModelTest {
             assertThat(viewModel.state.value.isMenuOpen).isTrue()
             viewModel.onAction(close)
             assertThat(viewModel.state.value.isMenuOpen).isFalse()
+        }
+    }
+
+    @Test
+    fun actionsTheRootHandlesLeaveTheStateAlone() = runTest {
+        repository.serverBoards = listOf(cardigan)
+        val (viewModel) = viewModel()
+        val before = viewModel.state.value
+        listOf(
+            BoardListAction.OnNewBoardClick,
+            BoardListAction.OnRenameClick(cardigan.id.toString()),
+            BoardListAction.OnDeleteClick(cardigan.id.toString()),
+        ).forEach { action ->
+            viewModel.onAction(action)
+            assertThat(viewModel.state.value, name = "$action").isEqualTo(before)
         }
     }
 }

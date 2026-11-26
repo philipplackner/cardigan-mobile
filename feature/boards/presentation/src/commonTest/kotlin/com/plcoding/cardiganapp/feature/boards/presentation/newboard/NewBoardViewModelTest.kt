@@ -47,7 +47,8 @@ import kotlinx.coroutines.test.setMain
  * - server errors: key ALREADY_USED, TOO_LONG, unknown code, name invalid, name TOO_LONG with the server max
  * - network failure: toast, dialog stays, no automatic repeat
  * - success: Created with the server's values
- * - process death: fields restored, keyEdited kept
+ * - process death: fields restored after typing alone, keyEdited kept, errors shown again after a submit
+ * - board list not loaded: no local clash check, the request goes out
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewBoardViewModelTest {
@@ -299,5 +300,32 @@ class NewBoardViewModelTest {
         assertThat(restored.s.submitted).isTrue()
         restored.type(name = "Other")
         assertThat(restored.s.key).isEqualTo("GI")
+    }
+
+    @Test
+    fun typingAloneSurvivesProcessDeath() {
+        val handle = SavedStateHandle()
+        viewModel(handle).type(name = "Garden")
+        val restored = viewModel(handle)
+        assertThat(restored.s).isEqualTo(NewBoardState(name = "Garden", key = "GARD"))
+    }
+
+    @Test
+    fun errorsShowAgainAfterProcessDeath() {
+        val handle = SavedStateHandle()
+        viewModel(handle).onAction(NewBoardAction.Create)
+        val restored = viewModel(handle)
+        assertThat(restored.s.nameError).isEqualTo(NameError.Required)
+        assertThat(restored.s.keyError).isEqualTo(BoardKeyFieldError.Rule(BoardKeyError.Required))
+    }
+
+    @Test
+    fun unloadedListSkipsTheLocalClashCheck() {
+        repository.state.value = null
+        val viewModel = viewModel()
+        viewModel.type(name = "Cardigan")
+        viewModel.onAction(NewBoardAction.Create)
+        assertThat(viewModel.s.keyError).isNull()
+        assertThat(repository.createCalls).containsExactly("Cardigan" to "CARD")
     }
 }
