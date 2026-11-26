@@ -10,6 +10,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.process.ExecOperations
 import javax.inject.Inject
@@ -18,6 +19,7 @@ import javax.inject.Inject
  * Runs PIT's command line tool on one module's Android host tests. Inputs are copied from the
  * module's `testAndroidHostTest` task, so PIT sees the same classpath and JVM arguments.
  */
+@DisableCachingByDefault(because = "Writes its report to a directory that is not declared as an output")
 abstract class PitestTask : DefaultTask() {
 
     @get:Inject

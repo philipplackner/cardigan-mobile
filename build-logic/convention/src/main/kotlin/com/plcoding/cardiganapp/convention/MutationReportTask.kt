@@ -11,6 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkerExecutor
 import java.io.File
 import javax.inject.Inject
@@ -19,6 +20,7 @@ import javax.inject.Inject
  * Merges the PIT results of the selected modules into one HTML report, prints mutation score and
  * test strength per module and in total, and checks the optional minimum score.
  */
+@DisableCachingByDefault(because = "Aggregates reports and prints to the terminal")
 abstract class MutationReportTask : DefaultTask() {
 
     @get:Inject
