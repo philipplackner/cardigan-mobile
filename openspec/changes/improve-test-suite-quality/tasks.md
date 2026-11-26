@@ -42,7 +42,7 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 4. Fresh baseline
 
-- [ ] 4.1 Run `./gradlew coverageReport` and `./gradlew mutationReport`. Record the total line coverage and the per-module mutation scores in this change's notes, together with the classes that have the most surviving and no-coverage mutants per module. Verify: the numbers are written down, and the module order for groups 5–9 follows the biggest gaps (design §5).
+- [x] 4.1 Run `./gradlew coverageReport` and `./gradlew mutationReport`. Record the total line coverage and the per-module mutation scores in this change's notes, together with the classes that have the most surviving and no-coverage mutants per module. Verify: the numbers are written down, and the module order for groups 5–9 follows the biggest gaps (design §5).
 
 ## 5. Core modules
 
