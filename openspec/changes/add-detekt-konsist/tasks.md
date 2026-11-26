@@ -2,7 +2,7 @@
 
 ## 1. Acceptance tests
 
-- [ ] 1.1 [acceptance-red] Write A01-A09 from tests.md as `NoMockingLibrariesAcceptanceTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/detekt/` (area `:tooling`). Real detekt in-process via `detekt-core`, config from the system property `cardigan.detekt.config`.
+- [x] 1.1 [acceptance-red] Write A01-A09 from tests.md as `NoMockingLibrariesAcceptanceTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/detekt/` (area `:tooling`). Real detekt in-process via `detekt-core`, config from the system property `cardigan.detekt.config`.
 
 ## 2. Build setup
 
@@ -19,8 +19,8 @@
 ## 3. Sample custom rule
 
 - [x] 3.1 [scaffold] Add `NoMockingLibraries(config: Config) : Rule` and `CardiganRuleSetProvider : RuleSetProvider` (`ruleSetId = "cardigan"`) in `tooling/src/main/kotlin/com/plcoding/cardiganapp/tooling/detekt/`, with stub bodies per project.md, and the service file `tooling/src/main/resources/META-INF/services/dev.detekt.api.RuleSetProvider`. Verify with `./gradlew :tooling:compileKotlin`.
-- [ ] 3.2 [red] Write C01-C06 from tests.md as `NoMockingLibrariesTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/detekt/` (area `:tooling`).
-- [ ] 3.3 [green] Implement `NoMockingLibraries` and `CardiganRuleSetProvider` as design.md > Public surface describes: import matching (case-sensitive, prefix-safe, star and aliased imports), the exact message, inactive by default. Verify with the tests of 3.2 passing (`./gradlew :tooling:test`).
+- [x] 3.2 [red] Write C01-C06 from tests.md as `NoMockingLibrariesTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/detekt/` (area `:tooling`).
+- [x] 3.3 [green] Implement `NoMockingLibraries` and `CardiganRuleSetProvider` as design.md > Public surface describes: import matching (case-sensitive, prefix-safe, star and aliased imports), the exact message, inactive by default. Verify with the tests of 3.2 passing (`./gradlew :tooling:test`).
 - [ ] 3.4 [acceptance-green] Make the acceptance tests of 1.1 pass. Verify with `./gradlew :tooling:test` passing and `./gradlew konsist` not running them.
 
 ## 4. Konsist check

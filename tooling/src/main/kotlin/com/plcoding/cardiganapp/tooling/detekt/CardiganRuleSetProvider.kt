@@ -8,5 +8,5 @@ import dev.detekt.api.RuleSetProvider
 class CardiganRuleSetProvider : RuleSetProvider {
     override val ruleSetId: RuleSetId = RuleSetId("cardigan")
 
-    override fun instance(): RuleSet = TODO()
+    override fun instance(): RuleSet = RuleSet(ruleSetId, listOf(::NoMockingLibraries))
 }
