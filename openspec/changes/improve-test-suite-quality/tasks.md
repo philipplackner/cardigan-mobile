@@ -61,8 +61,8 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 8. Boards presentation
 
-- [ ] 8.1 `BoardViewModel`: assert the intermediate states in `addColumn`, `createCard`, `reconciled`, `applyColumnOrder`, `persist` and the coroutine paths (design §6). Where a survivor is equivalent, refactor it away in its own commit, with behavior unchanged (design §7). Verify: the `BoardViewModel` survivors drop well below the baseline of 76, and the tests pass on the host and iOS. Commit `test(boards): …` (plus `refactor(boards): …` for any refactor).
-- [ ] 8.2 Rename/New/Delete/BoardList ViewModels, `BoardsSidebarViewModel`, `BoardDialog`, `BoardState` header fields, `BoardListReloader`, `RelativeTimeFormatter`, and `BoardFieldErrors.toUiText`: kill the survivors and the no-coverage mutants. Verify: `:feature:boards:presentation` score ≥ 80%. Commit `test(boards): …`.
+- [x] 8.1 `BoardViewModel`: assert the intermediate states in `addColumn`, `createCard`, `reconciled`, `applyColumnOrder`, `persist` and the coroutine paths (design §6). Where a survivor is equivalent, refactor it away in its own commit, with behavior unchanged (design §7). Verify: the `BoardViewModel` survivors drop well below the baseline of 76, and the tests pass on the host and iOS. Commit `test(boards): …` (plus `refactor(boards): …` for any refactor).
+- [x] 8.2 Rename/New/Delete/BoardList ViewModels, `BoardsSidebarViewModel`, `BoardDialog`, `BoardState` header fields, `BoardListReloader`, `RelativeTimeFormatter`, and `BoardFieldErrors.toUiText`: kill the survivors and the no-coverage mutants. Verify: `:feature:boards:presentation` score ≥ 80%. Commit `test(boards): …`.
 
 ## 9. Transfer and auth
 
