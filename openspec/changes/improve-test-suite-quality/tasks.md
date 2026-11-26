@@ -73,12 +73,12 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 ## 10. Preview data and dead code
 
 - [x] 10.1 Move the preview data lists from `RegisterRoot`, `LoginRoot`, `NewBoardRoot`, `RenameBoardRoot`, `BoardListScreen` and `ImportBoardScreen` into `*Previews.kt` files in the same package. Previews must look the same. Verify: the previews still compile (`:androidApp:assembleDebug`), and the coverage report no longer lists those lines. Commit `refactor: move preview data into preview files`.
-- [ ] 10.2 Remove any dead code found during groups 5–9, with behavior unchanged, one commit each. If a change would affect anything users can see, ask the user first. Verify: gates green.
+- [x] 10.2 Remove any dead code found during groups 5–9, with behavior unchanged, one commit each. If a change would affect anything users can see, ask the user first. Verify: gates green.
 
 ## 11. Final check
 
-- [ ] 11.1 Run `./gradlew coverageReport -Pcoverage.minLine=80` (the flag is passed on this run only) and `./gradlew mutationReport`. Confirm that total line coverage is ≥ 80%, and that every module listed in the mutation summary is ≥ 80%. Record the final numbers next to the baselines in this change's notes. Verify: both commands succeed, and no module in the summary is below 80%.
-- [ ] 11.2 Run all four gates and `./gradlew -p build-logic test`. Check that no build file sets a default for `coverage.minLine`, `coverage.minBranch` or `mutation.minScore`, and that CLAUDE.md, the skills and the main specs don't mention the 80% targets. Verify: `grep -rn "80" CLAUDE.md .claude/skills build-logic openspec/specs` shows no target.
+- [x] 11.1 Run `./gradlew coverageReport -Pcoverage.minLine=80` (the flag is passed on this run only) and `./gradlew mutationReport`. Confirm that total line coverage is ≥ 80%, and that every module listed in the mutation summary is ≥ 80%. Record the final numbers next to the baselines in this change's notes. Verify: both commands succeed, and no module in the summary is below 80%.
+- [x] 11.2 Run all four gates and `./gradlew -p build-logic test`. Check that no build file sets a default for `coverage.minLine`, `coverage.minBranch` or `mutation.minScore`, and that CLAUDE.md, the skills and the main specs don't mention the 80% targets. Verify: `grep -rn "80" CLAUDE.md .claude/skills build-logic openspec/specs` shows no target.
 
 ## Workflow follow-up
 

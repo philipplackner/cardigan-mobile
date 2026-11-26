@@ -47,3 +47,27 @@ Mutant counts in modules the new rules don't touch are unchanged against the run
 ### Order for groups 5–9
 
 By gap to 80% (mutants still to kill): `:feature:boards:presentation` (~42), `:core:designsystem` (29), `:feature:boards:data` (~11), `:feature:transfer:presentation` (~4), `:feature:boards:domain` (~2), `:composeApp` (2), `:core:domain` (~1). `:core:data` and `:core:presentation` are already at 100%. The tasks keep their group order; each group works from the numbers above.
+
+## Final numbers (task 11.1, 2026-11-26)
+
+**Coverage** (`./gradlew coverageReport -Pcoverage.minLine=80`): line 88.5%, branch 89.5%. Baseline 66.0% / 77.5% before the change, 82.0% / 80.8% after the exclusions.
+
+**Mutation** (`./gradlew mutationReport`): total 86.6%, test strength 91.4% (1149 killed of 1327). Baseline 68.4% before the change, 75.1% after the exclusions.
+
+| Module | Before | After exclusions | Final | Killed / total |
+|---|---|---|---|---|
+| `:composeApp` | 22.2% | 66.7% | 83.3% | 10 / 12 |
+| `:core:data` | 15.8% | 100.0% | 100.0% | 7 / 7 |
+| `:core:designsystem` | 19.1% | 19.1% | 81.6% | 40 / 49 |
+| `:core:domain` | 68.9% | 79.9% | 90.6% | 126 / 139 |
+| `:core:presentation` | 42.9% | 100.0% | 100.0% | 3 / 3 |
+| `:feature:auth:domain` | 97.3% | 97.3% | 97.3% | 72 / 74 |
+| `:feature:auth:presentation` | 81.7% | 81.7% | 88.7% | 189 / 213 |
+| `:feature:boards:data` | 63.4% | 65.2% | 85.5% | 59 / 69 |
+| `:feature:boards:domain` | 75.0% | 75.0% | 80.6% | 25 / 31 |
+| `:feature:boards:presentation` | 70.9% | 73.0% | 84.8% | 491 / 579 |
+| `:feature:transfer:data` | 87.5% | 87.5% | 87.5% | 14 / 16 |
+| `:feature:transfer:domain` | 85.0% | 85.0% | 85.0% | 34 / 40 |
+| `:feature:transfer:presentation` | 75.8% | 75.8% | 83.2% | 79 / 95 |
+
+Most of the remaining survivors are equivalent: `COROUTINE_SUSPENDED` checks after calls that never suspend in tests, `Unit` returns replaced with null, and inlined stdlib or `Mutex` code. The rest are getters that only composables read, and branches the callers can't reach.
