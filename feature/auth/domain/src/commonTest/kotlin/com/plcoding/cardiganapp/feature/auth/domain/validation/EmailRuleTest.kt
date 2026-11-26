@@ -20,8 +20,8 @@ import kotlin.time.measureTime
  *   a 63-character label vs 64
  * - characters: non-ASCII, tab, NUL, lone surrogate
  * - order: invalid character before too long, too long before format (255 without @)
- * - performance: the spec's 250 KB near-match goes through the rule as TooLong without reaching the
- *   pattern; the pattern itself only ever sees up to 500 characters (field cap), rejected fast
+ * - length: the spec's 250 KB near-match goes through the rule as TooLong
+ * - performance: the pattern itself only ever sees up to 500 characters (field cap), rejected fast
  */
 class EmailRuleTest {
 
@@ -143,13 +143,9 @@ class EmailRuleTest {
     }
 
     @Test
-    fun specNearMatchThroughTheRuleIsTooLongFast() {
+    fun specNearMatchThroughTheRuleIsTooLong() {
         val input = "a@" + "a.".repeat(125_000) + "1"
-        var problem: EmailProblem? = null
-        val duration = measureTime { problem = EmailRule.check(input) }
-        println("EmailRule.check 250 KB near-match: $duration")
-        assertThat(problem).isEqualTo(EmailProblem.TooLong)
-        assertThat(duration).isLessThan(100.milliseconds)
+        assertThat(EmailRule.check(input)).isEqualTo(EmailProblem.TooLong)
     }
 
     @Test

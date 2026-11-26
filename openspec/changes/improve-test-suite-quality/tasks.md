@@ -4,7 +4,7 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 1. Flaky timing test
 
-- [ ] 1.1 In `EmailRuleTest`, remove the `measureTime` block, the duration assertion and the `println` from `specNearMatchThroughTheRuleIsTooLongFast`. Keep the `TooLong` assertion and rename the test to describe what it checks (design §8). The three `*RejectedFast` tests that use `assertPatternRejectsFast` keep their limit (D8 names only one test). If one of them fails a `coverageReport` or `mutationReport` run, stop and ask. Verify: `./gradlew :feature:auth:domain:testAndroidHostTest` and `./gradlew coverageReport -Pcoverage.modules=:feature:auth:domain` pass. Commit `test(auth): drop wall-clock assertion from email length test`.
+- [x] 1.1 In `EmailRuleTest`, remove the `measureTime` block, the duration assertion and the `println` from `specNearMatchThroughTheRuleIsTooLongFast`. Keep the `TooLong` assertion and rename the test to describe what it checks (design §8). The three `*RejectedFast` tests that use `assertPatternRejectsFast` keep their limit (D8 names only one test). If one of them fails a `coverageReport` or `mutationReport` run, stop and ask. Verify: `./gradlew :feature:auth:domain:testAndroidHostTest` and `./gradlew coverageReport -Pcoverage.modules=:feature:auth:domain` pass. Commit `test(auth): drop wall-clock assertion from email length test`.
 
 ## 2. Coverage leaves out tokens and nav wiring
 
