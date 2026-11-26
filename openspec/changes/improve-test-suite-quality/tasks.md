@@ -48,7 +48,7 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 - [x] 5.1 `:core:designsystem`: test `AnchoredPositionProvider.calculatePosition` for every `PopupAlignment` and edge clamping, plus `ToastHostState.show` and `ToastVisuals`. Verify: the module's mutation score is ≥ 80% (`./gradlew mutationReport -Pmutation.modules=:core:designsystem`), and the tests pass on the host and iOS. Commit `test(designsystem): …`.
 - [x] 5.2 `:core:domain`: kill the survivors in `LabelOrder`/`compareByCodePoints` (surrogate pairs vs U+E000..U+FFFF, ties), `BoardKeyRule` (`normalize`, `validate`, `isValid`), and the text rules (`isUnicodeWhiteSpace`, `hasInvalidCharacter`), plus `Board`/`Card` fields through behavior. Verify: the module's score is ≥ 80%, and the tests pass on the host and iOS. Commit `test(core): …`.
-- [ ] 5.3 `:core:data` and `:core:presentation`: confirm both are ≥ 80% after the exclusions. Kill any survivor left. Cover `UiText` logic outside `asStringAsync`. Verify: per-module scores ≥ 80%. Commit only if tests were added.
+- [x] 5.3 `:core:data` and `:core:presentation`: confirm both are ≥ 80% after the exclusions. Kill any survivor left. Cover `UiText` logic outside `asStringAsync`. Verify: per-module scores ≥ 80%. Commit only if tests were added.
 
 ## 6. composeApp
 
