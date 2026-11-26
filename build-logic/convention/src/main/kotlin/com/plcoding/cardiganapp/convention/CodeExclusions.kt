@@ -2,8 +2,8 @@ package com.plcoding.cardiganapp.convention
 
 /**
  * Name and package patterns for code that coverage and mutation reports leave out: previews,
- * generated code, DI wiring, debug fixtures and androidMain `actual`s. Kover and PIT both read
- * these lists, so the two reports exclude the same code.
+ * generated code, DI wiring, debug fixtures, androidMain `actual`s, design tokens and navigation
+ * routes and graphs. Kover and PIT both read these lists, so the two reports exclude the same code.
  */
 internal object CodeExclusions {
 
@@ -23,6 +23,22 @@ internal object CodeExclusions {
         "*.Android*",
         "*Activity",
         "*Activity\$*",
+        "*.designsystem.theme.*Colors*",
+        "*.designsystem.theme.App*",
+        "*.designsystem.theme.ShadowsKt",
+        "*.designsystem.theme.ShadowsKt\$*",
+        "*.designsystem.theme.TextStylesKt",
+        "*.designsystem.theme.TextStylesKt\$*",
+        "*.designsystem.theme.TypographyKt",
+        "*.designsystem.theme.TypographyKt\$*",
+        "*.navigation.*Route",
+        "*.navigation.*Route\$*",
+        "*.navigation.*GraphKt",
+        "*.navigation.*GraphKt\$*",
+        "*.navigation.*NavigationKt",
+        "*.navigation.*NavigationKt\$*",
+        "*.navigation.*NavHostKt",
+        "*.navigation.*NavHostKt\$*",
     )
 
     val packages = listOf(

@@ -8,14 +8,14 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 2. Coverage leaves out tokens and nav wiring
 
-- [ ] 2.1 Move the token and nav globs from `MutationExclusions.classGlobs` to `CodeExclusions.classes`. Leave the compiler-noise globs in `MutationExclusions` (design §1). Update `MutationExclusionsTest` so it covers the new split. Verify: `./gradlew -p build-logic test` passes.
-- [ ] 2.2 Check the test-coverage delta scenarios on a real `./gradlew coverageReport`:
+- [x] 2.1 Move the token and nav globs from `MutationExclusions.classGlobs` to `CodeExclusions.classes`. Leave the compiler-noise globs in `MutationExclusions` (design §1). Update `MutationExclusionsTest` so it covers the new split. Verify: `./gradlew -p build-logic test` passes.
+- [x] 2.2 Check the test-coverage delta scenarios on a real `./gradlew coverageReport`:
   - no theme token classes and no `*Route`/`*GraphKt`/`*NavigationKt`/`*NavHostKt` classes in `navigation` packages
   - `WindowClassKt`, `SessionGateKt`, `AppShellKt`, `safeCall`, `UiText` and `HttpClientFactory` are still listed
   - total line coverage is about 82%
 
   Verify: inspect `build/reports/kover/report.xml`, and run `./gradlew mutationReport -Pmutation.modules=:core:designsystem,:feature:boards:presentation`, whose mutant counts must match the baseline.
-- [ ] 2.3 Update the coverage bullet in CLAUDE.md's Testing section: coverage now also leaves out design tokens and navigation routes/graphs. The mutation bullet says these come from the shared list. Don't add targets. Verify: re-read both bullets against `CodeExclusions`. Commit 2.1–2.3 as `build: leave design tokens and nav wiring out of coverage`.
+- [x] 2.3 Update the coverage bullet in CLAUDE.md's Testing section: coverage now also leaves out design tokens and navigation routes/graphs. The mutation bullet says these come from the shared list. Don't add targets. Verify: re-read both bullets against `CodeExclusions`. Commit 2.1–2.3 as `build: leave design tokens and nav wiring out of coverage`.
 
 ## 3. New PIT filter rules
 

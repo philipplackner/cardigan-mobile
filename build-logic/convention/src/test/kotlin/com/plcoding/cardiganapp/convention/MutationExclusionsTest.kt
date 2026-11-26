@@ -7,9 +7,12 @@ import kotlin.test.assertTrue
 
 class MutationExclusionsTest {
 
-    private val globs = (CodeExclusions.pitClassGlobs + MutationExclusions.classGlobs).map(::Glob)
+    private val sharedGlobs = CodeExclusions.pitClassGlobs.map(::Glob)
+    private val globs = sharedGlobs + MutationExclusions.classGlobs.map(::Glob)
 
     private fun excluded(className: String) = globs.any { it.matches(className) }
+
+    private fun excludedFromCoverage(className: String) = sharedGlobs.any { it.matches(className) }
 
     @Test
     fun `generated code, inline copies and navigation wiring are excluded`() {
@@ -54,6 +57,32 @@ class MutationExclusionsTest {
         ).filter(::excluded)
 
         assertEquals(emptyList(), kept)
+    }
+
+    @Test
+    fun `design tokens and navigation wiring come from the shared list`() {
+        listOf(
+            "com.plcoding.cardiganapp.core.designsystem.theme.AppColors",
+            "com.plcoding.cardiganapp.core.designsystem.theme.AppThemeKt",
+            "com.plcoding.cardiganapp.core.designsystem.theme.TypographyKt",
+            "com.plcoding.cardiganapp.core.designsystem.theme.TypographyKt\$appTypography\$1",
+            "com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardRoute",
+            "com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardsGraphKt",
+            "com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardViewNavigationKt",
+            "com.plcoding.cardiganapp.navigation.AppNavHostKt",
+        ).forEach { assertTrue(excludedFromCoverage(it), it) }
+    }
+
+    @Test
+    fun `compiler noise stays mutation-only`() {
+        val shared = listOf(
+            "com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListScreenKt\$WhenMappings",
+            "com.plcoding.cardiganapp.core.data.networking.HttpClientExtKt\$get\$\$inlined\$safeCall\$1",
+            "com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportPhase\$ChoosingKey\$\$serializer",
+        ).filter(::excludedFromCoverage)
+
+        assertEquals(emptyList(), shared)
+        assertTrue(MutationExclusions.classGlobs.none { it in CodeExclusions.pitClassGlobs })
     }
 
     @Test
