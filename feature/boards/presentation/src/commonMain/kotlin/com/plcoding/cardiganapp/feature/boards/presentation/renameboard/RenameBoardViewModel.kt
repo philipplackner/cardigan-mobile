@@ -94,9 +94,7 @@ class RenameBoardViewModel(
                             toast(UiText.Resource(Res.string.board_no_longer_exists, arrayOf(boardName)))
                             _events.send(RenameBoardEvent.Close)
                         }
-                        is BoardSaveError.InvalidFields -> _state.update {
-                            it.copy(nameError = error.name?.toNameError() ?: it.nameError)
-                        }
+                        is BoardSaveError.InvalidFields -> _state.update { it.copy(nameError = error.name?.toNameError()) }
                         is BoardSaveError.Network -> toast(UiText.Resource(Res.string.rename_board_failed, arrayOf(boardName)))
                     }
                 }

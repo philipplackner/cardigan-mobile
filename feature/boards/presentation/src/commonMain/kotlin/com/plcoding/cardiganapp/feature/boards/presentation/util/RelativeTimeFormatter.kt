@@ -69,19 +69,17 @@ class RelativeTimeFormatter(
             else -> UiText.Resource(monthDayYear[date.month.number - 1], arrayOf(date.day, date.year))
         }
     }
-
-    private companion object {
-        val monthDay: List<StringResource> = listOf(
-            Res.string.date_month_day_1, Res.string.date_month_day_2, Res.string.date_month_day_3,
-            Res.string.date_month_day_4, Res.string.date_month_day_5, Res.string.date_month_day_6,
-            Res.string.date_month_day_7, Res.string.date_month_day_8, Res.string.date_month_day_9,
-            Res.string.date_month_day_10, Res.string.date_month_day_11, Res.string.date_month_day_12,
-        )
-        val monthDayYear: List<StringResource> = listOf(
-            Res.string.date_month_day_year_1, Res.string.date_month_day_year_2, Res.string.date_month_day_year_3,
-            Res.string.date_month_day_year_4, Res.string.date_month_day_year_5, Res.string.date_month_day_year_6,
-            Res.string.date_month_day_year_7, Res.string.date_month_day_year_8, Res.string.date_month_day_year_9,
-            Res.string.date_month_day_year_10, Res.string.date_month_day_year_11, Res.string.date_month_day_year_12,
-        )
-    }
 }
+
+private val monthDay: List<StringResource> = listOf(
+    Res.string.date_month_day_1, Res.string.date_month_day_2, Res.string.date_month_day_3,
+    Res.string.date_month_day_4, Res.string.date_month_day_5, Res.string.date_month_day_6,
+    Res.string.date_month_day_7, Res.string.date_month_day_8, Res.string.date_month_day_9,
+    Res.string.date_month_day_10, Res.string.date_month_day_11, Res.string.date_month_day_12,
+)
+private val monthDayYear: List<StringResource> = listOf(
+    Res.string.date_month_day_year_1, Res.string.date_month_day_year_2, Res.string.date_month_day_year_3,
+    Res.string.date_month_day_year_4, Res.string.date_month_day_year_5, Res.string.date_month_day_year_6,
+    Res.string.date_month_day_year_7, Res.string.date_month_day_year_8, Res.string.date_month_day_year_9,
+    Res.string.date_month_day_year_10, Res.string.date_month_day_year_11, Res.string.date_month_day_year_12,
+)

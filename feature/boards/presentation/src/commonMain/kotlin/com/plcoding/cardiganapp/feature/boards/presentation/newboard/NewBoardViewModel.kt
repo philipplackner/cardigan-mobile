@@ -92,10 +92,7 @@ class NewBoardViewModel(
                     _state.update { it.copy(isSaving = false) }
                     when (val error = result.error) {
                         is BoardSaveError.InvalidFields -> _state.update {
-                            it.copy(
-                                nameError = error.name?.toNameError() ?: it.nameError,
-                                keyError = error.key?.toBoardKeyFieldError(key) ?: it.keyError,
-                            )
+                            it.copy(nameError = error.name?.toNameError(), keyError = error.key?.toBoardKeyFieldError(key))
                         }
                         is BoardSaveError.Network, BoardSaveError.NotFound -> toastController.show(
                             ToastMessage(UiText.Resource(Res.string.new_board_failed), ToastType.Error),

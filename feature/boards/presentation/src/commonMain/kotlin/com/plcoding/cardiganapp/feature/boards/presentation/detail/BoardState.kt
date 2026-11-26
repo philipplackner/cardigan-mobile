@@ -20,8 +20,8 @@ data class BoardState(
     val loaded: BoardLoadState.Loaded? get() = content as? BoardLoadState.Loaded
 
     /** The header title and key: the loaded board, else the hint, else none. */
-    val headerName: String? get() = loaded?.content?.board?.name ?: headerHint?.name
-    val headerKey: String? get() = loaded?.content?.board?.key ?: headerHint?.key
+    val headerName: String? get() = loaded?.let { it.content.board.name } ?: headerHint?.name
+    val headerKey: String? get() = loaded?.let { it.content.board.key } ?: headerHint?.key
 
     fun column(id: Uuid): Column? = loaded?.content?.columns?.firstOrNull { it.id == id }
 }
