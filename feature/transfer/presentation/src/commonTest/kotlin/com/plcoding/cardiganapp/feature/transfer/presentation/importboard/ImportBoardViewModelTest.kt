@@ -40,7 +40,9 @@ import kotlinx.coroutines.test.setMain
 
 /*
  * Break vectors:
- * - first picker cancelled; picker cancelled from the error dialog
+ * - first picker cancelled; picker cancelled from the error dialog, then the drop zone again
+ * - key change and Import with key outside the key dialog
+ * - key change to the same text must keep the field error
  * - double pick; pick while uploading
  * - oversized (null bytes, size over the limit), at the limit, invalid file
  * - server 413, 422, 409 (first upload and retry), 400 on retry, Failed on first upload and retry
@@ -107,6 +109,36 @@ class ImportBoardViewModelTest {
         }
         assertThat(repository.importCalls).isEmpty()
         assertThat(toasts.messages).isEmpty()
+        assertThat(vm.phase).isEqualTo(ImportPhase.Done)
+    }
+
+    @Test
+    fun dropZoneOpensThePickerAgainAfterItWasCancelled() = runTest {
+        checker.result = null
+        val vm = viewModel()
+        vm.events.test {
+            skipOpenPicker()
+            vm.onAction(ImportBoardAction.FilePicked(validPick()))
+            vm.onAction(ImportBoardAction.DropZoneClick)
+            assertThat(awaitItem()).isEqualTo(ImportBoardEvent.OpenPicker)
+            vm.onAction(ImportBoardAction.PickerCancelled)
+            vm.onAction(ImportBoardAction.DropZoneClick)
+            assertThat(awaitItem()).isEqualTo(ImportBoardEvent.OpenPicker)
+        }
+    }
+
+    @Test
+    fun keyActionsOutsideTheKeyDialogAreIgnored() = runTest {
+        repository.gate = CompletableDeferred()
+        val vm = viewModel()
+        vm.onAction(ImportBoardAction.KeyChange("CRDB"))
+        vm.onAction(ImportBoardAction.ImportWithKey)
+        assertThat(vm.phase).isEqualTo(ImportPhase.Picking)
+        vm.onAction(ImportBoardAction.FilePicked(validPick()))
+        vm.onAction(ImportBoardAction.KeyChange("CRDB"))
+        vm.onAction(ImportBoardAction.ImportWithKey)
+        assertThat(vm.phase).isEqualTo(ImportPhase.Uploading("board-backup.json"))
+        assertThat(repository.importCalls).hasSize(1)
     }
 
     @Test
@@ -305,6 +337,14 @@ class ImportBoardViewModelTest {
         val phase = vm.phase as ImportPhase.ChoosingKey
         assertThat(phase.fieldError).isNull()
         assertThat(phase.canImport).isTrue()
+    }
+
+    @Test
+    fun retypingTheSameKeyKeepsTheUsedError() = runTest {
+        val vm = viewModel()
+        vm.clash()
+        vm.onAction(ImportBoardAction.KeyChange("CRD"))
+        assertThat((vm.phase as ImportPhase.ChoosingKey).fieldError).isEqualTo(KeyFieldError.AlreadyUsed("CRD"))
     }
 
     @Test
