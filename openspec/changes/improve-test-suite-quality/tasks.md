@@ -52,7 +52,7 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 
 ## 6. composeApp
 
-- [ ] 6.1 Test `destinationFor` for every `SessionState` (SignedOut expired / not expired, SignedIn, Restoring), and kill the remaining survivor. Verify: `:composeApp` score ≥ 80%, and the tests pass on the host and iOS. Commit `test: …`.
+- [x] 6.1 Test `destinationFor` for every `SessionState` (SignedOut expired / not expired, SignedIn, Restoring), and kill the remaining survivor. Verify: `:composeApp` score ≥ 80%, and the tests pass on the host and iOS. Commit `test: …`.
 
 ## 7. Boards domain and data
 
