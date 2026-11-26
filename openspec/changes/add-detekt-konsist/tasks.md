@@ -25,7 +25,7 @@
 
 ## 4. Konsist check
 
-- [ ] 4.1 [plain] Written by the test-writer, not the implementer (D30: `tooling/src/test` is a test path). Add `DomainLayerKonsistTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/konsist/` as design.md > `:tooling` module and Konsist describes: files in `*.domain` packages whose path relative to the project root starts with `core/domain/src/` or matches `feature/<name>/domain/src/` import nothing from `..data..`, `..presentation..`, `..designsystem..`, `io.ktor..`, `org.koin..`, `androidx..`, `org.jetbrains.compose..`. Verify with `./gradlew konsist` passing on the current code, then, without `--rerun-tasks`, failing with file and import named after temporarily adding `import io.ktor.client.HttpClient` to a file in `:feature:boards:domain` (revert afterwards).
+- [x] 4.1 [plain] Written by the test-writer, not the implementer (D30: `tooling/src/test` is a test path). Add `DomainLayerKonsistTest` in `tooling/src/test/kotlin/com/plcoding/cardiganapp/tooling/konsist/` as design.md > `:tooling` module and Konsist describes: files in `*.domain` packages whose path relative to the project root starts with `core/domain/src/` or matches `feature/<name>/domain/src/` import nothing from `..data..`, `..presentation..`, `..designsystem..`, `io.ktor..`, `org.koin..`, `androidx..`, `org.jetbrains.compose..`. Verify with `./gradlew konsist` passing on the current code, then, without `--rerun-tasks`, failing with file and import named after temporarily adding `import io.ktor.client.HttpClient` to a file in `:feature:boards:domain` (revert afterwards).
 
 ## 5. Documentation
 
