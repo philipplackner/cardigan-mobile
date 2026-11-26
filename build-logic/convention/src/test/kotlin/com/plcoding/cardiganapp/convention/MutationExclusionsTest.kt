@@ -1,5 +1,6 @@
 package com.plcoding.cardiganapp.convention
 
+import org.pitest.plugin.FeatureParser
 import org.pitest.util.Glob
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -86,10 +87,21 @@ class MutationExclusionsTest {
     }
 
     @Test
-    fun `features configure FANN with Composable and PIT's defaults, plus the Compose UI filter`() {
+    fun `features configure FANN with Composable and PIT's defaults, plus the custom filters`() {
         assertEquals(
-            "+FANN(annotation[Composable] annotation[Generated] annotation[DoNotMutate] annotation[CoverageIgnore]),+FCOMPOSEUI",
+            "+FANN(annotation[Composable] annotation[Generated] annotation[DoNotMutate] annotation[CoverageIgnore])," +
+                "+FCOMPOSEUI,+FKOTLININLINE,+FNAVRECEIVER," +
+                "+FNAMEDEXCLUDE(member[*.UiText#asStringAsync*] member[*.UiText\$*#asStringAsync*] member[*.HttpClientFactory#create\$lambda*])",
             MutationExclusions.features,
         )
+    }
+
+    @Test
+    fun `PIT parses the named members back unchanged`() {
+        val settings = FeatureParser().parseFeatures(MutationExclusions.features.split(","))
+        val named = settings.single { it.feature() == "FNAMEDEXCLUDE" }
+
+        assertEquals(MutationExclusions.namedMembers, named.getList("member"))
+        assertEquals(5, settings.size)
     }
 }

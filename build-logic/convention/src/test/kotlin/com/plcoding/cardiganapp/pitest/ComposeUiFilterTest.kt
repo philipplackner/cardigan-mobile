@@ -66,6 +66,35 @@ class ComposeUiFilterTest {
     }
 
     @Test
+    fun `local function of a composable and the class it encloses are dropped`() {
+        val localDesc = "(Lkotlinx/coroutines/CoroutineScope;Landroidx/compose/foundation/lazy/LazyListState;I)V"
+        val root = classNode(
+            "a/BoardRootKt",
+            method("BoardRoot", COMPOSABLE_DESC, composable = true),
+            method("BoardRoot\$scrollToItem", localDesc),
+        )
+        register(root)
+        val launched = classNode("a/BoardRootKt\$BoardRoot\$scrollToItem\$1", method("invokeSuspend", INVOKE_SUSPEND_DESC))
+            .enclosedBy("a/BoardRootKt", "BoardRoot\$scrollToItem", localDesc)
+
+        assertEquals(emptyList(), survivors(root, "BoardRoot\$scrollToItem" to localDesc))
+        assertEquals(emptyList(), survivors(launched, "invokeSuspend" to INVOKE_SUSPEND_DESC))
+    }
+
+    @Test
+    fun `top-level function whose name starts with the composable's name is kept`() {
+        val desc = "(Ljava/lang/String;)Ljava/lang/String;"
+        val node = classNode(
+            "a/BoardRootKt",
+            method("BoardRoot", COMPOSABLE_DESC, composable = true),
+            method("BoardRootTitle", desc),
+            method("BoardRootTitle\$format", desc),
+        )
+
+        assertEquals(listOf("BoardRootTitle", "BoardRootTitle\$format"), survivors(node, "BoardRootTitle" to desc, "BoardRootTitle\$format" to desc))
+    }
+
+    @Test
     fun `lambda of a function with a mangled name is matched through the underscore form`() {
         val node = classNode(
             "a/DividerKt",

@@ -12,4 +12,5 @@ java {
 
 dependencies {
     compileOnly(libs.pitest.entry)
+    implementation(libs.kotlin.metadata.jvm)
 }

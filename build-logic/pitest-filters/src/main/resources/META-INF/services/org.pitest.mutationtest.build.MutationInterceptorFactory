@@ -1,1 +1,4 @@
 com.plcoding.cardiganapp.pitest.ComposeUiFilterFactory
+com.plcoding.cardiganapp.pitest.InlineFunctionFilterFactory
+com.plcoding.cardiganapp.pitest.NavReceiverFilterFactory
+com.plcoding.cardiganapp.pitest.NamedMemberFilterFactory
