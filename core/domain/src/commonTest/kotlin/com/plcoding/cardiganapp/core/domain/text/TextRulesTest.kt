@@ -9,9 +9,11 @@ import kotlin.test.Test
  * Break vectors:
  * - line breaks: CRLF, lone CR, mixed
  * - NFC: decomposed é becomes one code point and counts as 1
- * - trimming: spaces, whitespace only, NBSP, U+3000 and other White_Space; BOM and ZWSP are not White_Space
+ * - trimming: spaces, whitespace only, NBSP, U+3000 and other White_Space; BOM and ZWSP are not White_Space;
+ *   each edge of the U+0009..U+000D and U+2000..U+200A ranges on its own, and the neighbours outside them
  * - inner whitespace is kept
- * - invalid characters: tab, LF, NUL, U+001F, unpaired high and low surrogates; DEL (U+007F) is allowed
+ * - invalid characters: tab, LF, NUL, U+001F, unpaired high and low surrogates (incl. a high surrogate
+ *   followed by a plain character); DEL (U+007F) is allowed
  * - multi-line normalization is the same as single-line
  * - code points: emoji = 1, ZWJ family = 5, CJK = 2
  * - limits: 100 vs 101 code points, emoji at the limit, a limit reached only after trimming
@@ -115,5 +117,25 @@ class TextRulesTest {
     @Test
     fun maxIsCarriedInTheError() {
         assertThat(validateName("abcdef", 5)).isEqualTo(NameError.TooLong(5))
+    }
+
+    @Test
+    fun eachEdgeOfTheWhiteSpaceRangesIsTrimmedOnItsOwn() {
+        listOf("\u0009", "\u000B", "\u000C", "\u2000", "\u200A").forEach { space ->
+            assertThat(normalizeText(space + "Board" + space), space.first().code.toString(16)).isEqualTo("Board")
+        }
+    }
+
+    @Test
+    fun neighboursOfTheWhiteSpaceRangesAreNotTrimmed() {
+        listOf("\u0008", "\u000E", "\u1FFF", "\u200B").forEach { other ->
+            assertThat(normalizeText(other + "Board" + other), other.first().code.toString(16)).isEqualTo(other + "Board" + other)
+        }
+    }
+
+    @Test
+    fun highSurrogateFollowedByAPlainCharacterIsInvalid() {
+        assertThat(hasInvalidCharacter("\uD83Da", multiLine = false)).isEqualTo(true)
+        assertThat(validateName("\uD83Dab", 100)).isEqualTo(NameError.InvalidCharacter)
     }
 }

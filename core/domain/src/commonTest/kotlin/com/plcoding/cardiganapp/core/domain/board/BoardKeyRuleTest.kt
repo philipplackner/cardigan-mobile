@@ -2,11 +2,14 @@ package com.plcoding.cardiganapp.core.domain.board
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import kotlin.test.Test
 
 /*
- * Break vectors: lowercase input, the length edges (1, 2, 5, 6), digits, surrounding spaces (no
+ * Break vectors: lowercase input, the edges of a–z and A–Z and the characters right next to them
+ * (` { @ [), the length edges (1, 2, 5, 6), digits, surrounding spaces (no
  * trimming), non-ASCII letters that uppercase to letters outside A–Z (Ä, the titlecase ǅ), an
  * emoji made of surrogate pairs, the empty string and a lone space.
  */
@@ -69,5 +72,25 @@ class BoardKeyRuleTest {
     @Test
     fun tooLongWinsOverFormat() {
         assertThat(check("CRD123")).isEqualTo(BoardKeyError.TooLong)
+    }
+
+    @Test
+    fun onlyTheLettersAToZAreUppercased() {
+        assertThat(BoardKeyRule.normalize("az")).isEqualTo("AZ")
+        assertThat(BoardKeyRule.normalize("`{")).isEqualTo("`{")
+    }
+
+    @Test
+    fun theEdgesOfAToZAreValidAndTheirNeighboursAreNot() {
+        assertThat(BoardKeyRule.validate("AZ")).isNull()
+        assertThat(BoardKeyRule.validate("A@")).isEqualTo(BoardKeyError.InvalidFormat)
+        assertThat(BoardKeyRule.validate("Z[")).isEqualTo(BoardKeyError.InvalidFormat)
+    }
+
+    @Test
+    fun isValidMatchesValidate() {
+        assertThat(BoardKeyRule.isValid("CRD")).isTrue()
+        assertThat(BoardKeyRule.isValid("C")).isFalse()
+        assertThat(BoardKeyRule.isValid("crd")).isFalse()
     }
 }
