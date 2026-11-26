@@ -7,7 +7,7 @@ import kotlin.test.Test
 /*
  * Break vectors: plain words, diacritics in composed and decomposed form, ß (uppercases to SS),
  * letters without decomposition (Ø, Æ, Ł), digits only, one letter plus digits, emoji, empty,
- * exactly 2 letters, non-Latin script, lowercase.
+ * exactly 2 letters, non-Latin script, lowercase, the edges of A–Z and the characters next to them.
  */
 class BoardKeyPrefillTest {
 
@@ -65,5 +65,11 @@ class BoardKeyPrefillTest {
     @Test
     fun nonLatinScriptGivesNoKey() {
         assertThat(BoardKeyPrefill.fromName("看板")).isEqualTo("")
+    }
+
+    @Test
+    fun edgesOfAToZAreKeptAndTheirNeighboursDropped() {
+        assertThat(BoardKeyPrefill.fromName("A@[Z")).isEqualTo("AZ")
+        assertThat(BoardKeyPrefill.fromName("a`{z")).isEqualTo("AZ")
     }
 }

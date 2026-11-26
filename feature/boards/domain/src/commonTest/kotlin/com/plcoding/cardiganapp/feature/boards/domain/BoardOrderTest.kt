@@ -1,7 +1,9 @@
 package com.plcoding.cardiganapp.feature.boards.domain
 
+import com.plcoding.cardiganapp.core.domain.board.Board
 import assertk.assertThat
 import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isLessThan
 import kotlin.test.Test
@@ -11,7 +13,8 @@ import kotlin.uuid.Uuid
 /*
  * Break vectors: newer updated time first; equal updated time down to the millisecond falls back to
  * created time; equal times fall back to the id string (lowercase canonical, not numeric); insert
- * at the start, middle and end; insert into an empty list; replace moves a renamed board.
+ * at the start, middle and end; insert next to a board that sorts equal (goes after it); insert into
+ * an empty list; replace moves a renamed board; toBoard keeps id, name and key.
  */
 class BoardOrderTest {
 
@@ -80,5 +83,22 @@ class BoardOrderTest {
         val renamedB = b.copy(name = "Renamed", updatedAt = Instant.parse("2026-11-21T00:00:00.000Z"))
 
         assertThat(BoardOrder.replace(listOf(a, b), renamedB)).containsExactly(renamedB, a)
+    }
+
+    @Test
+    fun insertPutsABoardThatSortsEqualAfterTheExistingOne() {
+        val first = board(idA, updated = "2026-11-20T12:00:00.000Z")
+        val existing = board(idB)
+        val last = board(idC, updated = "2026-11-20T08:00:00.000Z")
+        val twin = existing.copy(name = "Twin")
+
+        assertThat(BoardOrder.insert(listOf(first, existing, last), twin)).containsExactly(first, existing, twin, last)
+    }
+
+    @Test
+    fun toBoardKeepsIdNameAndKey() {
+        val summary = board(idA).copy(name = "Garden", key = "GARD")
+
+        assertThat(summary.toBoard()).isEqualTo(Board(id = Uuid.parse(idA), name = "Garden", key = "GARD"))
     }
 }
