@@ -12,8 +12,8 @@ object BoardKeyPrefill {
      * when fewer than 2 letters remain. Letters without a decomposition, such as Ø, are dropped.
      */
     fun fromName(name: String): String {
+        // Decomposing splits diacritics off as combining marks, which the A–Z filter then drops.
         val letters = name.toNfd()
-            .filterNot { it.category == CharCategory.NON_SPACING_MARK }
             .uppercase()
             .filter { it in 'A'..'Z' }
             .take(LENGTH)
