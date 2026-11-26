@@ -1,0 +1,4 @@
+cardigan:
+  active: true
+  NoMockingLibraries:
+    active: false
