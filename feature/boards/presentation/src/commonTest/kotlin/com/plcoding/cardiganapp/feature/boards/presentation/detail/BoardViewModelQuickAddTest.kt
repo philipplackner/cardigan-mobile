@@ -23,14 +23,17 @@ import kotlinx.coroutines.test.runTest
  * Break vectors:
  * - two cards in a row, each appended after its response; field stays open and empty
  * - whitespace only, empty: nothing sent, no error
- * - pasted line break, 201 code points (emoji count once), 200 is fine
+ * - pasted line break, 201 code points (emoji count once), 200 is fine; emptied after an error
  * - Enter and Cancel while saving
  * - Cancel drops the text; outside tap keeps text, closes when empty
  * - switching: empty field closes, field with text asks (both directions with Add column),
  *   Keep editing / back / Discard, switch while saving does nothing, a menu dialog doesn't ask
  * - failure keeps the text, toasts once and reloads (the lost card shows up)
- * - column gone, board gone, server title error
+ * - column gone, board gone, server title error; a create queued behind a move that finds its
+ *   column gone
  * - refresh that removes the field's column closes it; a refresh keeps other text
+ * - refresh with the discard dialog open: kept while the field and the pending column stay (also
+ *   for Add column), closed once the field was cancelled
  */
 class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
 
@@ -107,6 +110,16 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         assertThat(viewModel.state.value.inlineField!!.canSubmit).isFalse()
         viewModel.onAction(BoardAction.InlineTextChange("a".repeat(200)))
         assertThat(viewModel.state.value.inlineField!!.error).isNull()
+    }
+
+    @Test
+    fun emptiedAfterAnErrorShowsNoError() {
+        val viewModel = viewModel()
+        viewModel.type("a".repeat(201))
+        viewModel.onAction(BoardAction.InlineSubmit)
+        viewModel.onAction(BoardAction.InlineTextChange(""))
+        assertThat(viewModel.state.value.inlineField!!.error).isNull()
+        assertThat(viewModel.state.value.inlineField!!.showErrors).isTrue()
     }
 
     @Test
@@ -278,6 +291,23 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
     }
 
     @Test
+    fun createQueuedBehindAMoveThatFindsTheColumnGone() = runTest {
+        val viewModel = viewModel()
+        val gate = CompletableDeferred<Unit>()
+        repository.gates += gate
+        repository.server = boardContent(doing, review, done)
+        viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
+        viewModel.type("Write docs")
+        viewModel.onAction(BoardAction.InlineSubmit)
+        gate.complete(Unit)
+        assertThat(cards.calls).containsExactly("Write docs")
+        assertThat(toasts.messages.size).isEqualTo(2)
+        assertResource(toasts.messages[0].text, Res.string.board_view_column_gone, "To do")
+        assertResource(toasts.messages[1].text, Res.string.board_view_column_gone, "")
+        assertThat(viewModel.state.value.inlineField).isNull()
+    }
+
+    @Test
     fun boardGone() = runTest {
         val viewModel = viewModel()
         cards.results += Result.Error(CardCreateError.BoardNotFound)
@@ -314,6 +344,35 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.Refresh(todo.id))
         assertThat(viewModel.state.value.dialog).isNull()
         assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+    }
+
+    @Test
+    fun refreshKeepsTheDiscardDialogWhileItsColumnsStay() {
+        val viewModel = viewModel()
+        viewModel.type("Write docs")
+        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(done.id)))
+    }
+
+    @Test
+    fun refreshKeepsTheDiscardDialogForAddColumn() {
+        val viewModel = viewModel()
+        viewModel.type("Write docs")
+        viewModel.onAction(BoardAction.OpenAddColumn)
+        repository.server = boardContent(todo)
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.AddColumn))
+    }
+
+    @Test
+    fun refreshClosesTheDiscardDialogOnceTheFieldIsGone() {
+        val viewModel = viewModel()
+        viewModel.type("Write docs")
+        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+        viewModel.onAction(BoardAction.InlineCancel)
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isNull()
     }
 
     @Test

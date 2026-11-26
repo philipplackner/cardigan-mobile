@@ -6,11 +6,14 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import com.plcoding.cardiganapp.core.domain.text.NameError
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.runTest
 
 /*
  * Break vectors: process death with each field and dialog open (quick add, add column, rename,
  * delete), with errors already showing, and with the field's or dialog's column gone after the
- * load. Saving flags and the discard dialog (D44) are not restored.
+ * load, and a second process death before the restored dialog could reopen. Saving flags and the
+ * discard dialog (D44) are not restored.
  */
 class BoardViewModelRestoreTest : BoardViewModelTestBase() {
 
@@ -45,7 +48,7 @@ class BoardViewModelRestoreTest : BoardViewModelTestBase() {
     @Test
     fun savingIsNotRestored() {
         val viewModel = restored {
-            repository.gates += kotlinx.coroutines.CompletableDeferred()
+            repository.gates += CompletableDeferred()
             onAction(BoardAction.OpenAddColumn)
             onAction(BoardAction.InlineTextChange("Blocked"))
             onAction(BoardAction.InlineSubmit)
@@ -62,6 +65,27 @@ class BoardViewModelRestoreTest : BoardViewModelTestBase() {
             onAction(BoardAction.RenameTextChange("QA"))
         }
         assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.RenameColumn(review.id, "Review", "QA"))
+    }
+
+    @Test
+    fun renameDialogWithShownErrorSurvives() {
+        val viewModel = restored {
+            onAction(BoardAction.RenameColumnClick(review.id))
+            onAction(BoardAction.RenameTextChange(""))
+            onAction(BoardAction.RenameSave)
+        }
+        assertThat(viewModel.state.value.dialog).isEqualTo(
+            BoardDialog.RenameColumn(review.id, "Review", "", showErrors = true, error = NameError.Required),
+        )
+    }
+
+    @Test
+    fun dialogSurvivesASecondDeathBeforeTheLoad() {
+        val handle = handle()
+        viewModel(handle).onAction(BoardAction.RenameColumnClick(review.id))
+        repository.gates += CompletableDeferred()
+        viewModel(handle)
+        assertThat(viewModel(handle).state.value.dialog).isEqualTo(BoardDialog.RenameColumn(review.id, "Review", "Review"))
     }
 
     @Test
@@ -82,7 +106,7 @@ class BoardViewModelRestoreTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun dialogOfAGoneColumnClosesAfterRestore() {
+    fun dialogOfAGoneColumnClosesAfterRestore() = runTest {
         val handle = handle()
         viewModel(handle).onAction(BoardAction.RenameColumnClick(review.id))
         repository.server = repository.server.copy(columns = repository.server.columns.filterNot { it.id == review.id })

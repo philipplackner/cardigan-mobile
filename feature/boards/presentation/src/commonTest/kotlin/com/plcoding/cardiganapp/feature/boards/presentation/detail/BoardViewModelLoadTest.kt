@@ -21,12 +21,14 @@ import kotlinx.coroutines.test.runTest
 
 /*
  * Break vectors:
- * - header with and without the board list's hint, while loading, after a failure, after load
+ * - header with and without the board list's hint, while loading, after a failure, after load;
+ *   a hint with only a name or only a key
  * - board fails, labels fail, both fail, board missing (404) on first load and on refresh
  * - retry only from the error state, and it shows the skeleton again
  * - refresh: picks up changes, failure keeps the board with one toast, a second pull while one runs
  * - labels arrive in a map; a card with an unknown label ID keeps its ID (the tile skips it)
- * - board renamed from the board menu updates the header; board deleted emits BoardDeleted
+ * - board renamed from the board menu updates the header, also while loading and without a hint;
+ *   board deleted emits BoardDeleted
  */
 class BoardViewModelLoadTest : BoardViewModelTestBase() {
 
@@ -72,6 +74,14 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
         repository.gates += CompletableDeferred()
         val viewModel = viewModel(handle(name = "Cardigan"))
         assertThat(viewModel.state.value.headerHint).isNull()
+    }
+
+    @Test
+    fun hintNeedsTheName() {
+        repository.gates += CompletableDeferred()
+        val viewModel = viewModel(handle(key = "CRD"))
+        assertThat(viewModel.state.value.headerHint).isNull()
+        assertThat(viewModel.state.value.headerKey).isNull()
     }
 
     @Test
@@ -205,6 +215,24 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.BoardRenamed("Cardigan v2"))
         assertThat(viewModel.state.value.headerName).isEqualTo("Cardigan v2")
         assertThat(viewModel.board.board.name).isEqualTo("Cardigan v2")
+    }
+
+    @Test
+    fun boardRenamedWhileLoadingUpdatesTheHint() {
+        repository.gates += CompletableDeferred()
+        val viewModel = viewModel(handle(name = "Cardigan v1", key = "CRD"))
+        viewModel.onAction(BoardAction.BoardRenamed("Cardigan v2"))
+        assertThat(viewModel.state.value.content).isEqualTo(BoardLoadState.Loading)
+        assertThat(viewModel.state.value.headerHint).isEqualTo(BoardHeaderHint("Cardigan v2", "CRD"))
+        assertThat(viewModel.state.value.headerName).isEqualTo("Cardigan v2")
+    }
+
+    @Test
+    fun boardRenamedWithoutAHint() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.BoardRenamed("Cardigan v2"))
+        assertThat(viewModel.state.value.headerHint).isNull()
+        assertThat(viewModel.state.value.headerName).isEqualTo("Cardigan v2")
     }
 
     @Test

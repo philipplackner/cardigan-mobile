@@ -3,6 +3,7 @@ package com.plcoding.cardiganapp.feature.boards.presentation.detail
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -29,13 +30,15 @@ import kotlinx.coroutines.test.runTest
  * - add column: success closes and scrolls, too long / empty / pasted line break, double submit and
  *   Enter while saving, server field error, failure keeps text and reloads in the background
  *   (and a failing background reload shows no second toast), board missing
- * - move: first, last and only column (no request), two moves on one column before the first
- *   response, a delete queued before a move, stale (D40), column gone, failure reloads, response IDs
- *   that don't match the board
+ * - move: first, last and only column (no request), second column to the front, two moves on one
+ *   column before the first response, a delete queued before a move, stale (D40), column gone, a
+ *   name error the server shouldn't send, failure reloads, response IDs that don't match the board
  * - rename: unchanged and only surrounding spaces (D19), missing column, failure keeps the dialog,
- *   dismiss while saving
- * - delete: success, ColumnNotFound counts as done, failure keeps the dialog, board missing
- * - back-to-back writes apply in the order they arrive
+ *   server name error, dismiss and edits while saving
+ * - delete: success without a reload, ColumnNotFound counts as done, failure keeps the dialog, board
+ *   missing, dismiss, dismiss and a second confirm while deleting
+ * - a refresh closes a menu dialog whose column is gone and keeps one whose column stays
+ * - back-to-back writes apply in the order they arrive; a write after a refresh still runs
  * - outside tap on the add column field: empty closes, text stays, ignored while saving (D42)
  */
 class BoardViewModelColumnTest : BoardViewModelTestBase() {
@@ -174,6 +177,14 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
+    fun moveSecondColumnToTheFront() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.MoveColumnLeft(doing.id))
+        assertThat(repository.moves).containsExactly(doing.id to 0)
+        assertThat(viewModel.columnNames).containsExactly("In progress", "To do", "Review", "Done")
+    }
+
+    @Test
     fun noMoveBeyondTheEnds() {
         val viewModel = viewModel()
         viewModel.onAction(BoardAction.MoveColumnLeft(todo.id))
@@ -269,6 +280,15 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
+    fun moveWithANameErrorShowsTheMoveFailure() {
+        val viewModel = viewModel()
+        repository.writeResults += Result.Error(ColumnWriteError.InvalidName(NameError.Required))
+        viewModel.onAction(BoardAction.MoveColumnRight(review.id))
+        assertResource(toasts.messages.single().text, Res.string.board_view_move_column_failed, "Review")
+        assertThat(repository.calls).containsExactly("load", "moveColumn:3", "load")
+    }
+
+    @Test
     fun moveResponseThatDoesNotMatchReloads() {
         val viewModel = viewModel()
         repository.writeResults += Result.Success(listOf(doing.id, todo.id))
@@ -313,6 +333,7 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     fun renameValidates() {
         val viewModel = viewModel()
         viewModel.onAction(BoardAction.RenameColumnClick(review.id))
+        assertThat((viewModel.state.value.dialog as BoardDialog.RenameColumn).canSave).isTrue()
         viewModel.onAction(BoardAction.RenameTextChange(""))
         viewModel.onAction(BoardAction.RenameSave)
         val dialog = viewModel.state.value.dialog as BoardDialog.RenameColumn
@@ -345,7 +366,20 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun renameDialogCantBeDismissedWhileSaving() {
+    fun renameServerNameErrorShowsInTheDialog() {
+        val viewModel = viewModel()
+        repository.writeResults += Result.Error(ColumnWriteError.InvalidName(NameError.TooLong(30)))
+        viewModel.onAction(BoardAction.RenameColumnClick(review.id))
+        viewModel.onAction(BoardAction.RenameTextChange("QA"))
+        viewModel.onAction(BoardAction.RenameSave)
+        assertThat(viewModel.state.value.dialog).isEqualTo(
+            BoardDialog.RenameColumn(review.id, "Review", "QA", showErrors = true, error = NameError.TooLong(30)),
+        )
+        assertThat(toasts.messages).containsExactly()
+    }
+
+    @Test
+    fun renameDialogCantBeDismissedOrEditedWhileSaving() {
         val viewModel = viewModel()
         val gate = CompletableDeferred<Unit>()
         repository.gates += gate
@@ -353,8 +387,12 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.RenameTextChange("QA"))
         viewModel.onAction(BoardAction.RenameSave)
         viewModel.onAction(BoardAction.DialogDismiss)
+        viewModel.onAction(BoardAction.RenameTextChange("Other"))
         viewModel.onAction(BoardAction.RenameSave)
-        assertThat(viewModel.state.value.dialog is BoardDialog.RenameColumn).isTrue()
+        val dialog = viewModel.state.value.dialog as BoardDialog.RenameColumn
+        assertThat(dialog.text).isEqualTo("QA")
+        assertThat(dialog.isSaving).isTrue()
+        assertThat(dialog.canSave).isFalse()
         gate.complete(Unit)
         assertThat(repository.calls).containsExactly("load", "renameColumn:QA")
     }
@@ -363,9 +401,35 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     fun deleteRemovesTheColumn() {
         val viewModel = viewModel()
         viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2))
+        assertThat((viewModel.state.value.dialog as BoardDialog.DeleteColumn).cardCount).isEqualTo(2)
         viewModel.onAction(BoardAction.DeleteConfirm)
         assertThat(viewModel.columnNames).containsExactly("To do", "In progress", "Done")
+        assertThat(viewModel.state.value.dialog).isNull()
+        assertThat(repository.calls).containsExactly("load", "deleteColumn")
+    }
+
+    @Test
+    fun dismissClosesTheDeleteDialog() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
+        viewModel.onAction(BoardAction.DialogDismiss)
+        assertThat(viewModel.state.value.dialog).isNull()
+        assertThat(repository.calls).containsExactly("load")
+    }
+
+    @Test
+    fun deleteDialogCantBeDismissedOrConfirmedAgainWhileDeleting() {
+        val viewModel = viewModel()
+        val gate = CompletableDeferred<Unit>()
+        repository.gates += gate
+        viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
+        viewModel.onAction(BoardAction.DeleteConfirm)
+        viewModel.onAction(BoardAction.DialogDismiss)
+        viewModel.onAction(BoardAction.DeleteConfirm)
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2, isSaving = true))
+        assertThat((viewModel.state.value.dialog as BoardDialog.DeleteColumn).isSaving).isTrue()
+        gate.complete(Unit)
+        assertThat(repository.calls).containsExactly("load", "deleteColumn")
         assertThat(viewModel.state.value.dialog).isNull()
     }
 
@@ -410,6 +474,33 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.DeleteConfirm)
         assertThat(events).containsExactly(BoardEvent.BoardMissing)
         assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2))
+    }
+
+    @Test
+    fun refreshClosesAMenuDialogWhoseColumnIsGone() {
+        val viewModel = viewModel()
+        repository.server = boardContent(todo, doing, done)
+        viewModel.onAction(BoardAction.RenameColumnClick(review.id))
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isNull()
+        viewModel.onAction(BoardAction.DeleteColumnClick(todo.id))
+        repository.server = boardContent(doing, done)
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isNull()
+    }
+
+    @Test
+    fun refreshKeepsAMenuDialogWhoseColumnStays() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.RenameColumnClick(review.id))
+        viewModel.onAction(BoardAction.RenameTextChange("QA"))
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.RenameColumn(review.id, "Review", "QA"))
+        viewModel.onAction(BoardAction.DialogDismiss)
+        viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
+        viewModel.onAction(BoardAction.Refresh(null))
+        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2))
     }
 
     @Test
@@ -450,6 +541,14 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         gate.complete(Unit)
         assertThat(repository.calls).containsExactly("load", "addColumn:Blocked", "load")
         assertThat(viewModel.columnNames).containsExactly("To do", "In progress", "Review", "Done", "Blocked")
+    }
+
+    @Test
+    fun writeAfterARefreshStillRuns() {
+        val viewModel = viewModel()
+        viewModel.onAction(BoardAction.Refresh(null))
+        viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
+        assertThat(viewModel.columnNames).containsExactly("In progress", "To do", "Review", "Done")
     }
 
     @Test
