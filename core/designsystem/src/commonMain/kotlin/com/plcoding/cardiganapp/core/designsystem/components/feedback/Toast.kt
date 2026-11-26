@@ -119,9 +119,13 @@ class ToastHostState {
 
     /** Suspends until the toast closes or is replaced. */
     suspend fun show(message: String, type: ToastType) {
+        show(message, type, closeLabel = getString(Res.string.toast_close))
+    }
+
+    internal suspend fun show(message: String, type: ToastType, closeLabel: String) {
         snackbarHostState.currentSnackbarData?.dismiss()
         // The close control counts as an action, so Android applies its "Time to take action" timeout.
-        snackbarHostState.showSnackbar(ToastVisuals(message, type, actionLabel = getString(Res.string.toast_close)))
+        snackbarHostState.showSnackbar(ToastVisuals(message, type, actionLabel = closeLabel))
     }
 }
 
