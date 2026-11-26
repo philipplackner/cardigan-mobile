@@ -34,14 +34,14 @@
 
 ## 6. Manual checks
 
-- [ ] 6.1 [plain] Run `./gradlew detekt`. It may fail on existing findings (D6); confirm that every opted-in module and build-logic were analyzed, iOS source sets ran in light mode, no file under a `build/` directory was reported, each module has HTML and SARIF reports, and `build/reports/detekt/merged.sarif` exists. Verify by listing the report files.
+- [x] 6.1 [plain] Run `./gradlew detekt`. It may fail on existing findings (D6); confirm that every opted-in module and build-logic were analyzed, iOS source sets ran in light mode, no file under a `build/` directory was reported, each module has HTML and SARIF reports, and `build/reports/detekt/merged.sarif` exists. Verify by listing the report files.
 - [ ] 6.2 [plain] Put `import io.mockk.every` in a temporary file in `feature/boards/data/src/commonTest/` and in `feature/boards/data/src/commonMain/`. Run `./gradlew :feature:boards:data:detekt`: only the test file is reported as `cardigan:NoMockingLibraries` with the exact message. Remove both files. Verify by the command output.
-- [ ] 6.3 [plain] Run `./gradlew staticAnalysis` twice in a row while detekt has findings: confirm both times that `:tooling:konsistTest` still runs and the build fails at the end. Run the gate commands, `./gradlew check` and `./gradlew -p build-logic check` with `--dry-run` and confirm no detekt task or `konsistTest` is scheduled, and `coverageReport --dry-run` / `mutationReport --dry-run` don't include `:tooling`. Verify by the command output.
+- [x] 6.3 [plain] Run `./gradlew staticAnalysis` twice in a row while detekt has findings: confirm both times that `:tooling:konsistTest` still runs and the build fails at the end. Run the gate commands, `./gradlew check` and `./gradlew -p build-logic check` with `--dry-run` and confirm no detekt task or `konsistTest` is scheduled, and `coverageReport --dry-run` / `mutationReport --dry-run` don't include `:tooling`. Verify by the command output.
 
 ## 7. Integration
 
-- [ ] 7.1 [plain] Run `openspec validate add-detekt-konsist --strict`. Verify it passes.
-- [ ] 7.2 [plain] Run the full check from project.md, plus `./gradlew -p build-logic :convention:test` (build-logic changed) and `./gradlew :tooling:test`. Verify all pass.
+- [x] 7.1 [plain] Run `openspec validate add-detekt-konsist --strict`. Verify it passes.
+- [x] 7.2 [plain] Run the full check from project.md, plus `./gradlew -p build-logic :convention:test` (build-logic changed) and `./gradlew :tooling:test`. Verify all pass.
 
 ## Workflow follow-up
 
