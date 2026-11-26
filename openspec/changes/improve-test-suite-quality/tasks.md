@@ -57,7 +57,7 @@ One-time targets for this change (don't write them into the build, CLAUDE.md, sk
 ## 7. Boards domain and data
 
 - [x] 7.1 `:feature:boards:domain`: kill the `BoardKeyPrefill.fromName` survivors, and the no-coverage mutants in `BoardSummary`/`BoardSaveError` through behavior that reads them. Verify: module score ≥ 80%. Commit `test(boards): …`.
-- [ ] 7.2 `:feature:boards:data`: test the `NotConnectedRemoteBoardDataSource` and `NotConnectedBoardDetailRepository` failures, and the `InMemoryBoardRepository` survivors (`applySave`, `refresh`, `collect`, `clear`, `createBoard`; `setIfSession` is inline and leaves the report after group 3). Verify: module score ≥ 80%, and the tests pass on the host and iOS. Commit `test(boards): …`.
+- [x] 7.2 `:feature:boards:data`: test the `NotConnectedRemoteBoardDataSource` and `NotConnectedBoardDetailRepository` failures, and the `InMemoryBoardRepository` survivors (`applySave`, `refresh`, `collect`, `clear`, `createBoard`; `setIfSession` is inline and leaves the report after group 3). Verify: module score ≥ 80%, and the tests pass on the host and iOS. Commit `test(boards): …`.
 
 ## 8. Boards presentation
 

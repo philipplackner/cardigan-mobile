@@ -8,6 +8,7 @@ import assertk.assertions.isNull
 import com.plcoding.cardiganapp.core.domain.util.DataError
 import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
+import app.cash.turbine.test
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -26,6 +27,8 @@ import kotlinx.coroutines.test.runTest
  * - failed saves leave the list as it is
  * - a save that completes while a refresh runs survives the refresh result
  * - clear(): resets to null and drops a refresh or save that completes after it
+ * - boards as a flow: emits null, the list, and null again after clear; an equal list is not emitted twice;
+ *   the replay cache holds only the current value
  */
 class InMemoryBoardRepositoryTest {
 
@@ -267,5 +270,32 @@ class InMemoryBoardRepositoryTest {
         remote.getBoardsResult = Result.Success(listOf(c, a))
         repository.ensureLoaded()
         assertThat(repository.boards.value!!).containsExactly(c, a)
+    }
+
+    @Test
+    fun boardsFlowEmitsEachDistinctListAndNullAfterClear() = runTest {
+        val repository = repository()
+
+        repository.boards.test {
+            assertThat(awaitItem()).isNull()
+            repository.loaded(a, b)
+            assertThat(awaitItem()).isEqualTo(listOf(a, b))
+            repository.loaded(a, b)
+            repository.loaded(c)
+            assertThat(awaitItem()).isEqualTo(listOf(c))
+            repository.clear()
+            assertThat(awaitItem()).isNull()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun replayCacheHoldsTheCurrentList() = runTest {
+        val repository = repository()
+        assertThat(repository.boards.replayCache).containsExactly(null)
+
+        repository.loaded(a)
+
+        assertThat(repository.boards.replayCache).containsExactly(listOf(a))
     }
 }
