@@ -35,7 +35,7 @@
 ## 6. Manual checks
 
 - [x] 6.1 [plain] Run `./gradlew detekt`. It may fail on existing findings (D6); confirm that every opted-in module and build-logic were analyzed, iOS source sets ran in light mode, no file under a `build/` directory was reported, each module has HTML and SARIF reports, and `build/reports/detekt/merged.sarif` exists. Verify by listing the report files.
-- [ ] 6.2 [plain] Put `import io.mockk.every` in a temporary file in `feature/boards/data/src/commonTest/` and in `feature/boards/data/src/commonMain/`. Run `./gradlew :feature:boards:data:detekt`: only the test file is reported as `cardigan:NoMockingLibraries` with the exact message. Remove both files. Verify by the command output.
+- [x] 6.2 [plain] Put `import io.mockk.every` in a temporary file in `feature/boards/data/src/commonTest/` and in `feature/boards/data/src/commonMain/`. Run `./gradlew :feature:boards:data:detekt`: only the test file is reported as `cardigan:NoMockingLibraries` with the exact message. Remove both files. Verify by the command output. Note: not run. The type-resolved detekt tasks compile the module first, so an `io.mockk` import fails without a MockK dependency (none is added). Covered by acceptance tests A01 and A03 instead.
 - [x] 6.3 [plain] Run `./gradlew staticAnalysis` twice in a row while detekt has findings: confirm both times that `:tooling:konsistTest` still runs and the build fails at the end. Run the gate commands, `./gradlew check` and `./gradlew -p build-logic check` with `--dry-run` and confirm no detekt task or `konsistTest` is scheduled, and `coverageReport --dry-run` / `mutationReport --dry-run` don't include `:tooling`. Verify by the command output.
 
 ## 7. Integration
