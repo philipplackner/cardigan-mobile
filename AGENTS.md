@@ -25,7 +25,7 @@ This file is the project's system prompt. The `kmp-*` skills in `.claude/skills/
 | Fonts | Geist and Geist Mono, bundled as compose resources |
 | Time / IDs | `kotlin.time`, kotlinx-datetime, `kotlin.uuid.Uuid`. No `java.*` in common code. |
 | Logging | Kermit, debug builds only |
-| Lint / format | None for now. `kotlin.code.style=official` and the IDE formatter. |
+| Lint / format | detekt 2.0 (alpha, pinned in the version catalog) with the custom `cardigan` rule set from `:tooling`, and Konsist (beta) for architecture checks. Config overrides in `config/detekt/detekt.yml`. On demand, not a gate. `kotlin.code.style=official` and the IDE formatter. |
 | Tests | `kotlin.test`, AssertK, Turbine, kotlinx-coroutines-test, Ktor `MockEngine`, Compose `ui-test` (`runComposeUiTest`) |
 | Coverage | Kover, Android host tests only. diff-cover (pinned in the version catalog) through `uvx`. On demand, not a gate. |
 | Mutation testing | PIT (pinned in the version catalog), Android host tests only, run through our own convention plugin. On demand, not a gate. |
@@ -45,6 +45,7 @@ The full rules are in `kmp-module-structure`. In short:
 iosApp/                         thin SwiftUI shell: hosts MainViewController, starts Koin
 :composeApp                     KMP library: App(), NavHost, initKoin. The only module that knows every feature.
 :build-logic                    convention plugins
+:tooling                        JVM module: custom detekt rules (`cardigan` rule set) and Konsist checks
 :core:domain                    Result, Error, DataError, shared domain models and interfaces
 :core:data                      HttpClient factory, safe call helpers, session and token storage, generated API models
 :core:presentation              UiText, ObserveAsEvents, shared error-to-UiText mappings
@@ -248,6 +249,12 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 | `./gradlew coverageReport` | Runs the host tests and writes a merged coverage report to `build/reports/kover/` (XML + HTML), then prints line and branch coverage. `-Pcoverage.modules=:core:data,:feature:boards:data` picks modules (default: all KMP modules). `-Pcoverage.minLine=<0-100>` / `-Pcoverage.minBranch=<0-100>` fail the run below that total. Use the full task name: abbreviations fail. Not a gate. |
 | `./gradlew coverageDiff` | Coverage of the lines changed against `origin/master` (committed, staged, unstaged and untracked), plus `build/reports/diff-coverage/index.html`. Takes `-Pcoverage.modules` and `-Pcoverage.compareBranch=<ref>`. Needs `uv`. Never fails on low coverage. Not a gate. |
 | `./gradlew mutationReport` | Runs PIT on the host tests of the selected modules, one module at a time, and writes a combined HTML report to `build/reports/pitest/index.html`. Prints mutation score and test strength per module and in total. `-Pmutation.modules=:core:domain,:feature:boards:data` picks modules (default: all KMP modules; an empty value or entry fails). `-Pmutation.threads=<n>` sets PIT threads (default: all processors). `-Pmutation.minScore=<0-100>` fails the run below that total score. Use the full task name: abbreviations fail. Not a gate. |
+
+| `./gradlew detekt` | Runs detekt on every module that applies `convention.detekt` and on build-logic. Fails on any finding. Writes HTML and SARIF reports per module and a merged `build/reports/detekt/merged.sarif`. Not a gate. |
+| `./gradlew <module>:detekt` | Runs detekt on that module only, for example `./gradlew :feature:boards:data:detekt`. Not a gate. |
+| `./gradlew konsist` | Runs only the Konsist checks in `:tooling`. Fails on a failed check. Not a gate. |
+| `./gradlew staticAnalysis` | Runs `detekt` and `konsist`. A detekt failure doesn't stop the Konsist checks; the run fails at the end if either failed and names the tool. Not a gate. |
+| `./gradlew :tooling:test` | Unit and acceptance tests of the custom detekt rules. Leaves out the Konsist checks. Run it when `tooling/` changes. Not a gate. |
 
 Tasks that don't exist yet get added in the change that sets up the tool.
 

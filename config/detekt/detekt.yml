@@ -1,0 +1,63 @@
+# Overrides only. Everything else comes from detekt's default config (buildUponDefaultConfig).
+
+config:
+  excludes:
+    # build-logic runs without the :tooling plugin, so the cardigan rule set is unknown there.
+    - 'cardigan'
+
+empty-blocks:
+  EmptyClassBlock:
+    # ktlint: standard:no-empty-class-body
+    active: false
+  EmptyKotlinFile:
+    # ktlint: standard:no-empty-file
+    active: false
+
+naming:
+  ClassNaming:
+    # ktlint: standard:class-naming
+    active: false
+  EnumNaming:
+    # ktlint: standard:enum-entry-name-case
+    active: false
+  FunctionNaming:
+    # ktlint: standard:function-naming
+    active: false
+  MatchingDeclarationName:
+    # ktlint: standard:filename
+    active: false
+  ObjectPropertyNaming:
+    # ktlint: standard:property-naming
+    active: false
+  PackageNaming:
+    # ktlint: standard:package-name
+    active: false
+  TopLevelPropertyNaming:
+    # ktlint: standard:property-naming
+    active: false
+
+style:
+  MaxLineLength:
+    # ktlint: standard:max-line-length
+    active: false
+  ModifierOrder:
+    # ktlint: standard:modifier-order
+    active: false
+  NewLineAtEndOfFile:
+    # ktlint: standard:final-newline
+    active: false
+  WildcardImport:
+    # ktlint: standard:no-wildcard-imports
+    active: false
+
+cardigan:
+  NoMockingLibraries:
+    active: true
+    includes:
+      - '**/commonTest/**'
+      - '**/androidHostTest/**'
+      - '**/androidDeviceTest/**'
+      - '**/iosTest/**'
+      - '**/iosArm64Test/**'
+      - '**/iosSimulatorArm64Test/**'
+      - '**/src/test/**'

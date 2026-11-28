@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.convention.buildkonfig)
     alias(libs.plugins.convention.kover)
     alias(libs.plugins.convention.mutation)
+    alias(libs.plugins.convention.detekt)
 }
 
 kotlin {
