@@ -4,6 +4,7 @@ root = true
 ktlint_code_style = ktlint_official
 max_line_length = 120
 ktlint_function_naming_ignore_when_annotated_with = Composable
+ktlint_standard_filename = disabled
 indent_size = 4
 indent_style = space
 insert_final_newline = true
