@@ -33,7 +33,7 @@ Read these for code style, architecture, commit rules and test conventions:
 
 | Purpose | Command |
 |---|---|
-| Full check. Must pass before every commit | `./gradlew :androidApp:assembleDebug testAndroidHostTest iosSimulatorArm64Test :composeApp:linkDebugFrameworkIosSimulatorArm64`. When a change touches `iosApp/`, also build the iOS app with `xcodebuild` for the simulator. When it touches `build-logic/`, also `./gradlew -p build-logic :convention:test`. |
+| Full check. Must pass before every commit | `./gradlew :androidApp:assembleDebug testAndroidHostTest iosSimulatorArm64Test :composeApp:linkDebugFrameworkIosSimulatorArm64`. When a change touches `iosApp/`, also build the iOS app with `xcodebuild` for the simulator. When it touches `build-logic/`, also `./gradlew -p build-logic :convention:test`. When it touches `tooling/`, also `./gradlew :tooling:test`. |
 | Compile or type-check the tests without running them | `./gradlew compileAndroidHostTestSources compileTestKotlinIosSimulatorArm64` (one module: prefix both with `:<module>:`). For `build-logic`: `./gradlew -p build-logic :convention:compileTestKotlin`. |
 | Run all tests | `./gradlew testAndroidHostTest iosSimulatorArm64Test` (plus `./gradlew -p build-logic :convention:test` for build-logic) |
 | Run the tests of one area (`<area>` as defined below) | `./gradlew <area>:testAndroidHostTest <area>:iosSimulatorArm64Test`, for example `./gradlew :feature:boards:data:testAndroidHostTest :feature:boards:data:iosSimulatorArm64Test`. Filter host tests with `--tests '<fully qualified class>'`. For `build-logic`: `./gradlew -p build-logic :convention:test`. |
@@ -54,6 +54,7 @@ to `src/`, with `/` replaced by `:`:
 - `androidApp/...` → `:androidApp` (thin shell, no tests)
 - `iosApp/...` → no Gradle area; check with `xcodebuild` for the simulator
 - `build-logic/convention/...` and `build-logic/pitest-filters/...` → the `build-logic` included build, run with `-p build-logic` as above
+- `tooling/...` → `:tooling` (Kotlin/JVM, tests in `tooling/src/test/kotlin/...`), run with `./gradlew :tooling:test`
 - `api/openapi.json` → `:core:data` (DTOs are generated from it into `:core:data`'s build directory)
 
 ## Scaffold
@@ -65,6 +66,7 @@ to `src/`, with `/` replaced by `:`:
 
 - Level: feature UI through the Root composable with a real ViewModel, run with `runComposeUiTest` in the feature presentation module's `commonTest` (`*UiTest` classes). Collaborators below the ViewModel (data sources, repositories, `SessionManager`) are fakes from the module's test code.
 - How they are written: build the Root with a real ViewModel and fake data sources, drive it through the UI, and assert what the user sees. Find nodes by text loaded from the module's string resources, by content description from string resources, or by a test tag, exactly as the design names them. Existing examples: `feature/auth/presentation/src/commonTest/.../login/LoginUiTest.kt`, `feature/boards/presentation/src/commonTest/.../detail/BoardRootUiTest.kt`. When a flow crosses features, the test goes in `:composeApp` like `composeApp/src/commonTest/.../AppFlowsUiTest.kt`. If the design does not name a string resource, content description or test tag that a test needs to find an element, stop and report it as an open question; do not invent one. Use the Robot pattern from `kmp-ui-testing` for multi-step flows.
+- `:tooling` (custom detekt rules): the feature UI level can't observe a detekt rule. Acceptance tests there are JVM tests in `tooling/src/test` that run real detekt in-process through `detekt-core` with the repo's `config/detekt/detekt.yml` (system property `cardigan.detekt.config`), over Kotlin files in a temp directory laid out like source sets. They reach a rule only through its rule set id and rule id, never the rule class. Existing example: `tooling/src/test/.../detekt/NoMockingLibrariesAcceptanceTest.kt`.
 - They use only the public interface of that level, never types or
   functions the change adds.
 

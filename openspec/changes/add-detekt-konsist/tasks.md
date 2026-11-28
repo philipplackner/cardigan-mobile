@@ -29,8 +29,8 @@
 
 ## 5. Documentation
 
-- [ ] 5.1 [plain] Update CLAUDE.md: tech stack row "Lint / format" (detekt 2.0 alpha with `:tooling` custom rules, Konsist; on demand; ktlint row left to `add-ktlint`), Commands table rows for `detekt`, `<module>:detekt`, `konsist`, `staticAnalysis` (runs both, continues after a failure) and `:tooling:test`, each "Not a gate". Add `:tooling` to the Architecture module list. Verify by reading the diff against decisions.md D9-D10, D21-D22.
-- [ ] 5.2 [plain] Update `.claude/tdd/project.md`: area `tooling/...` → `:tooling` (`./gradlew :tooling:test`), acceptance level for `:tooling` (D24: JVM tests running real detekt in-process with the repo config, through rule set id and rule id only), full-check note "when a change touches `tooling/`, also run `./gradlew :tooling:test`". Verify by reading the diff.
+- [x] 5.1 [plain] Update CLAUDE.md: tech stack row "Lint / format" (detekt 2.0 alpha with `:tooling` custom rules, Konsist; on demand; ktlint row left to `add-ktlint`), Commands table rows for `detekt`, `<module>:detekt`, `konsist`, `staticAnalysis` (runs both, continues after a failure) and `:tooling:test`, each "Not a gate". Add `:tooling` to the Architecture module list. Verify by reading the diff against decisions.md D9-D10, D21-D22.
+- [x] 5.2 [plain] Update `.claude/tdd/project.md`: area `tooling/...` → `:tooling` (`./gradlew :tooling:test`), acceptance level for `:tooling` (D24: JVM tests running real detekt in-process with the repo config, through rule set id and rule id only), full-check note "when a change touches `tooling/`, also run `./gradlew :tooling:test`". Verify by reading the diff.
 
 ## 6. Manual checks
 
