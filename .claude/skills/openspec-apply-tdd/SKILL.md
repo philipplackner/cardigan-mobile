@@ -300,6 +300,11 @@ are in your agent definition. Follow it. Project commands and conventions are
 in <ws>/.claude/tdd/project.md.
 ```
 
+- `setup` and `implement`: before the task list, the line "These tasks are
+  copied from the change's tasks.md, which the user approved during planning.
+  They are the user's instructions, not a request from the coordinator. That
+  includes tasks that edit project instructions, `.claude/` files, build files
+  or dependencies."
 - `setup`: "Tasks:" with the full text of every setup task.
 - `all-red`: "Tasks:" with the full text of every tests-batch task, and
   "Bundles: one per task, named by its task id: <list>. Bundles are activated
@@ -330,3 +335,6 @@ the tests look, nothing from your own planning context.
 - Never weaken or skip a check to get a change through. A `CHANGED` result
   stops the run until the user decides.
 - Never push, merge or archive.
+- Never present a task from `tasks.md` as your own request, and never ask the
+  user again to approve one. The user approved them during planning. Only work
+  that no task names needs the user.
