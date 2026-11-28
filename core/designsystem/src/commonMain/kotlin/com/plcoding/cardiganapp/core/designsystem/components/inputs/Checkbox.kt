@@ -38,23 +38,25 @@ fun CardiganCheckbox(
 ) {
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r4)
-    val toggleModifier = if (onCheckedChange != null) {
-        Modifier.toggleable(
-            value = checked,
-            onValueChange = onCheckedChange,
-            role = Role.Checkbox,
-            indication = ripple(bounded = false, radius = CheckboxSize),
-            interactionSource = null,
-        )
-    } else {
-        Modifier
-    }
+    val toggleModifier =
+        if (onCheckedChange != null) {
+            Modifier.toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
+                role = Role.Checkbox,
+                indication = ripple(bounded = false, radius = CheckboxSize),
+                interactionSource = null,
+            )
+        } else {
+            Modifier
+        }
     Box(
-        modifier = modifier
-            .then(toggleModifier)
-            .size(CheckboxSize)
-            .background(if (checked) colors.accent.default else colors.background.surface, shape)
-            .border(CheckboxStroke, if (checked) colors.accent.default else colors.border.strong, shape),
+        modifier =
+            modifier
+                .then(toggleModifier)
+                .size(CheckboxSize)
+                .background(if (checked) colors.accent.default else colors.background.surface, shape)
+                .border(CheckboxStroke, if (checked) colors.accent.default else colors.border.strong, shape),
         contentAlignment = Alignment.Center,
     ) {
         if (checked) {
@@ -71,9 +73,10 @@ fun CardiganCheckbox(
 @Composable
 private fun CheckboxSamples() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         CardiganCheckbox(checked = false, onCheckedChange = {})

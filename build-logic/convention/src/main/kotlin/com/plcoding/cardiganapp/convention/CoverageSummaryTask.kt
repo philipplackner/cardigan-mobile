@@ -20,7 +20,6 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 @DisableCachingByDefault(because = "Prints to the terminal and produces no output")
 abstract class CoverageSummaryTask : DefaultTask() {
-
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val xmlReport: RegularFileProperty
@@ -50,20 +49,25 @@ abstract class CoverageSummaryTask : DefaultTask() {
         )
         logger.lifecycle("HTML: ${htmlReportPath.get()}")
 
-        val failures = listOfNotNull(
-            thresholdFailure("Line", line, "coverage.minLine", minLine.orNull),
-            thresholdFailure("Branch", branch, "coverage.minBranch", minBranch.orNull),
-        )
+        val failures =
+            listOfNotNull(
+                thresholdFailure("Line", line, "coverage.minLine", minLine.orNull),
+                thresholdFailure("Branch", branch, "coverage.minBranch", minBranch.orNull),
+            )
         if (failures.isNotEmpty()) {
             throw GradleException(failures.joinToString("\n"))
         }
     }
 
     private fun readRootCounters(): Map<String, Pair<Long, Long>> {
-        val document = DocumentBuilderFactory.newInstance().apply {
-            // Kover's XML references the JaCoCo DTD, which must not be fetched.
-            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-        }.newDocumentBuilder().parse(xmlReport.get().asFile)
+        val document =
+            DocumentBuilderFactory
+                .newInstance()
+                .apply {
+                    // Kover's XML references the JaCoCo DTD, which must not be fetched.
+                    setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+                }.newDocumentBuilder()
+                .parse(xmlReport.get().asFile)
 
         val root = document.documentElement
         return root.childNodes.let { nodes ->
@@ -84,16 +88,19 @@ abstract class CoverageSummaryTask : DefaultTask() {
         return if (total == 0L) null else covered * 100.0 / total
     }
 
-    private fun Double?.format(): String =
-        if (this == null) "n/a" else String.format(Locale.ROOT, "%.1f%%", this)
+    private fun Double?.format(): String = if (this == null) "n/a" else String.format(Locale.ROOT, "%.1f%%", this)
 
-    private fun thresholdFailure(label: String, actual: Double?, property: String, threshold: Double?): String? {
+    private fun thresholdFailure(
+        label: String,
+        actual: Double?,
+        property: String,
+        threshold: Double?,
+    ): String? {
         if (threshold == null) return null
         val value = actual ?: 0.0
         if (value >= threshold) return null
         return "$label coverage ${actual.format()} is below $property=${threshold.formatThreshold()}"
     }
 
-    private fun Double.formatThreshold(): String =
-        if (this % 1.0 == 0.0) toLong().toString() else toString()
+    private fun Double.formatThreshold(): String = if (this % 1.0 == 0.0) toLong().toString() else toString()
 }

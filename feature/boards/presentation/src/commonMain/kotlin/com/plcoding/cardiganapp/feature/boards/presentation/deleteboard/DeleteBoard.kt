@@ -9,10 +9,12 @@ data class DeleteBoardState(
 
 sealed interface DeleteBoardAction {
     data object Delete : DeleteBoardAction
+
     data object Cancel : DeleteBoardAction
 }
 
 sealed interface DeleteBoardEvent {
     data object Deleted : DeleteBoardEvent
+
     data object Close : DeleteBoardEvent
 }

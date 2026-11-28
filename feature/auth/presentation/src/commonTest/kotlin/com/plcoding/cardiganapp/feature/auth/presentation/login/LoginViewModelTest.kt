@@ -16,15 +16,15 @@ import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthBanner
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthFieldMessage
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthInputField
 import com.plcoding.cardiganapp.feature.auth.presentation.fakes.FakeAuthRepository
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -45,7 +45,6 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
-
     private val repository = FakeAuthRepository()
 
     @BeforeTest
@@ -58,18 +57,25 @@ class LoginViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(handle: SavedStateHandle = SavedStateHandle(), sessionExpired: Boolean = false) =
-        LoginViewModel(sessionExpired, repository, handle)
+    private fun viewModel(
+        handle: SavedStateHandle = SavedStateHandle(),
+        sessionExpired: Boolean = false,
+    ) = LoginViewModel(sessionExpired, repository, handle)
 
     private val LoginViewModel.s get() = state.value
 
-    private fun LoginViewModel.fill(email: String, password: String) {
+    private fun LoginViewModel.fill(
+        email: String,
+        password: String,
+    ) {
         onAction(LoginAction.EmailChange(email))
         onAction(LoginAction.PasswordChange(password))
     }
 
-    private fun LoginViewModel.focus(field: AuthInputField, focused: Boolean) =
-        onAction(LoginAction.FocusChange(field, focused))
+    private fun LoginViewModel.focus(
+        field: AuthInputField,
+        focused: Boolean,
+    ) = onAction(LoginAction.FocusChange(field, focused))
 
     @Test
     fun startsEmptyWithoutErrors() {
@@ -253,7 +259,9 @@ class LoginViewModelTest {
 
     @Test
     fun formatErrorOnLoginShowsGenericBannerAndNoFieldMessage() {
-        repository.failWith(AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Email, FieldErrorCode.InvalidFormat))))
+        repository.failWith(
+            AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Email, FieldErrorCode.InvalidFormat))),
+        )
         val viewModel = viewModel()
         viewModel.fill("ann@example.com", "secret")
         viewModel.onAction(LoginAction.Submit)

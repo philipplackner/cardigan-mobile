@@ -7,7 +7,8 @@ import org.koin.dsl.module
 /** Provides the platform [io.ktor.client.engine.HttpClientEngine]. */
 expect val coreDataPlatformModule: Module
 
-val coreDataModule = module {
-    includes(coreDataPlatformModule)
-    single { HttpClientFactory.create(get()) }
-}
+val coreDataModule =
+    module {
+        includes(coreDataPlatformModule)
+        single { HttpClientFactory.create(get()) }
+    }

@@ -23,13 +23,12 @@ import com.plcoding.cardiganapp.feature.transfer.domain.ExportedFile
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeBoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeFileSharer
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeToastController
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import org.jetbrains.compose.resources.getString
+import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
 class ExportBoardUiTest {
-
     private val repository = FakeBoardTransferRepository()
     private val toasts = FakeToastController()
     private val sharer = FakeFileSharer()
@@ -51,46 +50,50 @@ class ExportBoardUiTest {
     }
 
     @Test
-    fun showsTheExportingDialog() = runComposeUiTest {
-        repository.gate = CompletableDeferred()
-        showExport()
-        val title = getString(Res.string.exporting_title, "Cardigan v1")
-        waitUntil { onAllNodes(hasText(title)).fetchSemanticsNodes().isNotEmpty() }
-        onNodeWithText(getString(Res.string.exporting_description)).assertIsDisplayed()
-    }
+    fun showsTheExportingDialog() =
+        runComposeUiTest {
+            repository.gate = CompletableDeferred()
+            showExport()
+            val title = getString(Res.string.exporting_title, "Cardigan v1")
+            waitUntil { onAllNodes(hasText(title)).fetchSemanticsNodes().isNotEmpty() }
+            onNodeWithText(getString(Res.string.exporting_description)).assertIsDisplayed()
+        }
 
     @Test
-    fun sharesTheFileUnchangedAndShowsNoToast() = runComposeUiTest {
-        val bytes = "{\"format\":\"cardigan.board\"}".encodeToByteArray()
-        repository.exportResult = Result.Success(ExportedFile("CRD-2026-11-04.json", bytes))
-        showExport()
+    fun sharesTheFileUnchangedAndShowsNoToast() =
+        runComposeUiTest {
+            val bytes = "{\"format\":\"cardigan.board\"}".encodeToByteArray()
+            repository.exportResult = Result.Success(ExportedFile("CRD-2026-11-04.json", bytes))
+            showExport()
 
-        waitUntil { doneCount == 1 }
-        val shared = sharer.shared.single()
-        assertThat(shared.fileName).isEqualTo("CRD-2026-11-04.json")
-        assertThat(shared.bytes.contentEquals(bytes)).isTrue()
-        assertThat(toasts.messages).isEmpty()
-    }
-
-    @Test
-    fun notFoundShowsTheErrorToast() = runComposeUiTest {
-        repository.exportResult = Result.Error(ExportError.BoardNotFound)
-        showExport()
-
-        waitUntil { doneCount == 1 }
-        val toast = toasts.messages.single()
-        assertThat(toast.type).isEqualTo(ToastType.Error)
-        assertThat((toast.text as UiText.Resource).id).isEqualTo(Res.string.export_error_not_found)
-        assertThat(sharer.shared).isEmpty()
-    }
+            waitUntil { doneCount == 1 }
+            val shared = sharer.shared.single()
+            assertThat(shared.fileName).isEqualTo("CRD-2026-11-04.json")
+            assertThat(shared.bytes.contentEquals(bytes)).isTrue()
+            assertThat(toasts.messages).isEmpty()
+        }
 
     @Test
-    fun failureShowsTheGenericErrorToast() = runComposeUiTest {
-        repository.exportResult = Result.Error(ExportError.Failed)
-        showExport()
+    fun notFoundShowsTheErrorToast() =
+        runComposeUiTest {
+            repository.exportResult = Result.Error(ExportError.BoardNotFound)
+            showExport()
 
-        waitUntil { doneCount == 1 }
-        assertThat((toasts.messages.single().text as UiText.Resource).id).isEqualTo(Res.string.export_error_failed)
-        assertThat(sharer.shared).isEmpty()
-    }
+            waitUntil { doneCount == 1 }
+            val toast = toasts.messages.single()
+            assertThat(toast.type).isEqualTo(ToastType.Error)
+            assertThat((toast.text as UiText.Resource).id).isEqualTo(Res.string.export_error_not_found)
+            assertThat(sharer.shared).isEmpty()
+        }
+
+    @Test
+    fun failureShowsTheGenericErrorToast() =
+        runComposeUiTest {
+            repository.exportResult = Result.Error(ExportError.Failed)
+            showExport()
+
+            waitUntil { doneCount == 1 }
+            assertThat((toasts.messages.single().text as UiText.Resource).id).isEqualTo(Res.string.export_error_failed)
+            assertThat(sharer.shared).isEmpty()
+        }
 }

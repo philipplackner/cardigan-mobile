@@ -7,14 +7,22 @@ import com.plcoding.cardiganapp.core.presentation.util.UiText
 import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.StringResource
 
-fun assertResource(text: UiText, id: StringResource, vararg args: Any) {
+fun assertResource(
+    text: UiText,
+    id: StringResource,
+    vararg args: Any,
+) {
     assertThat(text).isInstanceOf<UiText.Resource>()
     text as UiText.Resource
     assertThat(text.id).isEqualTo(id)
     assertThat(text.args.toList()).isEqualTo(args.toList())
 }
 
-fun assertPlural(text: UiText, id: PluralStringResource, quantity: Int) {
+fun assertPlural(
+    text: UiText,
+    id: PluralStringResource,
+    quantity: Int,
+) {
     assertThat(text).isInstanceOf<UiText.PluralResource>()
     text as UiText.PluralResource
     assertThat(text.id).isEqualTo(id)

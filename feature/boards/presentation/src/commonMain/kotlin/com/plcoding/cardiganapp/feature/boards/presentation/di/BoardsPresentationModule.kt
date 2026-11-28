@@ -7,7 +7,6 @@ import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardList
 import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
 import com.plcoding.cardiganapp.feature.boards.presentation.sidebar.BoardsSidebarViewModel
-import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,16 +14,18 @@ import kotlinx.datetime.TimeZone
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import kotlin.time.Clock
 
-val boardsPresentationModule = module {
-    single { BoardListReloader(get(), CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
-    single<Clock> { Clock.System }
-    factory<TimeZone> { TimeZone.currentSystemDefault() }
+val boardsPresentationModule =
+    module {
+        single { BoardListReloader(get(), CoroutineScope(SupervisorJob() + Dispatchers.Default)) }
+        single<Clock> { Clock.System }
+        factory<TimeZone> { TimeZone.currentSystemDefault() }
 
-    viewModelOf(::BoardListViewModel)
-    viewModelOf(::NewBoardViewModel)
-    viewModelOf(::BoardsSidebarViewModel)
-    viewModelOf(::BoardViewModel)
-    viewModel { params -> RenameBoardViewModel(params.get(), get(), get(), get()) }
-    viewModel { params -> DeleteBoardViewModel(params.get(), get(), get()) }
-}
+        viewModelOf(::BoardListViewModel)
+        viewModelOf(::NewBoardViewModel)
+        viewModelOf(::BoardsSidebarViewModel)
+        viewModelOf(::BoardViewModel)
+        viewModel { params -> RenameBoardViewModel(params.get(), get(), get(), get()) }
+        viewModel { params -> DeleteBoardViewModel(params.get(), get(), get()) }
+    }

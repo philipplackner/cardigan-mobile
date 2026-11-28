@@ -6,7 +6,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-val authPresentationModule = module {
-    viewModel { params -> LoginViewModel(params.get(), get(), get()) }
-    viewModelOf(::RegisterViewModel)
-}
+val authPresentationModule =
+    module {
+        viewModel { params -> LoginViewModel(params.get(), get(), get()) }
+        viewModelOf(::RegisterViewModel)
+    }

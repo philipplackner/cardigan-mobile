@@ -5,7 +5,10 @@ enum class FileSizeUnit {
     MB,
 }
 
-data class FileSize(val value: String, val unit: FileSizeUnit)
+data class FileSize(
+    val value: String,
+    val unit: FileSizeUnit,
+)
 
 /**
  * Formats byte sizes in base 1024: whole KB below 1024 KB, MB with one decimal from there. Rounds
@@ -27,9 +30,15 @@ object FileSizeFormatter {
         return FileSize("${tenths / 10}.${tenths % 10}", FileSizeUnit.MB)
     }
 
-    private fun rounded(whole: Long, remainder: Long, divisor: Long, roundUp: Boolean): Long = when {
-        remainder == 0L -> whole
-        roundUp || remainder * 2 >= divisor -> whole + 1
-        else -> whole
-    }
+    private fun rounded(
+        whole: Long,
+        remainder: Long,
+        divisor: Long,
+        roundUp: Boolean,
+    ): Long =
+        when {
+            remainder == 0L -> whole
+            roundUp || remainder * 2 >= divisor -> whole + 1
+            else -> whole
+        }
 }

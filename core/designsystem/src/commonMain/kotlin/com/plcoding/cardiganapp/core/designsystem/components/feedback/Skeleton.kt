@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 
-private const val ShimmerMillis = 1200
+private const val SHIMMER_MILLIS = 1200
 
 /**
  * Loading placeholder block. Size it to the shape it stands in for and pass a [shape] where the
@@ -46,15 +46,17 @@ fun Skeleton(
     val highlight = AppTheme.colors.background.skeletonHighlight
     val progress = rememberShimmerProgress()
     Box(
-        modifier = modifier.drawBehind {
-            val shift = size.width * (progress.value * 2f - 1f)
-            val brush = Brush.linearGradient(
-                colorStops = arrayOf(0f to base, 0.5f to highlight, 1f to base),
-                start = Offset(shift, 0f),
-                end = Offset(shift + size.width, 0f),
-            )
-            drawOutline(shape.createOutline(size, layoutDirection, this), brush)
-        },
+        modifier =
+            modifier.drawBehind {
+                val shift = size.width * (progress.value * 2f - 1f)
+                val brush =
+                    Brush.linearGradient(
+                        colorStops = arrayOf(0f to base, 0.5f to highlight, 1f to base),
+                        start = Offset(shift, 0f),
+                        end = Offset(shift + size.width, 0f),
+                    )
+                drawOutline(shape.createOutline(size, layoutDirection, this), brush)
+            },
     )
 }
 
@@ -63,16 +65,17 @@ private fun rememberShimmerProgress(): State<Float> =
     rememberInfiniteTransition(label = "skeleton").animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(ShimmerMillis, easing = LinearEasing), RepeatMode.Restart),
+        animationSpec = infiniteRepeatable(tween(SHIMMER_MILLIS, easing = LinearEasing), RepeatMode.Restart),
         label = "skeletonShimmer",
     )
 
 @Composable
 private fun SkeletonSamples(reduceMotion: Boolean) {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
         Skeleton(modifier = Modifier.width(120.dp).height(12.dp), reduceMotion = reduceMotion)

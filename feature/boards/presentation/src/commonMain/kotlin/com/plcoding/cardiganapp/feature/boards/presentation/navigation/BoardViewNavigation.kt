@@ -56,6 +56,10 @@ fun NavGraphBuilder.boardViewDestination(
 }
 
 /** Opens a board. [name] and [key] fill the header while it loads. */
-fun NavController.navigateToBoard(boardId: String, name: String? = null, key: String? = null) {
+fun NavController.navigateToBoard(
+    boardId: String,
+    name: String? = null,
+    key: String? = null,
+) {
     navigate(BoardRoute(boardId, name, key))
 }

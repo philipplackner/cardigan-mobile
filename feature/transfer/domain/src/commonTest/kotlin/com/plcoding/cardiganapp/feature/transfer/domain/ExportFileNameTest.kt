@@ -3,13 +3,12 @@ package com.plcoding.cardiganapp.feature.transfer.domain
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import kotlin.test.Test
-import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.test.Test
+import kotlin.time.Instant
 
 class ExportFileNameTest {
-
     @Test
     fun fallbackUsesTheUtcDate() {
         assertThat(ExportFileName.fallback("CRD", "2026-11-04T23:30:00Z")).isEqualTo("CRD-2026-11-04.json")
@@ -18,7 +17,12 @@ class ExportFileNameTest {
     @Test
     fun fallbackIgnoresTheLocalDateAcrossMidnight() {
         val exportedAt = "2026-11-04T23:30:00Z"
-        val berlinDate = Instant.parse(exportedAt).toLocalDateTime(TimeZone.of("Europe/Berlin")).date.toString()
+        val berlinDate =
+            Instant
+                .parse(exportedAt)
+                .toLocalDateTime(TimeZone.of("Europe/Berlin"))
+                .date
+                .toString()
         assertThat(berlinDate).isEqualTo("2026-11-05")
         assertThat(ExportFileName.fallback("CRD", exportedAt)).isEqualTo("CRD-2026-11-04.json")
     }

@@ -4,19 +4,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
 import com.plcoding.cardiganapp.core.domain.text.NameError
 import com.plcoding.cardiganapp.feature.boards.presentation.components.BoardKeyFieldError
-import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
 
-private val previewStates = listOf(
-    NewBoardState(name = "Garden irrigation", key = "GARD"),
-    NewBoardState(name = "Garden irrigation", key = "CRD", submitted = true, keyError = BoardKeyFieldError.AlreadyUsed("CRD")),
-    NewBoardState(name = "", key = "", submitted = true, nameError = NameError.Required, keyError = BoardKeyFieldError.Rule(BoardKeyError.Required)),
-    NewBoardState(name = "Garden irrigation", key = "GARD", submitted = true, isSaving = true),
-)
+private val previewStates =
+    listOf(
+        NewBoardState(name = "Garden irrigation", key = "GARD"),
+        NewBoardState(
+            name = "Garden irrigation",
+            key = "CRD",
+            submitted = true,
+            keyError = BoardKeyFieldError.AlreadyUsed("CRD"),
+        ),
+        NewBoardState(
+            name = "",
+            key = "",
+            submitted = true,
+            nameError = NameError.Required,
+            keyError = BoardKeyFieldError.Rule(BoardKeyError.Required),
+        ),
+        NewBoardState(name = "Garden irrigation", key = "GARD", submitted = true, isSaving = true),
+    )
 
 @Composable
-private fun NewBoardPreview(index: Int, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun NewBoardPreview(
+    index: Int,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         NewBoardScreen(state = previewStates[index], onAction = {})
     }

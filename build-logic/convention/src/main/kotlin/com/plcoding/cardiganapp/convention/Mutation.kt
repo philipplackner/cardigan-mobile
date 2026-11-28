@@ -20,8 +20,7 @@ internal const val MUTATION_NEEDS_FULL_TASK_NAME =
 
 private val mutationTaskNames = setOf(MUTATION_REPORT_TASK, PITEST_TASK)
 
-internal fun isMutationTaskName(name: String): Boolean =
-    name in mutationTaskNames || name == MUTATION_REPORT_RESET_TASK
+internal fun isMutationTaskName(name: String): Boolean = name in mutationTaskNames || name == MUTATION_REPORT_RESET_TASK
 
 /** True when a mutation task is requested by its full name. Abbreviations such as `mR` don't match. */
 internal val Project.isMutationRequested: Boolean
@@ -35,10 +34,11 @@ internal data class MutationSettings(
     val minScore: Double?,
 ) {
     companion object {
-        val DEFAULT = MutationSettings(
-            threads = Runtime.getRuntime().availableProcessors(),
-            minScore = null,
-        )
+        val DEFAULT =
+            MutationSettings(
+                threads = Runtime.getRuntime().availableProcessors(),
+                minScore = null,
+            )
     }
 }
 
@@ -46,10 +46,11 @@ internal data class MutationSettings(
  * Reads `mutation.threads` and `mutation.minScore`. Invalid values fail
  * the build at configuration time, so no test runs.
  */
-internal fun Project.parseMutationSettings(): MutationSettings = MutationSettings(
-    threads = parseThreads(),
-    minScore = parseMinScore(),
-)
+internal fun Project.parseMutationSettings(): MutationSettings =
+    MutationSettings(
+        threads = parseThreads(),
+        minScore = parseMinScore(),
+    )
 
 /**
  * Reads `mutation.modules`. Returns null when the property is left out, which means all modules.

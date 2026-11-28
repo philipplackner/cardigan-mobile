@@ -12,6 +12,13 @@ import com.plcoding.cardiganapp.core.domain.util.EmptyResult
  * The email and password are passed exactly as the user typed them.
  */
 interface AuthRepository {
-    suspend fun login(email: String, password: String): EmptyResult<AuthError>
-    suspend fun register(email: String, password: String): EmptyResult<AuthError>
+    suspend fun login(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError>
+
+    suspend fun register(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError>
 }

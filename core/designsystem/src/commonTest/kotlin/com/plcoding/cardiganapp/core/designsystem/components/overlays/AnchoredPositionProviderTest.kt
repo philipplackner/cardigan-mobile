@@ -18,7 +18,6 @@ import kotlin.test.Test
  * - gap and margin differ, so a swapped or dropped term changes the result
  */
 class AnchoredPositionProviderTest {
-
     private val window = IntSize(400, 800)
     private val popup = IntSize(100, 200)
 
@@ -27,8 +26,9 @@ class AnchoredPositionProviderTest {
         alignment: PopupAlignment = PopupAlignment.Start,
         direction: LayoutDirection = LayoutDirection.Ltr,
         popupSize: IntSize = popup,
-    ): IntOffset = AnchoredPositionProvider(alignment, gapPx = GAP, marginPx = MARGIN)
-        .calculatePosition(anchor, window, direction, popupSize)
+    ): IntOffset =
+        AnchoredPositionProvider(alignment, gapPx = GAP, marginPx = MARGIN)
+            .calculatePosition(anchor, window, direction, popupSize)
 
     private val anchor = IntRect(left = 150, top = 100, right = 250, bottom = 140)
 

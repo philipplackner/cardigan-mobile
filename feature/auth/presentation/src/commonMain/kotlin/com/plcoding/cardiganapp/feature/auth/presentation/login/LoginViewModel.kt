@@ -30,7 +30,6 @@ class LoginViewModel(
     private val repository: AuthRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(restore())
     val state: StateFlow<LoginState> = _state.asStateFlow()
 
@@ -39,21 +38,42 @@ class LoginViewModel(
     fun onAction(action: LoginAction) {
         if (_state.value.isLoading) return
         when (action) {
-            is LoginAction.EmailChange -> update {
-                copy(email = capEmailInput(action.email), emailServerRequired = false, banner = banner.clearedByEdit())
+            is LoginAction.EmailChange -> {
+                update {
+                    copy(
+                        email = capEmailInput(action.email),
+                        emailServerRequired = false,
+                        banner = banner.clearedByEdit(),
+                    )
+                }
             }
-            is LoginAction.PasswordChange -> update {
-                copy(password = action.password, passwordServerRequired = false, banner = banner.clearedByEdit())
+
+            is LoginAction.PasswordChange -> {
+                update {
+                    copy(password = action.password, passwordServerRequired = false, banner = banner.clearedByEdit())
+                }
             }
-            is LoginAction.FocusChange -> onFocusChange(action.field, action.focused)
-            LoginAction.Submit -> submit()
-            LoginAction.CreateAccountClick -> update {
-                copy(banner = banner.takeUnless { it == AuthBanner.SessionExpired })
+
+            is LoginAction.FocusChange -> {
+                onFocusChange(action.field, action.focused)
+            }
+
+            LoginAction.Submit -> {
+                submit()
+            }
+
+            LoginAction.CreateAccountClick -> {
+                update {
+                    copy(banner = banner.takeUnless { it == AuthBanner.SessionExpired })
+                }
             }
         }
     }
 
-    private fun onFocusChange(field: AuthInputField, focused: Boolean) {
+    private fun onFocusChange(
+        field: AuthInputField,
+        focused: Boolean,
+    ) {
         if (focused) {
             focusedOnce += field
             return
@@ -77,23 +97,42 @@ class LoginViewModel(
         }
     }
 
-    private fun LoginState.withError(error: AuthError): LoginState = when (error) {
-        AuthError.InvalidCredentials -> copy(banner = AuthBanner.WrongCredentials)
-        is AuthError.RateLimited -> copy(
-            banner = error.retryAfterSeconds?.takeIf { it >= 1 }?.let { AuthBanner.RateLimited(it) } ?: AuthBanner.Unavailable,
-        )
-        is AuthError.InvalidFields -> {
-            val emailRequired = error.fields.any { it.field == AuthField.Email && it.code == FieldErrorCode.Required }
-            val passwordRequired = error.fields.any { it.field == AuthField.Password && it.code == FieldErrorCode.Required }
-            val unmapped = error.fields.any { it.code != FieldErrorCode.Required || it.field == AuthField.Other }
-            copy(
-                emailServerRequired = emailRequired,
-                passwordServerRequired = passwordRequired,
-                banner = if (unmapped || error.fields.isEmpty()) AuthBanner.Unavailable else null,
-            )
+    private fun LoginState.withError(error: AuthError): LoginState =
+        when (error) {
+            AuthError.InvalidCredentials -> {
+                copy(banner = AuthBanner.WrongCredentials)
+            }
+
+            is AuthError.RateLimited -> {
+                copy(
+                    banner =
+                        error.retryAfterSeconds?.takeIf { it >= 1 }?.let { AuthBanner.RateLimited(it) }
+                            ?: AuthBanner.Unavailable,
+                )
+            }
+
+            is AuthError.InvalidFields -> {
+                val emailRequired =
+                    error.fields.any {
+                        it.field == AuthField.Email && it.code == FieldErrorCode.Required
+                    }
+                val passwordRequired =
+                    error.fields.any {
+                        it.field == AuthField.Password &&
+                            it.code == FieldErrorCode.Required
+                    }
+                val unmapped = error.fields.any { it.code != FieldErrorCode.Required || it.field == AuthField.Other }
+                copy(
+                    emailServerRequired = emailRequired,
+                    passwordServerRequired = passwordRequired,
+                    banner = if (unmapped || error.fields.isEmpty()) AuthBanner.Unavailable else null,
+                )
+            }
+
+            AuthError.EmailAlreadyUsed, AuthError.Unavailable -> {
+                copy(banner = AuthBanner.Unavailable)
+            }
         }
-        AuthError.EmailAlreadyUsed, AuthError.Unavailable -> copy(banner = AuthBanner.Unavailable)
-    }
 
     private fun AuthBanner?.clearedByEdit(): AuthBanner? = takeUnless { it == AuthBanner.WrongCredentials }
 

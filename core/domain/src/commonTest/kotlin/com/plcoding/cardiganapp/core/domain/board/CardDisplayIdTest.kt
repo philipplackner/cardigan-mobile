@@ -10,7 +10,6 @@ import kotlin.uuid.Uuid
  * leading zeros, and keys of the shortest and longest length.
  */
 class CardDisplayIdTest {
-
     private fun card(number: Long) = Card(id = Uuid.random(), number = number, title = "t", labelIds = emptyList())
 
     @Test

@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import kotlin.test.Test
 
 class UnicodeNormalizationTest {
-
     private val composed = "é"
     private val decomposed = "é"
 
@@ -21,7 +20,7 @@ class UnicodeNormalizationTest {
 
     @Test
     fun roundTripKeepsText() {
-        val text = "Caf${decomposed} 👩‍💻 Ärger"
+        val text = "Caf$decomposed 👩‍💻 Ärger"
         assertThat(text.toNfc().toNfd().toNfc()).isEqualTo(text.toNfc())
     }
 

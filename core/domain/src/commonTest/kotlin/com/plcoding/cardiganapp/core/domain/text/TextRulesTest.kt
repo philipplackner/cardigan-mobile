@@ -20,7 +20,6 @@ import kotlin.test.Test
  * - error order: required before invalid before too long
  */
 class TextRulesTest {
-
     @Test
     fun crlfAndLoneCrBecomeLf() {
         assertThat(normalizeText("a\r\nb\rc")).isEqualTo("a\nb\nc")
@@ -52,7 +51,7 @@ class TextRulesTest {
 
     @Test
     fun byteOrderMarkAndZeroWidthSpaceAreNotTrimmed() {
-        assertThat(normalizeText("﻿Board")).isEqualTo("﻿Board")
+        assertThat(normalizeText("\uFEFFBoard")).isEqualTo("\uFEFFBoard")
         assertThat(normalizeText("Board​")).isEqualTo("Board​")
     }
 
@@ -129,7 +128,10 @@ class TextRulesTest {
     @Test
     fun neighboursOfTheWhiteSpaceRangesAreNotTrimmed() {
         listOf("\u0008", "\u000E", "\u1FFF", "\u200B").forEach { other ->
-            assertThat(normalizeText(other + "Board" + other), other.first().code.toString(16)).isEqualTo(other + "Board" + other)
+            assertThat(
+                normalizeText(other + "Board" + other),
+                other.first().code.toString(16),
+            ).isEqualTo(other + "Board" + other)
         }
     }
 

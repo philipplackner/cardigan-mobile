@@ -23,90 +23,98 @@ import javax.inject.Inject
  * Never fails because of low coverage.
  */
 @DisableCachingByDefault(because = "Depends on the git working tree, which Gradle doesn't track")
-abstract class CoverageDiffTask @Inject constructor(
-    private val execOperations: ExecOperations,
-) : DefaultTask() {
+abstract class CoverageDiffTask
+    @Inject
+    constructor(
+        private val execOperations: ExecOperations,
+    ) : DefaultTask() {
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.NONE)
+        abstract val xmlReport: RegularFileProperty
 
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NONE)
-    abstract val xmlReport: RegularFileProperty
+        @get:Input
+        abstract val diffCoverVersion: Property<String>
 
-    @get:Input
-    abstract val diffCoverVersion: Property<String>
+        @get:Input
+        abstract val excludeNewer: Property<String>
 
-    @get:Input
-    abstract val excludeNewer: Property<String>
+        @get:Input
+        abstract val compareBranch: Property<String>
 
-    @get:Input
-    abstract val compareBranch: Property<String>
+        @get:Input
+        abstract val sourceRoots: ListProperty<String>
 
-    @get:Input
-    abstract val sourceRoots: ListProperty<String>
+        @get:Internal
+        abstract val repositoryDir: DirectoryProperty
 
-    @get:Internal
-    abstract val repositoryDir: DirectoryProperty
+        @get:Internal
+        abstract val htmlReport: RegularFileProperty
 
-    @get:Internal
-    abstract val htmlReport: RegularFileProperty
+        @TaskAction
+        fun run() {
+            val workingDir = repositoryDir.get().asFile
+            val uvx =
+                findOnPath("uvx") ?: throw GradleException(
+                    "coverageDiff needs uv on the PATH to run diff-cover. " +
+                        "Install it from https://docs.astral.sh/uv/getting-started/installation/",
+                )
+            val ref = compareBranch.get()
+            verifyRef(ref, workingDir)
 
-    @TaskAction
-    fun run() {
-        val workingDir = repositoryDir.get().asFile
-        val uvx = findOnPath("uvx") ?: throw GradleException(
-            "coverageDiff needs uv on the PATH to run diff-cover. " +
-                "Install it from https://docs.astral.sh/uv/getting-started/installation/",
-        )
-        val ref = compareBranch.get()
-        verifyRef(ref, workingDir)
+            val html = htmlReport.get().asFile
+            html.parentFile.mkdirs()
 
-        val html = htmlReport.get().asFile
-        html.parentFile.mkdirs()
-
-        execOperations.exec {
-            this.workingDir = workingDir
-            commandLine(
-                buildList {
-                    add(uvx.absolutePath)
-                    add("--exclude-newer")
-                    add(excludeNewer.get())
-                    add("diff-cover==${diffCoverVersion.get()}")
-                    add(xmlReport.get().asFile.absolutePath)
-                    add("--compare-branch=$ref")
-                    add("--include-untracked")
-                    add("--format")
-                    add("html:${html.absolutePath}")
-                    val roots = sourceRoots.get()
-                    if (roots.isNotEmpty()) {
-                        add("--src-roots")
-                        addAll(roots)
-                    }
-                },
-            )
+            execOperations.exec {
+                this.workingDir = workingDir
+                commandLine(
+                    buildList {
+                        add(uvx.absolutePath)
+                        add("--exclude-newer")
+                        add(excludeNewer.get())
+                        add("diff-cover==${diffCoverVersion.get()}")
+                        add(xmlReport.get().asFile.absolutePath)
+                        add("--compare-branch=$ref")
+                        add("--include-untracked")
+                        add("--format")
+                        add("html:${html.absolutePath}")
+                        val roots = sourceRoots.get()
+                        if (roots.isNotEmpty()) {
+                            add("--src-roots")
+                            addAll(roots)
+                        }
+                    },
+                )
+            }
+            logger.lifecycle("HTML: ${html.relativeTo(workingDir).path}")
         }
-        logger.lifecycle("HTML: ${html.relativeTo(workingDir).path}")
+
+        private fun verifyRef(
+            ref: String,
+            workingDir: File,
+        ) {
+            val output = ByteArrayOutputStream()
+            val result =
+                execOperations.exec {
+                    this.workingDir = workingDir
+                    commandLine("git", "rev-parse", "--verify", "--quiet", "--end-of-options", "$ref^{commit}")
+                    standardOutput = output
+                    errorOutput = output
+                    isIgnoreExitValue = true
+                }
+            if (result.exitValue != 0) {
+                throw GradleException(
+                    "coverage.compareBranch '$ref' doesn't resolve to a commit. " +
+                        "Check the name, or run 'git fetch origin' if it's a remote branch.",
+                )
+            }
+        }
+
+        private fun findOnPath(executable: String): File? =
+            System
+                .getenv("PATH")
+                .orEmpty()
+                .split(File.pathSeparator)
+                .filter { it.isNotBlank() }
+                .map { File(it, executable) }
+                .firstOrNull { it.isFile && it.canExecute() }
     }
-
-    private fun verifyRef(ref: String, workingDir: File) {
-        val output = ByteArrayOutputStream()
-        val result = execOperations.exec {
-            this.workingDir = workingDir
-            commandLine("git", "rev-parse", "--verify", "--quiet", "--end-of-options", "$ref^{commit}")
-            standardOutput = output
-            errorOutput = output
-            isIgnoreExitValue = true
-        }
-        if (result.exitValue != 0) {
-            throw GradleException(
-                "coverage.compareBranch '$ref' doesn't resolve to a commit. " +
-                    "Check the name, or run 'git fetch origin' if it's a remote branch.",
-            )
-        }
-    }
-
-    private fun findOnPath(executable: String): File? =
-        System.getenv("PATH").orEmpty()
-            .split(File.pathSeparator)
-            .filter { it.isNotBlank() }
-            .map { File(it, executable) }
-            .firstOrNull { it.isFile && it.canExecute() }
-}

@@ -1,6 +1,6 @@
 import com.plcoding.cardiganapp.convention.COVERAGE_NEEDS_INSTRUMENTATION
-import com.plcoding.cardiganapp.convention.CoverageSummaryTask
 import com.plcoding.cardiganapp.convention.CoverageDiffTask
+import com.plcoding.cardiganapp.convention.CoverageSummaryTask
 import com.plcoding.cardiganapp.convention.KOVER_CONVENTION_PLUGIN_ID
 import com.plcoding.cardiganapp.convention.applyCoverageExclusions
 import com.plcoding.cardiganapp.convention.isCoverageRequested
@@ -30,9 +30,13 @@ class CoverageConventionPlugin : Plugin<Project> {
             val requestedModules = parseModules(providers.gradleProperty("coverage.modules").orNull)
             val minLine = if (coverageRequested) parseThreshold("coverage.minLine") else null
             val minBranch = if (coverageRequested) parseThreshold("coverage.minBranch") else null
-            val compareBranch = providers.gradleProperty("coverage.compareBranch").orNull
-                ?.trim()?.takeIf { it.isNotEmpty() }
-                ?: DEFAULT_COMPARE_BRANCH
+            val compareBranch =
+                providers
+                    .gradleProperty("coverage.compareBranch")
+                    .orNull
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
+                    ?: DEFAULT_COMPARE_BRANCH
 
             extensions.configure<KoverProjectExtension> {
                 reports {
@@ -52,28 +56,33 @@ class CoverageConventionPlugin : Plugin<Project> {
 
             gradle.projectsEvaluated {
                 if (!coverageRequested) return@projectsEvaluated
-                val optedIn = subprojects
-                    .filter { it.pluginManager.hasPlugin(KOVER_CONVENTION_PLUGIN_ID) }
-                    .sortedBy { it.path }
+                val optedIn =
+                    subprojects
+                        .filter { it.pluginManager.hasPlugin(KOVER_CONVENTION_PLUGIN_ID) }
+                        .sortedBy { it.path }
 
-                val selected = if (requestedModules.isEmpty()) {
-                    optedIn
-                } else {
-                    val byPath = optedIn.associateBy { it.path }
-                    val unknown = requestedModules.filterNot { it in byPath }
-                    if (unknown.isNotEmpty()) {
-                        throw GradleException(
-                            "coverage.modules contains modules that can't be reported: ${unknown.joinToString()}.\n" +
-                                "Valid modules:\n" + optedIn.joinToString("\n") { "  ${it.path}" },
-                        )
+                val selected =
+                    if (requestedModules.isEmpty()) {
+                        optedIn
+                    } else {
+                        val byPath = optedIn.associateBy { it.path }
+                        val unknown = requestedModules.filterNot { it in byPath }
+                        if (unknown.isNotEmpty()) {
+                            throw GradleException(
+                                "coverage.modules contains modules that can't be reported: " +
+                                    "${unknown.joinToString()}.\n" +
+                                    "Valid modules:\n" + optedIn.joinToString("\n") { "  ${it.path}" },
+                            )
+                        }
+                        requestedModules.map { byPath.getValue(it) }
                     }
-                    requestedModules.map { byPath.getValue(it) }
-                }
                 selected.forEach { module ->
                     selectedModulePaths += module.path
-                    selectedSourceRoots += SOURCE_SETS.map { module.file("src/$it/kotlin") }
-                        .filter { it.isDirectory }
-                        .map { it.relativeTo(rootDir).path }
+                    selectedSourceRoots +=
+                        SOURCE_SETS
+                            .map { module.file("src/$it/kotlin") }
+                            .filter { it.isDirectory }
+                            .map { it.relativeTo(rootDir).path }
                     dependencies.add("kover", dependencies.project(mapOf("path" to module.path)))
                 }
             }
@@ -116,7 +125,8 @@ class CoverageConventionPlugin : Plugin<Project> {
     }
 
     private fun parseModules(value: String?): List<String> =
-        value.orEmpty()
+        value
+            .orEmpty()
             .split(',')
             .map { it.trim() }
             .filter { it.isNotEmpty() }

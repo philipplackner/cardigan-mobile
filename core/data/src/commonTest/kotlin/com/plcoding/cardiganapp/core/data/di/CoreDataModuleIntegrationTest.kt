@@ -19,26 +19,27 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 
 class CoreDataModuleIntegrationTest {
-
     @AfterTest
     fun tearDown() {
         stopKoin()
     }
 
     @Test
-    fun `http client from koin sends requests through the provided engine to the base url`() = runTest {
-        val engine = MockEngine { respond(content = "", status = HttpStatusCode.NoContent) }
-        val koin = startKoin {
-            modules(
-                coreDataModule,
-                module { single<HttpClientEngine> { engine } },
-            )
-        }.koin
+    fun `http client from koin sends requests through the provided engine to the base url`() =
+        runTest {
+            val engine = MockEngine { respond(content = "", status = HttpStatusCode.NoContent) }
+            val koin =
+                startKoin {
+                    modules(
+                        coreDataModule,
+                        module { single<HttpClientEngine> { engine } },
+                    )
+                }.koin
 
-        val result = koin.get<HttpClient>().get<Unit>("/ping")
+            val result = koin.get<HttpClient>().get<Unit>("/ping")
 
-        assertThat(result).isEqualTo(Result.Success(Unit))
-        assertThat(engine.requestHistory.map { it.url.toString() })
-            .containsExactly("${BuildKonfig.BASE_URL}/ping")
-    }
+            assertThat(result).isEqualTo(Result.Success(Unit))
+            assertThat(engine.requestHistory.map { it.url.toString() })
+                .containsExactly("${BuildKonfig.BASE_URL}/ping")
+        }
 }

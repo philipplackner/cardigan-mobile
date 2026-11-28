@@ -1,15 +1,15 @@
 import com.plcoding.cardiganapp.convention.CodeExclusions
 import com.plcoding.cardiganapp.convention.MUTATION_GROUP
 import com.plcoding.cardiganapp.convention.MutationExclusions
-import com.plcoding.cardiganapp.convention.PITEST_FILTERS_DEPENDENCY
 import com.plcoding.cardiganapp.convention.MutationSettings
+import com.plcoding.cardiganapp.convention.PITEST_FILTERS_DEPENDENCY
 import com.plcoding.cardiganapp.convention.PITEST_RUN_LOCK
 import com.plcoding.cardiganapp.convention.PITEST_TASK
 import com.plcoding.cardiganapp.convention.PitestRunLock
 import com.plcoding.cardiganapp.convention.PitestTask
 import com.plcoding.cardiganapp.convention.isMutationRequested
-import com.plcoding.cardiganapp.convention.libs
 import com.plcoding.cardiganapp.convention.library
+import com.plcoding.cardiganapp.convention.libs
 import com.plcoding.cardiganapp.convention.parseMutationSettings
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -28,9 +28,10 @@ class MutationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             val settings = if (isMutationRequested) parseMutationSettings() else MutationSettings.DEFAULT
-            val runLock = gradle.sharedServices.registerIfAbsent(PITEST_RUN_LOCK, PitestRunLock::class) {
-                maxParallelUsages.set(1)
-            }
+            val runLock =
+                gradle.sharedServices.registerIfAbsent(PITEST_RUN_LOCK, PitestRunLock::class) {
+                    maxParallelUsages.set(1)
+                }
 
             pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
                 val kotlin = extensions.getByType<KotlinMultiplatformExtension>()
@@ -48,7 +49,11 @@ class MutationConventionPlugin : Plugin<Project> {
                     jvmArgs.set(provider { hostTest.allJvmArgs })
                     javaLauncher.set(hostTest.javaLauncher)
                     mutableCodePaths.from(
-                        kotlin.targets.named("android").map { it.compilations.getByName("main").output.classesDirs },
+                        kotlin.targets.named("android").map {
+                            it.compilations
+                                .getByName("main")
+                                .output.classesDirs
+                        },
                     )
                     sourceDirs.from(
                         layout.projectDirectory.dir("src/commonMain/kotlin"),

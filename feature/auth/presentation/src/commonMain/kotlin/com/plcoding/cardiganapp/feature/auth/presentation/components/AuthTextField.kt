@@ -47,26 +47,36 @@ internal fun AuthTextField(
         Input(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusChanged { onFocusChange(it.isFocused) }
-                .semantics {
-                    contentType = when (kind) {
-                        AuthFieldKind.Email -> ContentType.EmailAddress
-                        AuthFieldKind.Password -> ContentType.Password
-                        AuthFieldKind.NewPassword -> ContentType.NewPassword
-                    }
-                },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { onFocusChange(it.isFocused) }
+                    .semantics {
+                        contentType =
+                            when (kind) {
+                                AuthFieldKind.Email -> ContentType.EmailAddress
+                                AuthFieldKind.Password -> ContentType.Password
+                                AuthFieldKind.NewPassword -> ContentType.NewPassword
+                            }
+                    },
             placeholder = placeholder,
             isError = isError,
             enabled = enabled,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                autoCorrectEnabled = false,
-                keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Email,
-                imeAction = imeAction,
-            ),
-            keyboardActions = if (imeAction == ImeAction.Done) KeyboardActions(onDone = { onDone() }) else KeyboardActions.Default,
+            keyboardOptions =
+                KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrectEnabled = false,
+                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Email,
+                    imeAction = imeAction,
+                ),
+            keyboardActions =
+                if (imeAction ==
+                    ImeAction.Done
+                ) {
+                    KeyboardActions(onDone = { onDone() })
+                } else {
+                    KeyboardActions.Default
+                },
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         )
         below()

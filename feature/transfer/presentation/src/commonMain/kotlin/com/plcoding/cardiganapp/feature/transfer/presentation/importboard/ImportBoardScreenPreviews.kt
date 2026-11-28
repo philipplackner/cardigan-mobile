@@ -8,19 +8,24 @@ import com.plcoding.cardiganapp.core.domain.board.BoardKeyError
 
 private val previewFile = PickedFileInfo("board-backup.json", 7_549_747)
 
-private val previewPhases = listOf(
-    ImportPhase.ErrorShown(previewFile, ImportDialogError.TooLarge),
-    ImportPhase.ErrorShown(PickedFileInfo("notes.json", 14_000), ImportDialogError.InvalidFile),
-    ImportPhase.ErrorShown(null, ImportDialogError.Failed),
-    ImportPhase.Uploading("board-backup.json"),
-    ImportPhase.ChoosingKey("CRD", "CRD", "Cardigan v1", setOf("CRD"), KeyFieldError.AlreadyUsed("CRD")),
-    ImportPhase.ChoosingKey("CRD", "CRD", null, setOf("CRD"), KeyFieldError.AlreadyUsed("CRD")),
-    ImportPhase.ChoosingKey("CRDB", "CRD", "Cardigan v1", setOf("CRD"), null),
-    ImportPhase.ChoosingKey("C", "CRD", "Cardigan v1", setOf("CRD"), KeyFieldError.Rule(BoardKeyError.TooShort)),
-)
+private val previewPhases =
+    listOf(
+        ImportPhase.ErrorShown(previewFile, ImportDialogError.TooLarge),
+        ImportPhase.ErrorShown(PickedFileInfo("notes.json", 14_000), ImportDialogError.InvalidFile),
+        ImportPhase.ErrorShown(null, ImportDialogError.Failed),
+        ImportPhase.Uploading("board-backup.json"),
+        ImportPhase.ChoosingKey("CRD", "CRD", "Cardigan v1", setOf("CRD"), KeyFieldError.AlreadyUsed("CRD")),
+        ImportPhase.ChoosingKey("CRD", "CRD", null, setOf("CRD"), KeyFieldError.AlreadyUsed("CRD")),
+        ImportPhase.ChoosingKey("CRDB", "CRD", "Cardigan v1", setOf("CRD"), null),
+        ImportPhase.ChoosingKey("C", "CRD", "Cardigan v1", setOf("CRD"), KeyFieldError.Rule(BoardKeyError.TooShort)),
+    )
 
 @Composable
-private fun ImportPreview(index: Int, darkTheme: Boolean, windowClass: WindowClass) {
+private fun ImportPreview(
+    index: Int,
+    darkTheme: Boolean,
+    windowClass: WindowClass,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         ImportBoardScreen(state = ImportBoardState(previewPhases[index]), onAction = {}, onCancel = {})
     }

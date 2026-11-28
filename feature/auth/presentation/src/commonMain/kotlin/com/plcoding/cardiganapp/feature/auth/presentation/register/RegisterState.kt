@@ -28,42 +28,64 @@ data class RegisterState(
     val rules: PasswordCheck get() = check.rules
 
     val emailError: AuthFieldMessage?
-        get() = when {
-            emailAlreadyUsed -> AuthFieldMessage.EmailAlreadyUsed
-            emailServerError != null -> emailServerError
-            emailBlurred || submitAttempted -> when (check.email) {
-                EmailProblem.Required -> AuthFieldMessage.EmailRequired
-                EmailProblem.TooLong -> AuthFieldMessage.EmailTooLong
-                EmailProblem.InvalidFormat -> AuthFieldMessage.EmailInvalid
-                null -> null
+        get() =
+            when {
+                emailAlreadyUsed -> {
+                    AuthFieldMessage.EmailAlreadyUsed
+                }
+
+                emailServerError != null -> {
+                    emailServerError
+                }
+
+                emailBlurred || submitAttempted -> {
+                    when (check.email) {
+                        EmailProblem.Required -> AuthFieldMessage.EmailRequired
+                        EmailProblem.TooLong -> AuthFieldMessage.EmailTooLong
+                        EmailProblem.InvalidFormat -> AuthFieldMessage.EmailInvalid
+                        null -> null
+                    }
+                }
+
+                else -> {
+                    null
+                }
             }
-            else -> null
-        }
 
     /** Unmet rules have no message of their own; the field still shows its error state. */
     val passwordError: AuthFieldMessage?
-        get() = when {
-            passwordServerError != null -> passwordServerError
-            passwordBlurred || submitAttempted -> when (check.password) {
-                PasswordProblem.Required -> AuthFieldMessage.PasswordRequired
-                PasswordProblem.InvalidCharacter -> AuthFieldMessage.PasswordInvalidCharacter
-                PasswordProblem.TooLong -> AuthFieldMessage.PasswordTooLong
-                PasswordProblem.RulesUnmet, null -> null
+        get() =
+            when {
+                passwordServerError != null -> {
+                    passwordServerError
+                }
+
+                passwordBlurred || submitAttempted -> {
+                    when (check.password) {
+                        PasswordProblem.Required -> AuthFieldMessage.PasswordRequired
+                        PasswordProblem.InvalidCharacter -> AuthFieldMessage.PasswordInvalidCharacter
+                        PasswordProblem.TooLong -> AuthFieldMessage.PasswordTooLong
+                        PasswordProblem.RulesUnmet, null -> null
+                    }
+                }
+
+                else -> {
+                    null
+                }
             }
-            else -> null
-        }
 
     val passwordIsError: Boolean
         get() = passwordError != null || ((passwordBlurred || submitAttempted) && check.password != null)
 
     val repeatPasswordError: AuthFieldMessage?
-        get() = if (!repeatPasswordBlurred && !submitAttempted) {
-            null
-        } else {
-            when (check.repeatPassword) {
-                RepeatPasswordProblem.Required -> AuthFieldMessage.RepeatRequired
-                RepeatPasswordProblem.Mismatch -> AuthFieldMessage.PasswordMismatch
-                null -> null
+        get() =
+            if (!repeatPasswordBlurred && !submitAttempted) {
+                null
+            } else {
+                when (check.repeatPassword) {
+                    RepeatPasswordProblem.Required -> AuthFieldMessage.RepeatRequired
+                    RepeatPasswordProblem.Mismatch -> AuthFieldMessage.PasswordMismatch
+                    null -> null
+                }
             }
-        }
 }

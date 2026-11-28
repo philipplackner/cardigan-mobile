@@ -89,12 +89,19 @@ data class AppTextStyles(
 )
 
 // Figma centers text in its line box and doesn't trim the first and last line.
-private val FigmaLineHeightStyle = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.None,
-)
+private val FigmaLineHeightStyle =
+    LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.None,
+    )
 
-private fun style(family: FontFamily, size: Float, weight: FontWeight, lineHeight: Float, letterSpacing: Float) = TextStyle(
+private fun style(
+    family: FontFamily,
+    size: Float,
+    weight: FontWeight,
+    lineHeight: Float,
+    letterSpacing: Float,
+) = TextStyle(
     fontFamily = family,
     fontSize = size.sp,
     fontWeight = weight,
@@ -104,19 +111,21 @@ private fun style(family: FontFamily, size: Float, weight: FontWeight, lineHeigh
 )
 
 @Composable
-internal fun geistFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.geist_regular, FontWeight.Normal),
-    Font(Res.font.geist_medium, FontWeight.Medium),
-    Font(Res.font.geist_semibold, FontWeight.SemiBold),
-    Font(Res.font.geist_bold, FontWeight.Bold),
-)
+internal fun geistFontFamily(): FontFamily =
+    FontFamily(
+        Font(Res.font.geist_regular, FontWeight.Normal),
+        Font(Res.font.geist_medium, FontWeight.Medium),
+        Font(Res.font.geist_semibold, FontWeight.SemiBold),
+        Font(Res.font.geist_bold, FontWeight.Bold),
+    )
 
 @Composable
-internal fun geistMonoFontFamily(): FontFamily = FontFamily(
-    Font(Res.font.geist_mono_regular, FontWeight.Normal),
-    Font(Res.font.geist_mono_medium, FontWeight.Medium),
-    Font(Res.font.geist_mono_semibold, FontWeight.SemiBold),
-)
+internal fun geistMonoFontFamily(): FontFamily =
+    FontFamily(
+        Font(Res.font.geist_mono_regular, FontWeight.Normal),
+        Font(Res.font.geist_mono_medium, FontWeight.Medium),
+        Font(Res.font.geist_mono_semibold, FontWeight.SemiBold),
+    )
 
 @Composable
 internal fun rememberAppTextStyles(): AppTextStyles {

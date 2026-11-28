@@ -6,6 +6,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-val transferDataModule = module {
-    singleOf(::JsonExportFileChecker) bind ExportFileChecker::class
-}
+val transferDataModule =
+    module {
+        singleOf(::JsonExportFileChecker) bind ExportFileChecker::class
+    }

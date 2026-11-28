@@ -14,9 +14,11 @@ import kotlin.test.Test
  * the key the user typed, not an empty one.
  */
 class BoardFieldErrorsTest {
-
     // The core resource accessors are internal to :core:presentation, so compare against its helpers.
-    private fun assertSameText(actual: UiText, expected: UiText) {
+    private fun assertSameText(
+        actual: UiText,
+        expected: UiText,
+    ) {
         assertThat(actual).isInstanceOf<UiText.Resource>()
         actual as UiText.Resource
         expected as UiText.Resource

@@ -19,7 +19,6 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class NoMockingLibrariesAcceptanceTest {
-
     @TempDir
     lateinit var tmp: Path
 
@@ -27,13 +26,20 @@ class NoMockingLibrariesAcceptanceTest {
 
     private fun repoConfig(): Path {
         val path = System.getProperty(CONFIG_PROPERTY)
-        assertNotNull(path, "System property $CONFIG_PROPERTY is not set. Run the tests through ./gradlew :tooling:test.")
+        assertNotNull(
+            path,
+            "System property $CONFIG_PROPERTY is not set. Run the tests through ./gradlew :tooling:test.",
+        )
         return Path(path)
     }
 
     private fun lines(vararg lines: String) = lines.joinToString("\n")
 
-    private fun write(root: Path, relativePath: String, content: String) {
+    private fun write(
+        root: Path,
+        relativePath: String,
+        content: String,
+    ) {
         val file = root.resolve(relativePath)
         file.parent.createDirectories()
         file.writeText(content)
@@ -43,45 +49,57 @@ class NoMockingLibrariesAcceptanceTest {
         write(root, controlFile, lines("package com.example", "", "import io.mockk.every", "", "class ControlTest"))
     }
 
-    private fun runDetekt(root: Path, config: Path = repoConfig()): List<Issue> {
+    private fun runDetekt(
+        root: Path,
+        config: Path = repoConfig(),
+    ): List<Issue> {
         val output = StringBuilder()
-        val spec = ProcessingSpec {
-            project {
-                basePath = root
-                inputPaths = listOf(root)
-                analysisMode = AnalysisMode.light
+        val spec =
+            ProcessingSpec {
+                project {
+                    basePath = root
+                    inputPaths = listOf(root)
+                    analysisMode = AnalysisMode.light
+                }
+                config {
+                    configPaths = listOf(config)
+                    useDefaultConfig = true
+                }
+                rules {
+                    failurePolicy = RulesSpec.FailurePolicy.NeverFail
+                }
+                extensions {
+                    fromClassloader { NoMockingLibrariesAcceptanceTest::class.java.classLoader }
+                }
+                logging {
+                    outputChannel = output
+                    errorChannel = output
+                }
             }
-            config {
-                configPaths = listOf(config)
-                useDefaultConfig = true
-            }
-            rules {
-                failurePolicy = RulesSpec.FailurePolicy.NeverFail
-            }
-            extensions {
-                fromClassloader { NoMockingLibrariesAcceptanceTest::class.java.classLoader }
-            }
-            logging {
-                outputChannel = output
-                errorChannel = output
-            }
-        }
         val result = DetektProvider.load().get(spec).run()
         assertThat(result.error, name = "detekt error, log:\n$output").isNull()
         val container = assertNotNull(result.container, "detekt produced no result, log:\n$output")
         return container.issues.filter {
-            it.ruleInstance.ruleSetId.value == "cardigan" && it.ruleInstance.id == "NoMockingLibraries" && !it.suppressed
+            it.ruleInstance.ruleSetId.value == "cardigan" && it.ruleInstance.id == "NoMockingLibraries" &&
+                !it.suppressed
         }
     }
 
-    private fun List<Issue>.inFile(root: Path, relativePath: String): List<Issue> {
+    private fun List<Issue>.inFile(
+        root: Path,
+        relativePath: String,
+    ): List<Issue> {
         val file = root.resolve(relativePath).normalize()
         return filter { root.resolve(it.location.path).normalize() == file }
     }
 
     private fun List<Issue>.lines() = map { it.location.source.line }
 
-    private fun assertOnlyControlFileReported(root: Path, issues: List<Issue>, file: String) {
+    private fun assertOnlyControlFileReported(
+        root: Path,
+        issues: List<Issue>,
+        file: String,
+    ) {
         assertThat(issues.inFile(root, file), name = file).isEmpty()
         assertThat(issues.inFile(root, controlFile).lines(), name = "control file").containsExactly(3)
     }
@@ -134,12 +152,13 @@ class NoMockingLibrariesAcceptanceTest {
     // tests.md: add-detekt-konsist A03
     @Test
     fun `mocking imports in production source sets are not reported`() {
-        val productionFiles = listOf(
-            "x/src/commonMain/kotlin/com/example/Foo.kt",
-            "x/src/androidMain/kotlin/com/example/Foo.kt",
-            "x/src/iosMain/kotlin/com/example/Foo.kt",
-            "y/src/main/kotlin/com/example/Foo.kt",
-        )
+        val productionFiles =
+            listOf(
+                "x/src/commonMain/kotlin/com/example/Foo.kt",
+                "x/src/androidMain/kotlin/com/example/Foo.kt",
+                "x/src/iosMain/kotlin/com/example/Foo.kt",
+                "y/src/main/kotlin/com/example/Foo.kt",
+            )
         productionFiles.forEach {
             write(tmp, it, lines("package com.example", "", "import io.mockk.every", "", "class Foo"))
         }
@@ -176,23 +195,24 @@ class NoMockingLibrariesAcceptanceTest {
     // tests.md: add-detekt-konsist A05
     @Test
     fun `the finding message names the import path as written without alias`() {
-        val cases = listOf(
-            Triple(
-                "Plain",
-                "import io.mockk.every",
-                "Import of 'io.mockk.every' is not allowed. Use fakes instead of mocking libraries.",
-            ),
-            Triple(
-                "Star",
-                "import io.mockk.*",
-                "Import of 'io.mockk.*' is not allowed. Use fakes instead of mocking libraries.",
-            ),
-            Triple(
-                "Aliased",
-                "import org.mockito.Mockito.mock as m",
-                "Import of 'org.mockito.Mockito.mock' is not allowed. Use fakes instead of mocking libraries.",
-            ),
-        )
+        val cases =
+            listOf(
+                Triple(
+                    "Plain",
+                    "import io.mockk.every",
+                    "Import of 'io.mockk.every' is not allowed. Use fakes instead of mocking libraries.",
+                ),
+                Triple(
+                    "Star",
+                    "import io.mockk.*",
+                    "Import of 'io.mockk.*' is not allowed. Use fakes instead of mocking libraries.",
+                ),
+                Triple(
+                    "Aliased",
+                    "import org.mockito.Mockito.mock as m",
+                    "Import of 'org.mockito.Mockito.mock' is not allowed. Use fakes instead of mocking libraries.",
+                ),
+            )
         cases.forEach { (name, import) ->
             write(tmp, fileFor(name), lines("package com.example", "", import, "", "class ${name}Test"))
         }

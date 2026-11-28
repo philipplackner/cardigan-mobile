@@ -5,18 +5,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,7 +60,13 @@ fun CardiganDialog(
         properties = cardiganDialogProperties(dismissible = true, scrimColor = scrim),
     ) {
         DialogScrimEffect(scrim)
-        DialogContent(title = title, description = description, modifier = modifier, content = content, actions = actions)
+        DialogContent(
+            title = title,
+            description = description,
+            modifier = modifier,
+            content = content,
+            actions = actions,
+        )
     }
 }
 
@@ -90,11 +96,12 @@ private fun Modifier.dialogContainer(): Modifier {
     val shape = RoundedCornerShape(AppTheme.radius.r12)
     // Keeps the dialog out of the notch and system bars where the dialog window draws under them (iOS).
     val safe = windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))
-    val sized = if (isTouchSize) {
-        safe.fillMaxWidth().padding(horizontal = AppTheme.space.s16)
-    } else {
-        safe.width(DialogWidth)
-    }
+    val sized =
+        if (isTouchSize) {
+            safe.fillMaxWidth().padding(horizontal = AppTheme.space.s16)
+        } else {
+            safe.width(DialogWidth)
+        }
     return sized
         .dropShadow(shape, AppTheme.shadows.popover)
         .background(AppTheme.colors.background.surface, shape)
@@ -111,9 +118,10 @@ private fun DialogContent(
 ) {
     val touch = isTouchSize
     Column(
-        modifier = modifier
-            .dialogContainer()
-            .padding(if (touch) AppTheme.space.s22 else AppTheme.space.s20),
+        modifier =
+            modifier
+                .dialogContainer()
+                .padding(if (touch) AppTheme.space.s22 else AppTheme.space.s20),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         DialogTitle(title)
@@ -137,9 +145,10 @@ private fun ProgressDialogContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .dialogContainer()
-            .padding(PaddingValues(horizontal = AppTheme.space.s24, vertical = AppTheme.space.s28)),
+        modifier =
+            modifier
+                .dialogContainer()
+                .padding(PaddingValues(horizontal = AppTheme.space.s24, vertical = AppTheme.space.s28)),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -150,18 +159,29 @@ private fun ProgressDialogContent(
 }
 
 @Composable
-private fun DialogTitle(text: String, textAlign: TextAlign? = null) {
+private fun DialogTitle(
+    text: String,
+    textAlign: TextAlign? = null,
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
-        style = if (isTouchSize) AppTheme.textStyles.sans17SemiBold130LsMinus1 else AppTheme.textStyles.sans16SemiBold130LsMinus1,
+        style =
+            if (isTouchSize) {
+                AppTheme.textStyles.sans17SemiBold130LsMinus1
+            } else {
+                AppTheme.textStyles.sans16SemiBold130LsMinus1
+            },
         color = AppTheme.colors.text.primary,
         textAlign = textAlign,
     )
 }
 
 @Composable
-private fun DialogDescription(text: String, textAlign: TextAlign? = null) {
+private fun DialogDescription(
+    text: String,
+    textAlign: TextAlign? = null,
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
@@ -175,16 +195,22 @@ private fun DialogDescription(text: String, textAlign: TextAlign? = null) {
 private fun DialogSample() {
     val touch = isTouchSize
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(vertical = AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(vertical = AppTheme.space.s24),
     ) {
         DialogContent(
             title = "Title",
             description = "Description",
             content = {
                 Field(label = "Label") {
-                    Input(value = "", onValueChange = {}, placeholder = "Placeholder", modifier = Modifier.fillMaxWidth())
+                    Input(
+                        value = "",
+                        onValueChange = {},
+                        placeholder = "Placeholder",
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             },
             actions = {
@@ -199,9 +225,10 @@ private fun DialogSample() {
 @Composable
 private fun ProgressDialogSample() {
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(vertical = AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(vertical = AppTheme.space.s24),
     ) {
         ProgressDialogContent(title = "Title", description = "Description")
     }

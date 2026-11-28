@@ -9,7 +9,6 @@ import kotlin.test.Test
 
 /** The destination window must not add a second scrim behind the design-system dialog. */
 class BoardDialogDestinationPropertiesTest {
-
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun destinationDrawsNoScrimAndCantBeDismissed() {

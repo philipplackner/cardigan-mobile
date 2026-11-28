@@ -92,8 +92,8 @@ import org.jetbrains.compose.resources.stringResource
 /** Minimum Board tile width from Figma. The grid fits as many columns as this allows (D19). */
 val BoardTileMinWidth = 260.dp
 
-private const val PhoneSkeletonRows = 5
-private const val GridSkeletonTiles = 6
+private const val PHONE_SKELETON_ROWS = 5
+private const val GRID_SKELETON_TILES = 6
 
 @Composable
 fun BoardListScreen(
@@ -102,9 +102,10 @@ fun BoardListScreen(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.background.app),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.background.app),
     ) {
         ProvideConsumedInsets {
             if (LocalWindowClass.current == WindowClass.Phone) {
@@ -117,7 +118,10 @@ fun BoardListScreen(
 }
 
 @Composable
-private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) -> Unit) {
+private fun PhoneBoardList(
+    state: BoardListState,
+    onAction: (BoardListAction) -> Unit,
+) {
     val listState = rememberLazyListState()
     val collapsed by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     Column(modifier = Modifier.fillMaxSize()) {
@@ -127,7 +131,7 @@ private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) ->
                 title = stringResource(Res.string.boards_title),
                 raised = true,
                 actions = actions,
-                modifier = Modifier.testTag(BoardListTestTags.CollapsedBar),
+                modifier = Modifier.testTag(BoardListTestTags.COLLAPSED_BAR),
             )
         } else {
             BrandAppBar(actions = actions)
@@ -141,29 +145,44 @@ private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) ->
                 val viewportHeight = maxHeight
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxSize().testTag(BoardListTestTags.List),
-                    contentPadding = PaddingValues(
-                        start = AppTheme.space.s16,
-                        end = AppTheme.space.s16,
-                        top = AppTheme.space.s4,
-                        bottom = AppTheme.space.s24,
-                    ) + contentInsets(),
+                    modifier = Modifier.fillMaxSize().testTag(BoardListTestTags.LIST),
+                    contentPadding =
+                        PaddingValues(
+                            start = AppTheme.space.s16,
+                            end = AppTheme.space.s16,
+                            top = AppTheme.space.s4,
+                            bottom = AppTheme.space.s24,
+                        ) + contentInsets(),
                     verticalArrangement = Arrangement.spacedBy(AppTheme.space.s18),
                 ) {
                     item(key = "title") { LargeTitle(state) }
                     if (state.isRefreshing) item(key = "refreshing") { RefreshingRow() }
                     when (val content = state.content) {
-                        BoardListContent.Loading -> item(key = "loading") { PhoneSkeletonList() }
-                        BoardListContent.Error -> item(key = "error") {
-                            LoadErrorState(onAction, Modifier.fillMaxWidth().heightIn(min = viewportHeight * 0.75f))
+                        BoardListContent.Loading -> {
+                            item(key = "loading") { PhoneSkeletonList() }
                         }
-                        is BoardListContent.Loaded -> if (content.boards.isEmpty()) {
-                            item(key = "empty") {
-                                NoBoardsState(onAction, Modifier.fillMaxWidth().heightIn(min = viewportHeight * 0.75f))
+
+                        BoardListContent.Error -> {
+                            item(key = "error") {
+                                LoadErrorState(onAction, Modifier.fillMaxWidth().heightIn(min = viewportHeight * 0.75f))
                             }
-                        } else {
-                            item(key = "boards") { PhoneBoardCard(content.boards, onAction) }
-                            item(key = "count") { ListEndCount(state.boardCount) }
+                        }
+
+                        is BoardListContent.Loaded -> {
+                            if (content.boards.isEmpty()) {
+                                item(key = "empty") {
+                                    NoBoardsState(
+                                        onAction,
+                                        Modifier.fillMaxWidth().heightIn(
+                                            min =
+                                                viewportHeight * 0.75f,
+                                        ),
+                                    )
+                                }
+                            } else {
+                                item(key = "boards") { PhoneBoardCard(content.boards, onAction) }
+                                item(key = "count") { ListEndCount(state.boardCount) }
+                            }
                         }
                     }
                 }
@@ -173,7 +192,10 @@ private fun PhoneBoardList(state: BoardListState, onAction: (BoardListAction) ->
 }
 
 @Composable
-private fun PhoneBarActions(state: BoardListState, onAction: (BoardListAction) -> Unit) {
+private fun PhoneBarActions(
+    state: BoardListState,
+    onAction: (BoardListAction) -> Unit,
+) {
     CardiganIconButton(
         icon = CardiganIcons.Plus,
         contentDescription = stringResource(Res.string.boards_new_board),
@@ -215,16 +237,18 @@ private fun PhoneBarActions(state: BoardListState, onAction: (BoardListAction) -
 @Composable
 private fun LargeTitle(state: BoardListState) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = AppTheme.space.s2, bottom = AppTheme.space.s4),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = AppTheme.space.s2, bottom = AppTheme.space.s4),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
     ) {
         Text(
             text = stringResource(Res.string.boards_title),
-            modifier = Modifier
-                .alignByBaseline()
-                .semantics { heading() },
+            modifier =
+                Modifier
+                    .alignByBaseline()
+                    .semantics { heading() },
             style = AppTheme.textStyles.sans26SemiBold110LsMinus2_5,
             color = AppTheme.colors.text.primary,
         )
@@ -242,9 +266,10 @@ private fun LargeTitle(state: BoardListState) {
 @Composable
 private fun RefreshingRow(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(AppTheme.space.s10),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(AppTheme.space.s10),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -261,18 +286,22 @@ private fun RefreshingRow(modifier: Modifier = Modifier) {
 private fun ListCard(content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.space.s1),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(AppTheme.space.s1),
     ) {
         content()
     }
 }
 
 @Composable
-private fun PhoneBoardCard(boards: List<BoardItemUi>, onAction: (BoardListAction) -> Unit) {
+private fun PhoneBoardCard(
+    boards: List<BoardItemUi>,
+    onAction: (BoardListAction) -> Unit,
+) {
     ListCard {
         boards.forEachIndexed { index, board ->
             BoardRow(
@@ -290,16 +319,20 @@ private fun PhoneBoardCard(boards: List<BoardItemUi>, onAction: (BoardListAction
 }
 
 @Composable
-private fun boardDescription(board: BoardItemUi): String = stringResource(
-    Res.string.board_item_description,
-    board.name,
-    board.key,
-    board.cardCount.asString(),
-    board.updated.asString(),
-)
+private fun boardDescription(board: BoardItemUi): String =
+    stringResource(
+        Res.string.board_item_description,
+        board.name,
+        board.key,
+        board.cardCount.asString(),
+        board.updated.asString(),
+    )
 
 @Composable
-private fun BoardMenuButton(board: BoardItemUi, onAction: (BoardListAction) -> Unit) {
+private fun BoardMenuButton(
+    board: BoardItemUi,
+    onAction: (BoardListAction) -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         CardiganIconButton(
@@ -335,9 +368,10 @@ private fun BoardMenuButton(board: BoardItemUi, onAction: (BoardListAction) -> U
 private fun ListEndCount(count: Int) {
     Text(
         text = boardCountText(count).asString(),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = AppTheme.space.s14),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = AppTheme.space.s14),
         style = AppTheme.textStyles.mono12Regular100,
         color = AppTheme.colors.text.muted,
         textAlign = TextAlign.Center,
@@ -347,19 +381,24 @@ private fun ListEndCount(count: Int) {
 @Composable
 private fun PhoneSkeletonList() {
     ListCard {
-        repeat(PhoneSkeletonRows) { index ->
+        repeat(PHONE_SKELETON_ROWS) { index ->
             val divider = AppTheme.colors.border.default
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (index < PhoneSkeletonRows - 1) {
-                            Modifier.drawDividerBelow(divider)
-                        } else {
-                            Modifier
-                        },
-                    )
-                    .padding(start = AppTheme.space.s14, end = AppTheme.space.s6, top = AppTheme.space.s12, bottom = AppTheme.space.s13),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (index < PHONE_SKELETON_ROWS - 1) {
+                                Modifier.drawDividerBelow(divider)
+                            } else {
+                                Modifier
+                            },
+                        ).padding(
+                            start = AppTheme.space.s14,
+                            end = AppTheme.space.s6,
+                            top = AppTheme.space.s12,
+                            bottom = AppTheme.space.s13,
+                        ),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
             ) {
                 Skeleton(modifier = Modifier.fillMaxWidth(0.6f).height(14.dp))
@@ -370,7 +409,10 @@ private fun PhoneSkeletonList() {
 }
 
 @Composable
-private fun NoBoardsState(onAction: (BoardListAction) -> Unit, modifier: Modifier = Modifier) {
+private fun NoBoardsState(
+    onAction: (BoardListAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     EmptyState(
         icon = CardiganIcons.Board,
         title = stringResource(Res.string.boards_empty_title),
@@ -393,7 +435,10 @@ private fun NoBoardsState(onAction: (BoardListAction) -> Unit, modifier: Modifie
 }
 
 @Composable
-private fun LoadErrorState(onAction: (BoardListAction) -> Unit, modifier: Modifier = Modifier) {
+private fun LoadErrorState(
+    onAction: (BoardListAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     EmptyState(
         icon = CardiganIcons.CloudOff,
         title = stringResource(Res.string.boards_load_error_title),
@@ -411,7 +456,10 @@ private fun LoadErrorState(onAction: (BoardListAction) -> Unit, modifier: Modifi
 }
 
 @Composable
-private fun GridBoardList(state: BoardListState, onAction: (BoardListAction) -> Unit) {
+private fun GridBoardList(
+    state: BoardListState,
+    onAction: (BoardListAction) -> Unit,
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         PageHeader(
             title = stringResource(Res.string.boards_title),
@@ -436,52 +484,72 @@ private fun GridBoardList(state: BoardListState, onAction: (BoardListAction) -> 
             modifier = Modifier.fillMaxSize(),
         ) {
             when (val content = state.content) {
-                BoardListContent.Error -> FullHeightState(state.isRefreshing) { LoadErrorState(onAction, it) }
-                is BoardListContent.Loaded if content.boards.isEmpty() ->
+                BoardListContent.Error -> {
+                    FullHeightState(state.isRefreshing) { LoadErrorState(onAction, it) }
+                }
+
+                is BoardListContent.Loaded if content.boards.isEmpty() -> {
                     FullHeightState(state.isRefreshing) { NoBoardsState(onAction, it) }
-                else -> BoardGrid(state, content, onAction)
+                }
+
+                else -> {
+                    BoardGrid(state, content, onAction)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun BoardGrid(state: BoardListState, content: BoardListContent, onAction: (BoardListAction) -> Unit) {
+private fun BoardGrid(
+    state: BoardListState,
+    content: BoardListContent,
+    onAction: (BoardListAction) -> Unit,
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(BoardTileMinWidth),
-        modifier = Modifier.fillMaxSize().testTag(BoardListTestTags.Grid),
+        modifier = Modifier.fillMaxSize().testTag(BoardListTestTags.GRID),
         contentPadding = PaddingValues(AppTheme.space.s24) + contentInsets(),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s14),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s14),
     ) {
         if (state.isRefreshing) item(key = "refreshing", span = { GridItemSpan(maxLineSpan) }) { RefreshingRow() }
         when (content) {
-            is BoardListContent.Loaded -> items(content.boards, key = { it.id }) { board ->
-                BoardTile(
-                    name = board.name,
-                    boardKey = board.key,
-                    cardCount = board.cardCount.asString(),
-                    updated = stringResource(Res.string.board_updated, board.updated.asString()),
-                    onClick = { onAction(BoardListAction.OnBoardClick(board.id)) },
-                    contentDescription = boardDescription(board),
-                    menuButton = { BoardMenuButton(board, onAction) },
-                )
+            is BoardListContent.Loaded -> {
+                items(content.boards, key = { it.id }) { board ->
+                    BoardTile(
+                        name = board.name,
+                        boardKey = board.key,
+                        cardCount = board.cardCount.asString(),
+                        updated = stringResource(Res.string.board_updated, board.updated.asString()),
+                        onClick = { onAction(BoardListAction.OnBoardClick(board.id)) },
+                        contentDescription = boardDescription(board),
+                        menuButton = { BoardMenuButton(board, onAction) },
+                    )
+                }
             }
-            else -> items(GridSkeletonTiles) { SkeletonTile() }
+
+            else -> {
+                items(GRID_SKELETON_TILES) { SkeletonTile() }
+            }
         }
     }
 }
 
 @Composable
-private fun FullHeightState(isRefreshing: Boolean, content: @Composable (Modifier) -> Unit) {
+private fun FullHeightState(
+    isRefreshing: Boolean,
+    content: @Composable (Modifier) -> Unit,
+) {
     val padding = PaddingValues(AppTheme.space.s24) + contentInsets()
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val height = maxHeight - padding.calculateTopPadding() - padding.calculateBottomPadding()
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(padding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(padding),
         ) {
             if (isRefreshing) RefreshingRow()
             content(Modifier.fillMaxWidth().heightIn(min = height))
@@ -494,20 +562,27 @@ private fun SkeletonTile() {
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     val divider = AppTheme.colors.border.default
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(start = AppTheme.space.s14, end = AppTheme.space.s14, top = AppTheme.space.s14, bottom = AppTheme.space.s12),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(
+                    start = AppTheme.space.s14,
+                    end = AppTheme.space.s14,
+                    top = AppTheme.space.s14,
+                    bottom = AppTheme.space.s12,
+                ),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
     ) {
         Skeleton(modifier = Modifier.size(width = 42.dp, height = 18.dp))
         Skeleton(modifier = Modifier.fillMaxWidth(0.7f).height(16.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .drawDividerAbove(divider)
-                .padding(top = AppTheme.space.s11),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .drawDividerAbove(divider)
+                    .padding(top = AppTheme.space.s11),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Skeleton(modifier = Modifier.size(width = 60.dp, height = 10.dp))
@@ -516,24 +591,21 @@ private fun SkeletonTile() {
     }
 }
 
-private fun Modifier.drawDividerBelow(color: Color): Modifier = drawBehind {
-    val y = size.height - 0.5.dp.toPx()
-    drawLine(color, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
-}
+private fun Modifier.drawDividerBelow(color: Color): Modifier =
+    drawBehind {
+        val y = size.height - 0.5.dp.toPx()
+        drawLine(color, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
+    }
 
-private fun Modifier.drawDividerAbove(color: Color): Modifier = drawBehind {
-    val y = 0.5.dp.toPx()
-    drawLine(color, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
-}
+private fun Modifier.drawDividerAbove(color: Color): Modifier =
+    drawBehind {
+        val y = 0.5.dp.toPx()
+        drawLine(color, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
+    }
 
-/**
- * The safe-drawing insets the scrolling content keeps clear of: the sides (display cutout in
- * landscape) and the bottom. The top belongs to the app bar or page header above the content, and
- * insets a parent already consumed (the sidebar's start side) are left out.
- */
 /** Test tags for the board list's scroll containers and collapsed bar. */
 object BoardListTestTags {
-    const val List = "board_list"
-    const val Grid = "board_grid"
-    const val CollapsedBar = "board_list_collapsed_bar"
+    const val LIST = "board_list"
+    const val GRID = "board_grid"
+    const val COLLAPSED_BAR = "board_list_collapsed_bar"
 }

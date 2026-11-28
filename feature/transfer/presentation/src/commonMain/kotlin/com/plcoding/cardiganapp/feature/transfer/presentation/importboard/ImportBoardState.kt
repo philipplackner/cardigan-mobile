@@ -19,11 +19,16 @@ sealed interface ImportPhase {
     /** The Import dialog in its error state. [file] is null when the picked file is no longer known. */
     @Serializable
     @SerialName("error")
-    data class ErrorShown(val file: PickedFileInfo?, val error: ImportDialogError) : ImportPhase
+    data class ErrorShown(
+        val file: PickedFileInfo?,
+        val error: ImportDialogError,
+    ) : ImportPhase
 
     @Serializable
     @SerialName("uploading")
-    data class Uploading(val fileName: String) : ImportPhase
+    data class Uploading(
+        val fileName: String,
+    ) : ImportPhase
 
     /**
      * The key clash dialog. [clashKey], [usedKeys] and the key looked up for [boardName] are
@@ -47,7 +52,10 @@ sealed interface ImportPhase {
 }
 
 @Serializable
-data class PickedFileInfo(val name: String, val sizeBytes: Long)
+data class PickedFileInfo(
+    val name: String,
+    val sizeBytes: Long,
+)
 
 @Serializable
 enum class ImportDialogError {
@@ -60,9 +68,13 @@ enum class ImportDialogError {
 sealed interface KeyFieldError {
     @Serializable
     @SerialName("already_used")
-    data class AlreadyUsed(val key: String) : KeyFieldError
+    data class AlreadyUsed(
+        val key: String,
+    ) : KeyFieldError
 
     @Serializable
     @SerialName("rule")
-    data class Rule(val rule: BoardKeyError) : KeyFieldError
+    data class Rule(
+        val rule: BoardKeyError,
+    ) : KeyFieldError
 }

@@ -16,14 +16,16 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
             }
 
             val localProperties = readLocalProperties()
-            val androidBaseUrl = localProperties.requireBaseUrl(
-                key = "BASE_URL_ANDROID",
-                example = "http://10.0.2.2:8080/api/v1",
-            )
-            val iosBaseUrl = localProperties.requireBaseUrl(
-                key = "BASE_URL_IOS",
-                example = "http://localhost:8080/api/v1",
-            )
+            val androidBaseUrl =
+                localProperties.requireBaseUrl(
+                    key = "BASE_URL_ANDROID",
+                    example = "http://10.0.2.2:8080/api/v1",
+                )
+            val iosBaseUrl =
+                localProperties.requireBaseUrl(
+                    key = "BASE_URL_IOS",
+                    example = "http://localhost:8080/api/v1",
+                )
 
             extensions.configure<BuildKonfigExtension> {
                 packageName.set(pathToPackageName())
@@ -49,11 +51,18 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
 
     private fun Project.readLocalProperties(): Properties {
         val file = rootProject.layout.projectDirectory.file("local.properties")
-        val content = providers.fileContents(file).asText.orNull.orEmpty()
+        val content =
+            providers
+                .fileContents(file)
+                .asText.orNull
+                .orEmpty()
         return Properties().apply { load(StringReader(content)) }
     }
 
-    private fun Properties.requireBaseUrl(key: String, example: String): String {
+    private fun Properties.requireBaseUrl(
+        key: String,
+        example: String,
+    ): String {
         val value = getProperty(key)?.trim()
         if (value.isNullOrEmpty()) {
             throw GradleException("Missing $key in local.properties (e.g. $example)")
@@ -62,7 +71,7 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
         val isHttp = normalized.startsWith("http://") || normalized.startsWith("https://")
         if (!isHttp || !normalized.endsWith("/api/v1")) {
             throw GradleException(
-                "$key in local.properties must be an http(s) URL ending in /api/v1, got $value"
+                "$key in local.properties must be an http(s) URL ending in /api/v1, got $value",
             )
         }
         return normalized

@@ -1,6 +1,6 @@
 import com.plcoding.cardiganapp.convention.configureKotlinMultiplatform
-import com.plcoding.cardiganapp.convention.libs
 import com.plcoding.cardiganapp.convention.library
+import com.plcoding.cardiganapp.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies

@@ -18,7 +18,6 @@ import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
 import com.plcoding.cardiganapp.feature.boards.presentation.components.BOARD_NAME_MAX_LENGTH
 import com.plcoding.cardiganapp.feature.boards.presentation.components.findBoard
 import com.plcoding.cardiganapp.feature.boards.presentation.components.toNameError
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 /** Rename board dialog. An unchanged normalized name closes it without a request (D15). */
 class RenameBoardViewModel(
@@ -34,7 +34,6 @@ class RenameBoardViewModel(
     private val toastController: ToastController,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(RenameBoardState())
     val state: StateFlow<RenameBoardState> = _state.asStateFlow()
 
@@ -49,12 +48,13 @@ class RenameBoardViewModel(
                 return@launch
             }
             val submitted = savedStateHandle[KEY_SUBMITTED] ?: false
-            val restored = RenameBoardState(
-                boardName = board.name,
-                key = board.key,
-                name = savedStateHandle[KEY_NAME] ?: board.name,
-                submitted = submitted,
-            )
+            val restored =
+                RenameBoardState(
+                    boardName = board.name,
+                    key = board.key,
+                    name = savedStateHandle[KEY_NAME] ?: board.name,
+                    submitted = submitted,
+                )
             _state.value = if (submitted) restored.validated() else restored
         }
     }
@@ -64,11 +64,21 @@ class RenameBoardViewModel(
         if (current.isSaving || current.boardName == null) return
         when (action) {
             is RenameBoardAction.NameChange -> {
-                _state.update { it.copy(name = action.name).let { changed -> if (changed.submitted) changed.validated() else changed } }
+                _state.update {
+                    it.copy(name = action.name).let { changed ->
+                        if (changed.submitted) changed.validated() else changed
+                    }
+                }
                 savedStateHandle[KEY_NAME] = action.name
             }
-            RenameBoardAction.Save -> save(current.boardName)
-            RenameBoardAction.Cancel -> _events.trySend(RenameBoardEvent.Close)
+
+            RenameBoardAction.Save -> {
+                save(current.boardName)
+            }
+
+            RenameBoardAction.Cancel -> {
+                _events.trySend(RenameBoardEvent.Close)
+            }
         }
     }
 
@@ -86,7 +96,10 @@ class RenameBoardViewModel(
         _state.update { it.copy(isSaving = true) }
         viewModelScope.launch {
             when (val result = repository.renameBoard(Uuid.parse(boardId), name)) {
-                is Result.Success -> _events.send(RenameBoardEvent.Renamed(result.data.name))
+                is Result.Success -> {
+                    _events.send(RenameBoardEvent.Renamed(result.data.name))
+                }
+
                 is Result.Error -> {
                     _state.update { it.copy(isSaving = false) }
                     when (val error = result.error) {
@@ -94,8 +107,14 @@ class RenameBoardViewModel(
                             toast(UiText.Resource(Res.string.board_no_longer_exists, arrayOf(boardName)))
                             _events.send(RenameBoardEvent.Close)
                         }
-                        is BoardSaveError.InvalidFields -> _state.update { it.copy(nameError = error.name?.toNameError()) }
-                        is BoardSaveError.Network -> toast(UiText.Resource(Res.string.rename_board_failed, arrayOf(boardName)))
+
+                        is BoardSaveError.InvalidFields -> {
+                            _state.update { it.copy(nameError = error.name?.toNameError()) }
+                        }
+
+                        is BoardSaveError.Network -> {
+                            toast(UiText.Resource(Res.string.rename_board_failed, arrayOf(boardName)))
+                        }
                     }
                 }
             }

@@ -9,7 +9,10 @@ class FakeFilePicker : FilePicker {
     private var onPicked: (PickedFile) -> Unit = {}
     private var onCancelled: () -> Unit = {}
 
-    fun bind(onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit): FakeFilePicker {
+    fun bind(
+        onPicked: (PickedFile) -> Unit,
+        onCancelled: () -> Unit,
+    ): FakeFilePicker {
         this.onPicked = onPicked
         this.onCancelled = onCancelled
         return this

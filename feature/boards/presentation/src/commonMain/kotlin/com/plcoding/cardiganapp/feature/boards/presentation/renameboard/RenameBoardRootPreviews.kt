@@ -6,14 +6,31 @@ import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 import com.plcoding.cardiganapp.core.domain.text.NameError
 
-private val previewStates = listOf(
-    RenameBoardState(boardName = "Cardigan v1", key = "CRD", name = "Cardigan v1"),
-    RenameBoardState(boardName = "Cardigan v1", key = "CRD", name = "", submitted = true, nameError = NameError.Required),
-    RenameBoardState(boardName = "Cardigan v1", key = "CRD", name = "Cardigan v2", submitted = true, isSaving = true),
-)
+private val previewStates =
+    listOf(
+        RenameBoardState(boardName = "Cardigan v1", key = "CRD", name = "Cardigan v1"),
+        RenameBoardState(
+            boardName = "Cardigan v1",
+            key = "CRD",
+            name = "",
+            submitted = true,
+            nameError = NameError.Required,
+        ),
+        RenameBoardState(
+            boardName = "Cardigan v1",
+            key = "CRD",
+            name = "Cardigan v2",
+            submitted = true,
+            isSaving = true,
+        ),
+    )
 
 @Composable
-private fun RenamePreview(index: Int, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun RenamePreview(
+    index: Int,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         RenameBoardScreen(state = previewStates[index], onAction = {})
     }

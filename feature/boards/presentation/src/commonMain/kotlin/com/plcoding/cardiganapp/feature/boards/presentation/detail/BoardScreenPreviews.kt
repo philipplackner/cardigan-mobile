@@ -13,67 +13,82 @@ import com.plcoding.cardiganapp.core.domain.label.LabelColor
 import com.plcoding.cardiganapp.core.domain.text.NameError
 import kotlin.uuid.Uuid
 
-private val previewLabels = listOf(
-    Label(Uuid.random(), "api", LabelColor.Blue),
-    Label(Uuid.random(), "infra", LabelColor.Amber),
-    Label(Uuid.random(), "web", LabelColor.Teal),
-    Label(Uuid.random(), "mobile", LabelColor.Violet),
-    Label(Uuid.random(), "design", LabelColor.Pink),
-    Label(Uuid.random(), "bug", LabelColor.Red),
-    Label(Uuid.random(), "docs", LabelColor.Slate),
-)
+private val previewLabels =
+    listOf(
+        Label(Uuid.random(), "api", LabelColor.Blue),
+        Label(Uuid.random(), "infra", LabelColor.Amber),
+        Label(Uuid.random(), "web", LabelColor.Teal),
+        Label(Uuid.random(), "mobile", LabelColor.Violet),
+        Label(Uuid.random(), "design", LabelColor.Pink),
+        Label(Uuid.random(), "bug", LabelColor.Red),
+        Label(Uuid.random(), "docs", LabelColor.Slate),
+    )
 
 private fun labels(vararg names: String) = names.map { name -> previewLabels.first { it.name == name }.id }
 
-private fun card(number: Long, title: String, vararg labels: String) = Card(Uuid.random(), number, title, labels(*labels))
+private fun card(
+    number: Long,
+    title: String,
+    vararg labels: String,
+) = Card(Uuid.random(), number, title, labels(*labels))
 
-private val previewBoard = BoardContent(
-    board = Board(Uuid.random(), "Cardigan v1", "CRD"),
-    columns = listOf(
-        Column(
-            Uuid.random(),
-            "To do",
+private val previewBoard =
+    BoardContent(
+        board = Board(Uuid.random(), "Cardigan v1", "CRD"),
+        columns =
             listOf(
-                card(118, "Decide card ordering: fractional ranks vs. integer positions", "api"),
-                card(121, "Define export file format v1", "api", "infra"),
-                card(124, "Empty state for the board list", "web", "mobile", "design"),
-                card(127, "Refresh token transport on web", "web", "api"),
+                Column(
+                    Uuid.random(),
+                    "To do",
+                    listOf(
+                        card(118, "Decide card ordering: fractional ranks vs. integer positions", "api"),
+                        card(121, "Define export file format v1", "api", "infra"),
+                        card(124, "Empty state for the board list", "web", "mobile", "design"),
+                        card(127, "Refresh token transport on web", "web", "api"),
+                    ),
+                ),
+                Column(
+                    Uuid.random(),
+                    "In progress",
+                    listOf(
+                        card(109, "Single-flight token refresh in the Ktor client", "mobile", "api"),
+                        card(112, "Column menu with move left and right", "web"),
+                        card(115, "Long-press drag with auto-scroll between columns", "mobile"),
+                    ),
+                ),
+                Column(
+                    Uuid.random(),
+                    "Review",
+                    listOf(
+                        card(104, "Import fails on a board with an empty column", "api", "bug"),
+                        card(106, "Reverse proxy and TLS on the VPS", "infra"),
+                    ),
+                ),
+                Column(
+                    Uuid.random(),
+                    "Done",
+                    listOf(
+                        card(101, "First draft of the REST contract", "api", "docs"),
+                        card(102, "CMP project scaffolding with CI", "mobile", "infra"),
+                        card(103, "React and TypeScript scaffold", "web"),
+                    ),
+                ),
             ),
-        ),
-        Column(
-            Uuid.random(),
-            "In progress",
-            listOf(
-                card(109, "Single-flight token refresh in the Ktor client", "mobile", "api"),
-                card(112, "Column menu with move left and right", "web"),
-                card(115, "Long-press drag with auto-scroll between columns", "mobile"),
-            ),
-        ),
-        Column(
-            Uuid.random(),
-            "Review",
-            listOf(card(104, "Import fails on a board with an empty column", "api", "bug"), card(106, "Reverse proxy and TLS on the VPS", "infra")),
-        ),
-        Column(
-            Uuid.random(),
-            "Done",
-            listOf(
-                card(101, "First draft of the REST contract", "api", "docs"),
-                card(102, "CMP project scaffolding with CI", "mobile", "infra"),
-                card(103, "React and TypeScript scaffold", "web"),
-            ),
-        ),
-    ),
-)
+    )
 
-private val newBoard = BoardContent(
-    board = Board(Uuid.random(), "Garden irrigation", "GARD"),
-    columns = listOf("To do", "In progress", "Done").map { Column(Uuid.random(), it, emptyList()) },
-)
+private val newBoard =
+    BoardContent(
+        board = Board(Uuid.random(), "Garden irrigation", "GARD"),
+        columns = listOf("To do", "In progress", "Done").map { Column(Uuid.random(), it, emptyList()) },
+    )
 
 private val hint = BoardHeaderHint("Cardigan v1", "CRD")
 
-private fun loaded(content: BoardContent = previewBoard, field: InlineField? = null, dialog: BoardDialog? = null) = BoardState(
+private fun loaded(
+    content: BoardContent = previewBoard,
+    field: InlineField? = null,
+    dialog: BoardDialog? = null,
+) = BoardState(
     content = BoardLoadState.Loaded(content, previewLabels.associateBy { it.id }),
     headerHint = hint,
     inlineField = field,
@@ -85,21 +100,36 @@ private val loadingState = BoardState(headerHint = hint)
 private val errorState = BoardState(content = BoardLoadState.Error, headerHint = hint)
 private val newBoardState = loaded(newBoard)
 private val noColumnsState = loaded(previewBoard.copy(columns = emptyList()))
-private val quickAddState = loaded(field = InlineField(InlineTarget.QuickAdd(previewBoard.columns[0].id), "Write empty-state copy for new boards"))
-private val quickAddErrorState = loaded(
-    field = InlineField(InlineTarget.QuickAdd(previewBoard.columns[2].id), "Fix\nlogin", showErrors = true, error = NameError.InvalidCharacter),
-)
+private val quickAddState =
+    loaded(
+        field = InlineField(InlineTarget.QuickAdd(previewBoard.columns[0].id), "Write empty-state copy for new boards"),
+    )
+private val quickAddErrorState =
+    loaded(
+        field =
+            InlineField(
+                InlineTarget.QuickAdd(previewBoard.columns[2].id),
+                "Fix\nlogin",
+                showErrors = true,
+                error = NameError.InvalidCharacter,
+            ),
+    )
 private val addColumnState = loaded(field = InlineField(InlineTarget.AddColumn, "Blocked"))
 private val renameState = loaded(dialog = BoardDialog.RenameColumn(previewBoard.columns[2].id, "Review", "In review"))
 private val deleteState = loaded(dialog = BoardDialog.DeleteColumn(previewBoard.columns[2].id, "Review", 2))
 private val deleteEmptyState = loaded(newBoard, dialog = BoardDialog.DeleteColumn(newBoard.columns[0].id, "To do", 0))
-private val discardState = loaded(
-    field = InlineField(InlineTarget.QuickAdd(previewBoard.columns[0].id), "Write docs"),
-    dialog = BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(previewBoard.columns[3].id)),
-)
+private val discardState =
+    loaded(
+        field = InlineField(InlineTarget.QuickAdd(previewBoard.columns[0].id), "Write docs"),
+        dialog = BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(previewBoard.columns[3].id)),
+    )
 
 @Composable
-private fun Preview(state: BoardState, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun Preview(
+    state: BoardState,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         BoardScreen(state = state, onAction = {})
     }

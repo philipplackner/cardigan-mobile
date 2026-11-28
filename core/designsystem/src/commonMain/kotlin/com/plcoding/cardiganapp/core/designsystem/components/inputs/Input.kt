@@ -81,10 +81,15 @@ fun Input(
         cursorBrush = SolidColor(colors.accent.default),
         decorationBox = { innerTextField ->
             Row(
-                modifier = Modifier
-                    .fieldContainer(isFocused = isFocused, isError = isError, readOnly = readOnly, enabled = enabled)
-                    .heightIn(min = minHeight)
-                    .padding(horizontal = AppTheme.space.s10),
+                modifier =
+                    Modifier
+                        .fieldContainer(
+                            isFocused = isFocused,
+                            isError = isError,
+                            readOnly = readOnly,
+                            enabled = enabled,
+                        ).heightIn(min = minHeight)
+                        .padding(horizontal = AppTheme.space.s10),
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -118,9 +123,10 @@ private enum class InputPreviewState { Default, Focus, Error, ReadOnly, Disabled
 @Composable
 private fun InputMatrix() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         InputPreviewState.entries.forEach { state ->
@@ -134,7 +140,11 @@ private fun InputMatrix() {
 }
 
 @Composable
-private fun PreviewInput(state: InputPreviewState, value: String, modifier: Modifier = Modifier) {
+private fun PreviewInput(
+    state: InputPreviewState,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
     val source = rememberPreviewInteractionSource(focused = state == InputPreviewState.Focus)
     Input(
         value = value,
@@ -175,9 +185,10 @@ private fun InputPhoneDarkPreview() {
 @Composable
 private fun InputIconSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         Input(
@@ -185,8 +196,20 @@ private fun InputIconSamples() {
             onValueChange = {},
             modifier = Modifier.fillMaxWidth(),
             placeholder = "Search cards",
-            leadingIcon = { Icon(CardiganIcons.Search, contentDescription = null, modifier = Modifier.size(InputIconSize)) },
-            trailingIcon = { Icon(CardiganIcons.Close, contentDescription = null, modifier = Modifier.size(InputIconSize)) },
+            leadingIcon = {
+                Icon(
+                    CardiganIcons.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(InputIconSize),
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    CardiganIcons.Close,
+                    contentDescription = null,
+                    modifier = Modifier.size(InputIconSize),
+                )
+            },
         )
         Input(
             value = "correct horse",

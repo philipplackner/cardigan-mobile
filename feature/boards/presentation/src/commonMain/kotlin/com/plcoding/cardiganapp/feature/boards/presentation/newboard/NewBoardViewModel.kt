@@ -37,7 +37,6 @@ class NewBoardViewModel(
     private val toastController: ToastController,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(restore())
     val state: StateFlow<NewBoardState> = _state.asStateFlow()
 
@@ -53,15 +52,30 @@ class NewBoardViewModel(
     fun onAction(action: NewBoardAction) {
         if (_state.value.isSaving) return
         when (action) {
-            is NewBoardAction.NameChange -> update {
-                if (keyEdited) copy(name = action.name) else copy(name = action.name, key = BoardKeyPrefill.fromName(action.name))
+            is NewBoardAction.NameChange -> {
+                update {
+                    if (keyEdited) {
+                        copy(
+                            name = action.name,
+                        )
+                    } else {
+                        copy(name = action.name, key = BoardKeyPrefill.fromName(action.name))
+                    }
+                }
             }
+
             is NewBoardAction.KeyChange -> {
                 keyEdited = true
                 update { copy(key = BoardKeyRule.normalize(action.key)) }
             }
-            NewBoardAction.Create -> create()
-            NewBoardAction.Cancel -> _events.trySend(NewBoardEvent.Close)
+
+            NewBoardAction.Create -> {
+                create()
+            }
+
+            NewBoardAction.Cancel -> {
+                _events.trySend(NewBoardEvent.Close)
+            }
         }
     }
 
@@ -88,15 +102,24 @@ class NewBoardViewModel(
                     val board = result.data
                     _events.send(NewBoardEvent.Created(board.id.toString(), board.name, board.key))
                 }
+
                 is Result.Error -> {
                     _state.update { it.copy(isSaving = false) }
                     when (val error = result.error) {
-                        is BoardSaveError.InvalidFields -> _state.update {
-                            it.copy(nameError = error.name?.toNameError(), keyError = error.key?.toBoardKeyFieldError(key))
+                        is BoardSaveError.InvalidFields -> {
+                            _state.update {
+                                it.copy(
+                                    nameError = error.name?.toNameError(),
+                                    keyError = error.key?.toBoardKeyFieldError(key),
+                                )
+                            }
                         }
-                        is BoardSaveError.Network, BoardSaveError.NotFound -> toastController.show(
-                            ToastMessage(UiText.Resource(Res.string.new_board_failed), ToastType.Error),
-                        )
+
+                        is BoardSaveError.Network, BoardSaveError.NotFound -> {
+                            toastController.show(
+                                ToastMessage(UiText.Resource(Res.string.new_board_failed), ToastType.Error),
+                            )
+                        }
                     }
                 }
             }
@@ -106,11 +129,16 @@ class NewBoardViewModel(
     private fun NewBoardState.validated(): NewBoardState {
         val key = BoardKeyRule.normalize(key)
         val keyRule = BoardKeyRule.validate(key)
-        val keyError = when {
-            keyRule != null -> BoardKeyFieldError.Rule(keyRule)
-            repository.boards.value.orEmpty().any { it.key == key } -> BoardKeyFieldError.AlreadyUsed(key)
-            else -> null
-        }
+        val keyError =
+            when {
+                keyRule != null -> BoardKeyFieldError.Rule(keyRule)
+
+                repository.boards.value
+                    .orEmpty()
+                    .any { it.key == key } -> BoardKeyFieldError.AlreadyUsed(key)
+
+                else -> null
+            }
         return copy(nameError = validateName(normalizeText(name), BOARD_NAME_MAX_LENGTH), keyError = keyError)
     }
 
@@ -122,11 +150,12 @@ class NewBoardViewModel(
     }
 
     private fun restore(): NewBoardState {
-        val restored = NewBoardState(
-            name = savedStateHandle[KEY_NAME] ?: "",
-            key = savedStateHandle[KEY_KEY] ?: "",
-            submitted = savedStateHandle[KEY_SUBMITTED] ?: false,
-        )
+        val restored =
+            NewBoardState(
+                name = savedStateHandle[KEY_NAME] ?: "",
+                key = savedStateHandle[KEY_KEY] ?: "",
+                submitted = savedStateHandle[KEY_SUBMITTED] ?: false,
+            )
         return if (restored.submitted) restored.validated() else restored
     }
 

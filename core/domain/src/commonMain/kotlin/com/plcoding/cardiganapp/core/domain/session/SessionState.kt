@@ -8,9 +8,13 @@ sealed interface SessionState {
      * A user is signed in. [email] is the backend's lowercased email. A restore that can't reach
      * the backend still reports this state with the stored email.
      */
-    data class SignedIn(val email: String) : SessionState
+    data class SignedIn(
+        val email: String,
+    ) : SessionState
 
-    data class SignedOut(val reason: SignOutReason) : SessionState
+    data class SignedOut(
+        val reason: SignOutReason,
+    ) : SessionState
 }
 
 enum class SignOutReason {

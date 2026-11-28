@@ -42,24 +42,40 @@ fun BoardRoot(
             withFrameNanos { }
             val layout = stripState.layoutInfo
             val item = layout.visibleItemsInfo.firstOrNull { it.index == index }
-            val fullyVisible = item != null &&
-                item.offset >= layout.viewportStartOffset &&
-                item.offset + item.size <= layout.viewportEndOffset
+            val fullyVisible =
+                item != null &&
+                    item.offset >= layout.viewportStartOffset &&
+                    item.offset + item.size <= layout.viewportEndOffset
             if (!fullyVisible) stripState.animateScrollToItem(index)
         }
     }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            BoardEvent.BoardMissing -> onBoardMissing()
-            BoardEvent.BoardDeleted -> onBoardDeleted()
+            BoardEvent.BoardMissing -> {
+                onBoardMissing()
+            }
+
+            BoardEvent.BoardDeleted -> {
+                onBoardDeleted()
+            }
+
             is BoardEvent.ScrollToColumn -> {
-                val columns = viewModel.state.value.loaded?.content?.columns.orEmpty()
+                val columns =
+                    viewModel.state.value.loaded
+                        ?.content
+                        ?.columns
+                        .orEmpty()
                 scrollToItem(columns.indexOfFirst { it.id == event.columnId })
             }
+
             is BoardEvent.FocusInlineField -> {
                 focusRequest = FocusRequest(event.target, (focusRequest?.id ?: 0) + 1)
-                val columns = viewModel.state.value.loaded?.content?.columns.orEmpty()
+                val columns =
+                    viewModel.state.value.loaded
+                        ?.content
+                        ?.columns
+                        .orEmpty()
                 when (val target = event.target) {
                     InlineTarget.AddColumn -> scrollToItem(columns.size)
                     is InlineTarget.QuickAdd -> scrollToItem(columns.indexOfFirst { it.id == target.columnId })
@@ -72,12 +88,42 @@ fun BoardRoot(
         state = state,
         onAction = { action ->
             when (action) {
-                BoardAction.BackClick -> onBack()
-                is BoardAction.CardClick -> onCardClick(action.cardId.toString())
-                BoardAction.ExportClick -> state.loaded?.content?.board?.let { onExportClick(it.id.toString(), it.name) }
-                BoardAction.RenameBoardClick -> state.loaded?.content?.board?.let { onRenameBoardClick(it.id.toString()) }
-                BoardAction.DeleteBoardClick -> state.loaded?.content?.board?.let { onDeleteBoardClick(it.id.toString()) }
-                else -> viewModel.onAction(action)
+                BoardAction.BackClick -> {
+                    onBack()
+                }
+
+                is BoardAction.CardClick -> {
+                    onCardClick(action.cardId.toString())
+                }
+
+                BoardAction.ExportClick -> {
+                    state.loaded?.content?.board?.let {
+                        onExportClick(
+                            it.id.toString(),
+                            it.name,
+                        )
+                    }
+                }
+
+                BoardAction.RenameBoardClick -> {
+                    state.loaded?.content?.board?.let {
+                        onRenameBoardClick(
+                            it.id.toString(),
+                        )
+                    }
+                }
+
+                BoardAction.DeleteBoardClick -> {
+                    state.loaded?.content?.board?.let {
+                        onDeleteBoardClick(
+                            it.id.toString(),
+                        )
+                    }
+                }
+
+                else -> {
+                    viewModel.onAction(action)
+                }
             }
         },
         modifier = modifier,

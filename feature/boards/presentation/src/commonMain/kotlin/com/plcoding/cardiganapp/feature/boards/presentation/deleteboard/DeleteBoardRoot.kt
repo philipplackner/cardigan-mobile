@@ -35,18 +35,22 @@ fun DeleteBoardRoot(
                 onClose()
                 onDeleted()
             }
-            DeleteBoardEvent.Close -> onClose()
+
+            DeleteBoardEvent.Close -> {
+                onClose()
+            }
         }
     }
     DeleteBoardScreen(state = state, onAction = viewModel::onAction)
 }
 
 /** "Its {n} cards will be deleted too. …", or only "This can’t be undone." without cards (D5). */
-fun deleteBoardBody(cardCount: Int): UiText = if (cardCount == 0) {
-    UiText.Resource(Res.string.delete_board_body_empty)
-} else {
-    UiText.PluralResource(Res.plurals.delete_board_body, cardCount, arrayOf(cardCount))
-}
+fun deleteBoardBody(cardCount: Int): UiText =
+    if (cardCount == 0) {
+        UiText.Resource(Res.string.delete_board_body_empty)
+    } else {
+        UiText.PluralResource(Res.plurals.delete_board_body, cardCount, arrayOf(cardCount))
+    }
 
 @Composable
 fun DeleteBoardScreen(
@@ -80,7 +84,11 @@ fun DeleteBoardScreen(
 }
 
 @Composable
-private fun DeletePreview(state: DeleteBoardState, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun DeletePreview(
+    state: DeleteBoardState,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         DeleteBoardScreen(state = state, onAction = {})
     }
@@ -96,7 +104,8 @@ private fun DeleteDesktopPreview() = DeletePreview(DeleteBoardState("Cardigan v1
 
 @Preview(name = "Delete board · Desktop · Dark", widthDp = 1440, heightDp = 900)
 @Composable
-private fun DeleteDesktopDarkPreview() = DeletePreview(DeleteBoardState("Cardigan v1", 12), WindowClass.Desktop, darkTheme = true)
+private fun DeleteDesktopDarkPreview() =
+    DeletePreview(DeleteBoardState("Cardigan v1", 12), WindowClass.Desktop, darkTheme = true)
 
 @Preview(name = "Delete board, 1 card · Phone", widthDp = 390, heightDp = 844)
 @Composable
@@ -108,4 +117,5 @@ private fun DeleteNoCardsDesktopPreview() = DeletePreview(DeleteBoardState("Rayt
 
 @Preview(name = "Deleting · Desktop", widthDp = 1440, heightDp = 900)
 @Composable
-private fun DeletingDesktopPreview() = DeletePreview(DeleteBoardState("Cardigan v1", 12, isDeleting = true), WindowClass.Desktop)
+private fun DeletingDesktopPreview() =
+    DeletePreview(DeleteBoardState("Cardigan v1", 12, isDeleting = true), WindowClass.Desktop)

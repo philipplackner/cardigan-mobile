@@ -10,7 +10,6 @@ import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.util.RelativeTimeFormatter
 import com.plcoding.cardiganapp.feature.boards.presentation.util.boardsReloadFailedToast
-import kotlin.time.Clock
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
+import kotlin.time.Clock
 
 /**
  * The board list reads the shared board store. The first load joins the app-start load; while the
@@ -34,7 +34,6 @@ class BoardListViewModel(
     clock: Clock,
     timeZone: TimeZone,
 ) : ViewModel() {
-
     private val formatter = RelativeTimeFormatter(clock, timeZone)
 
     private val _state = MutableStateFlow(BoardListState())
@@ -54,22 +53,39 @@ class BoardListViewModel(
 
     fun onAction(action: BoardListAction) {
         when (action) {
-            is BoardListAction.OnBoardClick -> openBoard(action.boardId)
-            BoardListAction.OnRefresh -> viewModelScope.launch {
-                reloader.reload().onFailure { toastController.show(boardsReloadFailedToast()) }
+            is BoardListAction.OnBoardClick -> {
+                openBoard(action.boardId)
             }
+
+            BoardListAction.OnRefresh -> {
+                viewModelScope.launch {
+                    reloader.reload().onFailure { toastController.show(boardsReloadFailedToast()) }
+                }
+            }
+
             BoardListAction.OnRetry -> {
                 _state.update { it.copy(content = BoardListContent.Loading) }
                 load { repository.refresh() }
             }
-            BoardListAction.OnMenuClick -> _state.update { it.copy(isMenuOpen = true) }
+
+            BoardListAction.OnMenuClick -> {
+                _state.update { it.copy(isMenuOpen = true) }
+            }
+
             BoardListAction.OnMenuDismiss,
             BoardListAction.OnImportClick,
             BoardListAction.OnLabelsClick,
-            BoardListAction.OnLogOutClick -> _state.update { it.copy(isMenuOpen = false) }
+            BoardListAction.OnLogOutClick,
+            -> {
+                _state.update { it.copy(isMenuOpen = false) }
+            }
+
             BoardListAction.OnNewBoardClick,
             is BoardListAction.OnRenameClick,
-            is BoardListAction.OnDeleteClick -> Unit
+            is BoardListAction.OnDeleteClick,
+            -> {
+                Unit
+            }
         }
     }
 
@@ -87,12 +103,21 @@ class BoardListViewModel(
         _events.trySend(BoardListEvent.OpenBoard(boardId, board.name, board.key))
     }
 
-    private fun BoardListState.withBoards(boards: List<BoardSummary>?): BoardListState = when {
-        boards != null -> copy(
-            content = BoardListContent.Loaded(boards.map { it.toBoardItemUi(formatter) }),
-            boardCount = boards.size,
-        )
-        content is BoardListContent.Loaded -> copy(content = BoardListContent.Loading, boardCount = 0)
-        else -> this
-    }
+    private fun BoardListState.withBoards(boards: List<BoardSummary>?): BoardListState =
+        when {
+            boards != null -> {
+                copy(
+                    content = BoardListContent.Loaded(boards.map { it.toBoardItemUi(formatter) }),
+                    boardCount = boards.size,
+                )
+            }
+
+            content is BoardListContent.Loaded -> {
+                copy(content = BoardListContent.Loading, boardCount = 0)
+            }
+
+            else -> {
+                this
+            }
+        }
 }

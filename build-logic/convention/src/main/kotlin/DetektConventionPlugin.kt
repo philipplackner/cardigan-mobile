@@ -55,13 +55,16 @@ class DetektConventionPlugin : Plugin<Project> {
             removeDetektFromCheck()
 
             pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
-                val iosSources = files(
-                    provider {
-                        extensions.getByType(KotlinMultiplatformExtension::class.java).sourceSets
-                            .filter { isIosOnlySourceSet(it.name) }
-                            .map { it.kotlin.sourceDirectories }
-                    },
-                )
+                val iosSources =
+                    files(
+                        provider {
+                            extensions
+                                .getByType(KotlinMultiplatformExtension::class.java)
+                                .sourceSets
+                                .filter { isIosOnlySourceSet(it.name) }
+                                .map { it.kotlin.sourceDirectories }
+                        },
+                    )
                 tasks.named<Detekt>(DETEKT_TASK) {
                     setSource(iosSources)
                     dependsOn(KMP_TYPE_RESOLVED_DETEKT_TASKS)
@@ -88,10 +91,11 @@ class DetektConventionPlugin : Plugin<Project> {
         }
     }
 
-    private fun Any.isDetektTask(): Boolean = when (this) {
-        is NamedDomainObjectProvider<*> -> name.startsWith(DETEKT_TASK)
-        is Task -> name.startsWith(DETEKT_TASK)
-        is String -> substringAfterLast(':').startsWith(DETEKT_TASK)
-        else -> false
-    }
+    private fun Any.isDetektTask(): Boolean =
+        when (this) {
+            is NamedDomainObjectProvider<*> -> name.startsWith(DETEKT_TASK)
+            is Task -> name.startsWith(DETEKT_TASK)
+            is String -> substringAfterLast(':').startsWith(DETEKT_TASK)
+            else -> false
+        }
 }

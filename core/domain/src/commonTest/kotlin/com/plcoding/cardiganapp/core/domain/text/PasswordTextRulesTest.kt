@@ -17,7 +17,6 @@ import kotlin.test.Test
  *   U+1D400, U+1D41A), emoji and a lone surrogate are Other
  */
 class PasswordTextRulesTest {
-
     @Test
     fun passwordIsComposed() {
         assertThat(normalizePassword("Caf" + "é")).isEqualTo("Café")

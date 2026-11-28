@@ -7,7 +7,9 @@ interface ExportFileChecker {
 }
 
 /** [key] is the file's `board.key`, normalized with [com.plcoding.cardiganapp.core.domain.board.BoardKeyRule.normalize], or null when missing. */
-data class CheckedFile(val key: String?)
+data class CheckedFile(
+    val key: String?,
+)
 
 /** Finds the name of a loaded board that uses [key], or null when no loaded board has it. */
 fun interface BoardKeyOwnerLookup {

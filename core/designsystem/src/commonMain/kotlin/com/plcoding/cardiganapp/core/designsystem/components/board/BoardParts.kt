@@ -48,18 +48,20 @@ private val ColumnHeaderMinHeight = 30.dp
 @Composable
 fun DropIndicator(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(DropIndicatorHeight)
-            .background(AppTheme.colors.accent.default, RoundedCornerShape(AppTheme.radius.r2)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(DropIndicatorHeight)
+                .background(AppTheme.colors.accent.default, RoundedCornerShape(AppTheme.radius.r2)),
     ) {
         Box(
-            modifier = Modifier
-                // The 3dp bar would otherwise clamp the knob's height.
-                .wrapContentSize(Alignment.TopStart, unbounded = true)
-                .offset(x = (-4).dp, y = (-3).dp)
-                .size(DropKnobSize)
-                .background(AppTheme.colors.accent.default, CircleShape),
+            modifier =
+                Modifier
+                    // The 3dp bar would otherwise clamp the knob's height.
+                    .wrapContentSize(Alignment.TopStart, unbounded = true)
+                    .offset(x = (-4).dp, y = (-3).dp)
+                    .size(DropKnobSize)
+                    .background(AppTheme.colors.accent.default, CircleShape),
         )
     }
 }
@@ -74,15 +76,24 @@ fun AddCardButton(
     val touch = isTouchSize
     val shape = RoundedCornerShape(AppTheme.radius.r6)
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = AppTheme.space.s6, vertical = if (touch) AppTheme.space.s10 else AppTheme.space.s7),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(
+                    horizontal = AppTheme.space.s6,
+                    vertical = if (touch) AppTheme.space.s10 else AppTheme.space.s7,
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s7),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(CardiganIcons.Plus, contentDescription = null, tint = AppTheme.colors.text.muted, modifier = Modifier.size(BoardIconSize))
+        Icon(
+            CardiganIcons.Plus,
+            contentDescription = null,
+            tint = AppTheme.colors.text.muted,
+            modifier = Modifier.size(BoardIconSize),
+        )
         Text(
             text = text,
             style = if (touch) AppTheme.textStyles.sans14Regular145 else AppTheme.textStyles.sans13Regular145,
@@ -102,15 +113,26 @@ fun AddColumnButton(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     Row(
-        modifier = modifier
-            .dashedBorder(AppTheme.space.s1, AppTheme.colors.border.strong, shape, dash = AppTheme.space.s4, gap = AppTheme.space.s3)
-            .clip(shape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s11),
+        modifier =
+            modifier
+                .dashedBorder(
+                    AppTheme.space.s1,
+                    AppTheme.colors.border.strong,
+                    shape,
+                    dash = AppTheme.space.s4,
+                    gap = AppTheme.space.s3,
+                ).clip(shape)
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s11),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s7),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(CardiganIcons.Plus, contentDescription = null, tint = AppTheme.colors.text.muted, modifier = Modifier.size(BoardIconSize))
+        Icon(
+            CardiganIcons.Plus,
+            contentDescription = null,
+            tint = AppTheme.colors.text.muted,
+            modifier = Modifier.size(BoardIconSize),
+        )
         Text(
             text = text,
             style = AppTheme.textStyles.sans13Regular145,
@@ -140,17 +162,26 @@ fun BoardColumn(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     Column(
-        modifier = modifier
-            .background(AppTheme.colors.background.column, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.space.s8),
+        modifier =
+            modifier
+                .background(AppTheme.colors.background.column, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(AppTheme.space.s8),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = ColumnHeaderMinHeight)
-                .padding(PaddingValues(start = AppTheme.space.s6, end = AppTheme.space.s2, top = AppTheme.space.s2, bottom = AppTheme.space.s2)),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = ColumnHeaderMinHeight)
+                    .padding(
+                        PaddingValues(
+                            start = AppTheme.space.s6,
+                            end = AppTheme.space.s2,
+                            top = AppTheme.space.s2,
+                            bottom = AppTheme.space.s2,
+                        ),
+                    ),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -168,7 +199,12 @@ fun BoardColumn(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                Text(text = count, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
+                Text(
+                    text = count,
+                    style = AppTheme.textStyles.mono11_5Regular100,
+                    color = AppTheme.colors.text.muted,
+                    maxLines = 1,
+                )
             }
             menuButton()
         }
@@ -185,9 +221,10 @@ fun BoardColumn(
 @Composable
 private fun ColumnSample() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         BoardColumn(
@@ -195,7 +232,12 @@ private fun ColumnSample() {
             count = "4",
             modifier = Modifier.width(if (isTouchSize) 300.dp else 276.dp),
             menuButton = {
-                CardiganIconButton(CardiganIcons.More, contentDescription = "Column menu", onClick = {}, size = IconButtonSize.Small)
+                CardiganIconButton(
+                    CardiganIcons.More,
+                    contentDescription = "Column menu",
+                    onClick = {},
+                    size = IconButtonSize.Small,
+                )
             },
             addCard = { AddCardButton(text = "Add card", onClick = {}) },
         ) {

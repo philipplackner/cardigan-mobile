@@ -12,14 +12,16 @@ import com.plcoding.cardiganapp.feature.transfer.presentation.importboard.KeyFie
 
 fun fileSizeText(bytes: Long): UiText {
     val size = FileSizeFormatter.format(bytes)
-    val id = when (size.unit) {
-        FileSizeUnit.KB -> Res.string.file_size_kb
-        FileSizeUnit.MB -> Res.string.file_size_mb
-    }
+    val id =
+        when (size.unit) {
+            FileSizeUnit.KB -> Res.string.file_size_kb
+            FileSizeUnit.MB -> Res.string.file_size_mb
+        }
     return UiText.Resource(id, arrayOf(size.value))
 }
 
-fun KeyFieldError.toUiText(): UiText = when (this) {
-    is KeyFieldError.AlreadyUsed -> boardKeyAlreadyUsedText(key)
-    is KeyFieldError.Rule -> rule.toUiText()
-}
+fun KeyFieldError.toUiText(): UiText =
+    when (this) {
+        is KeyFieldError.AlreadyUsed -> boardKeyAlreadyUsedText(key)
+        is KeyFieldError.Rule -> rule.toUiText()
+    }

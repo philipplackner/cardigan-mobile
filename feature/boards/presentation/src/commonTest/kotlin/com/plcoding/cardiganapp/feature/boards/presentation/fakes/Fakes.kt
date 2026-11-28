@@ -9,15 +9,17 @@ import com.plcoding.cardiganapp.feature.boards.domain.BoardOrder
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
-import kotlin.time.Clock
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 /** A board store with scripted results. Successful saves update [boards] like the real store. */
-class FakeBoardRepository(initial: List<BoardSummary>? = null) : BoardRepository {
+class FakeBoardRepository(
+    initial: List<BoardSummary>? = null,
+) : BoardRepository {
     val state = MutableStateFlow(initial)
     override val boards: StateFlow<List<BoardSummary>?> = state
 
@@ -52,7 +54,10 @@ class FakeBoardRepository(initial: List<BoardSummary>? = null) : BoardRepository
         return refresh()
     }
 
-    override suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError> {
+    override suspend fun createBoard(
+        name: String,
+        key: String,
+    ): Result<BoardSummary, BoardSaveError> {
         createCalls += name to key
         gate?.await()
         val result = createResult ?: Result.Success(board(name = name, key = key, updated = "2026-11-21T09:59:00Z"))
@@ -60,14 +65,25 @@ class FakeBoardRepository(initial: List<BoardSummary>? = null) : BoardRepository
         return result
     }
 
-    override suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError> {
+    override suspend fun renameBoard(
+        id: Uuid,
+        name: String,
+    ): Result<BoardSummary, BoardSaveError> {
         renameCalls += id to name
         gate?.await()
         val current = state.value?.firstOrNull { it.id == id }
-        val result = renameResult ?: current?.let { Result.Success(it.copy(name = name)) } ?: Result.Error(BoardSaveError.NotFound)
+        val result =
+            renameResult ?: current?.let { Result.Success(it.copy(name = name)) }
+                ?: Result.Error(BoardSaveError.NotFound)
         when {
-            result is Result.Success -> state.value = state.value?.let { BoardOrder.replace(it, result.data) }
-            result is Result.Error && result.error == BoardSaveError.NotFound -> state.value = state.value?.filterNot { it.id == id }
+            result is Result.Success -> {
+                state.value = state.value?.let { BoardOrder.replace(it, result.data) }
+            }
+
+            result is Result.Error && result.error == BoardSaveError.NotFound -> {
+                state.value =
+                    state.value?.filterNot { it.id == id }
+            }
         }
         return result
     }
@@ -90,7 +106,9 @@ class FakeToastController : ToastController {
     }
 }
 
-class FakeClock(var now: Instant = Instant.parse("2026-11-21T10:00:00Z")) : Clock {
+class FakeClock(
+    var now: Instant = Instant.parse("2026-11-21T10:00:00Z"),
+) : Clock {
     override fun now(): Instant = now
 }
 

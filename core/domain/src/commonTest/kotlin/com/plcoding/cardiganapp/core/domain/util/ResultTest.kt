@@ -12,7 +12,6 @@ import kotlin.test.Test
 import kotlin.test.fail
 
 class ResultTest {
-
     private enum class TestError : Error { BOOM }
 
     @Test
@@ -50,7 +49,8 @@ class ResultTest {
     fun `chained calls run in order on the mapped value and only one branch fires`() {
         val calls = mutableListOf<String>()
 
-        Result.Success(2)
+        Result
+            .Success(2)
             .map { it * 10 }
             .onSuccess { calls += "success:$it" }
             .onFailure { calls += "failure:$it" }
@@ -74,13 +74,13 @@ class ResultTest {
         val result: Result<String?, TestError> = Result.Success(null)
         var received = false
 
-        val mapped = result
-            .onSuccess {
-                assertThat(it).isNull()
-                received = true
-            }
-            .onFailure { fail("null data must not be treated as failure") }
-            .map { it ?: "fallback" }
+        val mapped =
+            result
+                .onSuccess {
+                    assertThat(it).isNull()
+                    received = true
+                }.onFailure { fail("null data must not be treated as failure") }
+                .map { it ?: "fallback" }
 
         assertThat(received).isTrue()
         assertThat(mapped).isEqualTo(Result.Success("fallback"))

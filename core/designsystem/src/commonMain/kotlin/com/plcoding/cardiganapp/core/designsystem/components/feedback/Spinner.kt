@@ -25,16 +25,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 
-enum class SpinnerSize(internal val diameter: Dp, internal val strokeWidth: Dp) {
+enum class SpinnerSize(
+    internal val diameter: Dp,
+    internal val strokeWidth: Dp,
+) {
     Small(diameter = 15.dp, strokeWidth = 2.dp),
     Large(diameter = 24.dp, strokeWidth = 2.5.dp),
 }
 
-private const val ArcFraction = 0.75f
+private const val ARC_FRACTION = 0.75f
 
 // Figma draws the ring from 45° to 315°, so the opening faces right.
-private const val ArcStartRotation = 135f
-private const val RotationMillis = 1000
+private const val ARC_START_ROTATION = 135f
+private const val ROTATION_MILLIS = 1000
 
 /**
  * Indeterminate progress ring. Small takes the content color of its context (`text/on-accent` in a
@@ -44,22 +47,24 @@ private const val RotationMillis = 1000
 fun Spinner(
     modifier: Modifier = Modifier,
     size: SpinnerSize = SpinnerSize.Small,
-    color: Color = when (size) {
-        SpinnerSize.Small -> LocalContentColor.current
-        SpinnerSize.Large -> AppTheme.colors.accent.default
-    },
+    color: Color =
+        when (size) {
+            SpinnerSize.Small -> LocalContentColor.current
+            SpinnerSize.Large -> AppTheme.colors.accent.default
+        },
 ) {
     val rotation by rememberInfiniteTransition(label = "spinner").animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(RotationMillis, easing = LinearEasing), RepeatMode.Restart),
+        animationSpec = infiniteRepeatable(tween(ROTATION_MILLIS, easing = LinearEasing), RepeatMode.Restart),
         label = "spinnerRotation",
     )
     CircularProgressIndicator(
-        progress = { ArcFraction },
-        modifier = modifier
-            .size(size.diameter)
-            .graphicsLayer { rotationZ = ArcStartRotation + rotation },
+        progress = { ARC_FRACTION },
+        modifier =
+            modifier
+                .size(size.diameter)
+                .graphicsLayer { rotationZ = ARC_START_ROTATION + rotation },
         color = color,
         strokeWidth = size.strokeWidth,
         trackColor = Color.Transparent,
@@ -71,9 +76,10 @@ fun Spinner(
 @Composable
 private fun SpinnerSamples() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s32),
         verticalAlignment = Alignment.CenterVertically,
     ) {

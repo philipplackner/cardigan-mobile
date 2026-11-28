@@ -51,7 +51,7 @@ enum class ButtonStyle {
 }
 
 internal val ButtonIconSize: Dp = 15.dp
-internal const val DisabledAlpha = 0.45f
+internal const val DISABLED_ALPHA = 0.45f
 
 /**
  * Text button with an optional leading icon. [size] is the semantic size; in the phone class it
@@ -72,33 +72,44 @@ fun CardiganButton(
 ) {
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r6)
-    val containerColor = when (style) {
-        ButtonStyle.Primary -> colors.accent.default
-        ButtonStyle.Secondary -> colors.background.surface
-        ButtonStyle.Danger -> colors.danger.default
-        ButtonStyle.Ghost, ButtonStyle.DangerGhost -> Color.Transparent
-    }
-    val contentColor = when (style) {
-        ButtonStyle.Primary -> colors.text.onAccent
-        ButtonStyle.Secondary -> colors.text.primary
-        ButtonStyle.Ghost -> colors.text.muted
-        ButtonStyle.Danger -> colors.text.onDanger
-        ButtonStyle.DangerGhost -> colors.danger.default
-    }
-    val rippleColor = when (style) {
-        ButtonStyle.Primary, ButtonStyle.Danger -> colors.text.onAccent
-        else -> colors.text.primary
-    }
+    val containerColor =
+        when (style) {
+            ButtonStyle.Primary -> colors.accent.default
+            ButtonStyle.Secondary -> colors.background.surface
+            ButtonStyle.Danger -> colors.danger.default
+            ButtonStyle.Ghost, ButtonStyle.DangerGhost -> Color.Transparent
+        }
+    val contentColor =
+        when (style) {
+            ButtonStyle.Primary -> colors.text.onAccent
+            ButtonStyle.Secondary -> colors.text.primary
+            ButtonStyle.Ghost -> colors.text.muted
+            ButtonStyle.Danger -> colors.text.onDanger
+            ButtonStyle.DangerGhost -> colors.danger.default
+        }
+    val rippleColor =
+        when (style) {
+            ButtonStyle.Primary, ButtonStyle.Danger -> colors.text.onAccent
+            else -> colors.text.primary
+        }
     val border = if (style == ButtonStyle.Secondary) BorderStroke(AppTheme.space.s1, colors.border.strong) else null
-    val shadowModifier = if (style == ButtonStyle.Secondary) Modifier.dropShadow(shape, AppTheme.shadows.small) else Modifier
+    val shadowModifier =
+        if (style ==
+            ButtonStyle.Secondary
+        ) {
+            Modifier.dropShadow(shape, AppTheme.shadows.small)
+        } else {
+            Modifier
+        }
 
     CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = rippleColor)) {
         Surface(
             onClick = onClick,
-            modifier = modifier
-                .alpha(if (enabled) 1f else DisabledAlpha)
-                .then(shadowModifier)
-                .semantics { role = Role.Button },
+            modifier =
+                modifier
+                    .alpha(if (enabled) 1f else DISABLED_ALPHA)
+                    .then(shadowModifier)
+                    .semantics { role = Role.Button },
             enabled = enabled && !isLoading,
             shape = shape,
             color = containerColor,
@@ -106,19 +117,25 @@ fun CardiganButton(
             border = border,
         ) {
             Row(
-                modifier = Modifier
-                    .heightIn(min = size.minHeight)
-                    .padding(buttonPadding(size)),
+                modifier =
+                    Modifier
+                        .heightIn(min = size.minHeight)
+                        .padding(buttonPadding(size)),
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s7, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 when {
-                    isLoading -> Spinner()
-                    leadingIcon != null -> Icon(
-                        painter = leadingIcon,
-                        contentDescription = null,
-                        modifier = Modifier.size(ButtonIconSize),
-                    )
+                    isLoading -> {
+                        Spinner()
+                    }
+
+                    leadingIcon != null -> {
+                        Icon(
+                            painter = leadingIcon,
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonIconSize),
+                        )
+                    }
                 }
                 Text(
                     text = text,
@@ -134,11 +151,12 @@ fun CardiganButton(
 @Composable
 private fun buttonPadding(size: ControlSize): PaddingValues {
     val space = AppTheme.space
-    val horizontal = when {
-        isTouchSize -> space.s16
-        size == ControlSize.Small -> space.s10
-        else -> space.s13
-    }
+    val horizontal =
+        when {
+            isTouchSize -> space.s16
+            size == ControlSize.Small -> space.s10
+            else -> space.s13
+        }
     return PaddingValues(horizontal = horizontal)
 }
 
@@ -154,9 +172,10 @@ private fun buttonTextStyle(size: ControlSize): TextStyle {
 @Composable
 private fun ButtonMatrix() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         ButtonStyle.entries.forEach { style ->
@@ -208,9 +227,10 @@ private fun ButtonPhoneDarkPreview() {
 @Composable
 private fun LoadingButtons() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         CardiganButton(text = "Saving", onClick = {}, isLoading = true)
@@ -237,9 +257,10 @@ private fun ButtonFontScalePreview() {
     CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
         AppTheme(darkTheme = false, windowClass = WindowClass.Phone) {
             Column(
-                modifier = Modifier
-                    .background(AppTheme.colors.background.app)
-                    .padding(AppTheme.space.s24),
+                modifier =
+                    Modifier
+                        .background(AppTheme.colors.background.app)
+                        .padding(AppTheme.space.s24),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
             ) {
                 CardiganButton(text = "Create board", onClick = {}, leadingIcon = CardiganIcons.Plus)

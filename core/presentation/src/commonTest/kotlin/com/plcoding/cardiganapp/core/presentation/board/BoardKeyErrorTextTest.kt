@@ -14,15 +14,15 @@ import com.plcoding.cardiganapp.core.presentation.util.UiText
 import kotlin.test.Test
 
 class BoardKeyErrorTextTest {
-
     @Test
     fun everyKeyErrorMapsToItsOwnString() {
-        val expected = mapOf(
-            BoardKeyError.Required to Res.string.board_key_error_required,
-            BoardKeyError.TooShort to Res.string.board_key_error_too_short,
-            BoardKeyError.TooLong to Res.string.board_key_error_too_long,
-            BoardKeyError.InvalidFormat to Res.string.board_key_error_invalid_format,
-        )
+        val expected =
+            mapOf(
+                BoardKeyError.Required to Res.string.board_key_error_required,
+                BoardKeyError.TooShort to Res.string.board_key_error_too_short,
+                BoardKeyError.TooLong to Res.string.board_key_error_too_long,
+                BoardKeyError.InvalidFormat to Res.string.board_key_error_invalid_format,
+            )
 
         expected.forEach { (error, id) ->
             val text = error.toUiText() as UiText.Resource

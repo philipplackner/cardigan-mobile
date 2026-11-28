@@ -6,12 +6,12 @@ import kotlin.test.Test
 import kotlin.uuid.Uuid
 
 class BoardContentTest {
-
-    private fun column(cards: Int) = Column(
-        id = Uuid.random(),
-        name = "c",
-        cards = List(cards) { Card(Uuid.random(), it + 1L, "t", emptyList()) },
-    )
+    private fun column(cards: Int) =
+        Column(
+            id = Uuid.random(),
+            name = "c",
+            cards = List(cards) { Card(Uuid.random(), it + 1L, "t", emptyList()) },
+        )
 
     @Test
     fun cardCountSumsAllColumns() {

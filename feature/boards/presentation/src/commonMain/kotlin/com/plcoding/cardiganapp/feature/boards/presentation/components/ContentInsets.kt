@@ -25,7 +25,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 /** Side and bottom safe-drawing insets that nothing above this point has consumed yet. */
 @Composable
 internal fun contentInsets(): PaddingValues =
-    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+    WindowInsets.safeDrawing
+        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
         .exclude(LocalConsumedInsets.current)
         .asPaddingValues()
 

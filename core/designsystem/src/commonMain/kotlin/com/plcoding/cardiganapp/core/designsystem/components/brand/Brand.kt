@@ -29,19 +29,21 @@ private val LogoBarHeights = listOf(14.dp, 9.dp, 11.dp)
 fun Logo(modifier: Modifier = Modifier) {
     val barShape = RoundedCornerShape(AppTheme.radius.r1)
     Row(
-        modifier = modifier
-            .size(LogoSize)
-            .background(AppTheme.colors.text.primary, RoundedCornerShape(AppTheme.radius.r6))
-            .padding(AppTheme.space.s4),
+        modifier =
+            modifier
+                .size(LogoSize)
+                .background(AppTheme.colors.text.primary, RoundedCornerShape(AppTheme.radius.r6))
+                .padding(AppTheme.space.s4),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s2),
         verticalAlignment = Alignment.Top,
     ) {
         LogoBarHeights.forEach { barHeight ->
             Spacer(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(barHeight)
-                    .background(AppTheme.colors.background.app, barShape),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .height(barHeight)
+                        .background(AppTheme.colors.background.app, barShape),
             )
         }
     }
@@ -65,15 +67,17 @@ fun Brand(
     modifier: Modifier = Modifier,
 ) {
     val space = AppTheme.space
-    val padding = when (size) {
-        BrandSize.AppBar -> PaddingValues(start = space.s4, end = space.s8, top = space.s4, bottom = space.s4)
-        BrandSize.Sidebar, BrandSize.Auth -> PaddingValues(horizontal = space.s8, vertical = space.s4)
-    }
-    val textStyle = when (size) {
-        BrandSize.Sidebar -> AppTheme.textStyles.sans15_5SemiBold100LsMinus2
-        BrandSize.AppBar -> AppTheme.textStyles.sans17SemiBold100LsMinus2
-        BrandSize.Auth -> AppTheme.textStyles.sans18SemiBold100LsMinus2
-    }
+    val padding =
+        when (size) {
+            BrandSize.AppBar -> PaddingValues(start = space.s4, end = space.s8, top = space.s4, bottom = space.s4)
+            BrandSize.Sidebar, BrandSize.Auth -> PaddingValues(horizontal = space.s8, vertical = space.s4)
+        }
+    val textStyle =
+        when (size) {
+            BrandSize.Sidebar -> AppTheme.textStyles.sans15_5SemiBold100LsMinus2
+            BrandSize.AppBar -> AppTheme.textStyles.sans17SemiBold100LsMinus2
+            BrandSize.Auth -> AppTheme.textStyles.sans18SemiBold100LsMinus2
+        }
     Row(
         modifier = modifier.padding(padding),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s9),
@@ -93,9 +97,10 @@ fun Brand(
 @Composable
 private fun BrandSamples() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
         verticalAlignment = Alignment.CenterVertically,
     ) {

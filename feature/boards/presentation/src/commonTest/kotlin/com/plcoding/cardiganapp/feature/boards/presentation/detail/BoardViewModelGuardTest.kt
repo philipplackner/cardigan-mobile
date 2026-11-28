@@ -7,10 +7,10 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
-import kotlin.test.Test
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.uuid.Uuid
 
 /*
  * Break vectors: actions that arrive when their target isn't there.
@@ -22,7 +22,6 @@ import kotlinx.coroutines.test.runTest
  * - discard dialog actions while a menu dialog shows, and Keep editing after the field was cancelled
  */
 class BoardViewModelGuardTest : BoardViewModelTestBase() {
-
     @Test
     fun missingBoardIdFailsFast() {
         assertFailure { BoardViewModel(repository, cards, labels, toasts, SavedStateHandle()) }
@@ -30,34 +29,35 @@ class BoardViewModelGuardTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun actionsWithoutTheirTargetDoNothing() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        val before = viewModel.state.value
-        listOf(
-            BoardAction.InlineTextChange("Blocked"),
-            BoardAction.InlineSubmit,
-            BoardAction.InlineCancel,
-            BoardAction.InlineOutsideTap,
-            BoardAction.DiscardKeepEditing,
-            BoardAction.DiscardConfirm,
-            BoardAction.RenameTextChange("QA"),
-            BoardAction.RenameSave,
-            BoardAction.DeleteConfirm,
-            BoardAction.DialogDismiss,
-            BoardAction.BackClick,
-            BoardAction.CardClick(todo.cards.first().id),
-            BoardAction.RenameBoardClick,
-            BoardAction.DeleteBoardClick,
-            BoardAction.ExportClick,
-        ).forEach { action ->
-            viewModel.onAction(action)
-            assertThat(viewModel.state.value, name = "$action").isEqualTo(before)
+    fun actionsWithoutTheirTargetDoNothing() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            val before = viewModel.state.value
+            listOf(
+                BoardAction.InlineTextChange("Blocked"),
+                BoardAction.InlineSubmit,
+                BoardAction.InlineCancel,
+                BoardAction.InlineOutsideTap,
+                BoardAction.DiscardKeepEditing,
+                BoardAction.DiscardConfirm,
+                BoardAction.RenameTextChange("QA"),
+                BoardAction.RenameSave,
+                BoardAction.DeleteConfirm,
+                BoardAction.DialogDismiss,
+                BoardAction.BackClick,
+                BoardAction.CardClick(todo.cards.first().id),
+                BoardAction.RenameBoardClick,
+                BoardAction.DeleteBoardClick,
+                BoardAction.ExportClick,
+            ).forEach { action ->
+                viewModel.onAction(action)
+                assertThat(viewModel.state.value, name = "$action").isEqualTo(before)
+            }
+            assertThat(events).containsExactly()
+            assertThat(repository.calls).containsExactly("load")
+            assertThat(cards.calls).containsExactly()
         }
-        assertThat(events).containsExactly()
-        assertThat(repository.calls).containsExactly("load")
-        assertThat(cards.calls).containsExactly()
-    }
 
     @Test
     fun columnMenuOnAnUnknownColumnDoesNothing() {
@@ -111,16 +111,17 @@ class BoardViewModelGuardTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun keepEditingAfterTheFieldWasCancelledOnlyCloses() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.OpenQuickAdd(todo.id))
-        viewModel.onAction(BoardAction.InlineTextChange("Write docs"))
-        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
-        viewModel.onAction(BoardAction.InlineCancel)
-        viewModel.onAction(BoardAction.DiscardKeepEditing)
-        assertThat(viewModel.state.value.dialog).isNull()
-        assertThat(viewModel.state.value.inlineField).isNull()
-        assertThat(events).containsExactly(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(todo.id)))
-    }
+    fun keepEditingAfterTheFieldWasCancelledOnlyCloses() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.OpenQuickAdd(todo.id))
+            viewModel.onAction(BoardAction.InlineTextChange("Write docs"))
+            viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+            viewModel.onAction(BoardAction.InlineCancel)
+            viewModel.onAction(BoardAction.DiscardKeepEditing)
+            assertThat(viewModel.state.value.dialog).isNull()
+            assertThat(viewModel.state.value.inlineField).isNull()
+            assertThat(events).containsExactly(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(todo.id)))
+        }
 }

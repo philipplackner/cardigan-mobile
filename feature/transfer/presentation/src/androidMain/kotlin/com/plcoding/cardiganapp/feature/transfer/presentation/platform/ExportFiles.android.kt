@@ -10,7 +10,10 @@ private const val EXPORTS_DIR = "exports"
 internal fun exportsDir(context: Context): File = File(context.cacheDir, EXPORTS_DIR)
 
 /** The written export with this name, or null when the name isn't safe or the file is gone. */
-internal fun exportedFile(context: Context, name: String?): File? {
+internal fun exportedFile(
+    context: Context,
+    name: String?,
+): File? {
     val safeName = ExportFileName.sanitize(name) ?: return null
     return File(exportsDir(context), safeName).takeIf { it.isFile }
 }

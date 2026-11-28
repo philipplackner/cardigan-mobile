@@ -22,8 +22,8 @@ import kotlin.reflect.typeOf
 suspend inline fun <reified Response> HttpClient.get(
     route: String,
     queryParameters: Map<String, Any?> = mapOf(),
-): Result<Response, DataError.Network> {
-    return safeCall {
+): Result<Response, DataError.Network> =
+    safeCall {
         get {
             url(constructRoute(route))
             queryParameters.forEach { (key, value) ->
@@ -31,37 +31,34 @@ suspend inline fun <reified Response> HttpClient.get(
             }
         }
     }
-}
 
 suspend inline fun <reified Request, reified Response> HttpClient.post(
     route: String,
     body: Request,
-): Result<Response, DataError.Network> {
-    return safeCall {
+): Result<Response, DataError.Network> =
+    safeCall {
         post {
             url(constructRoute(route))
             setBody(body)
         }
     }
-}
 
 suspend inline fun <reified Request, reified Response> HttpClient.patch(
     route: String,
     body: Request,
-): Result<Response, DataError.Network> {
-    return safeCall {
+): Result<Response, DataError.Network> =
+    safeCall {
         patch {
             url(constructRoute(route))
             setBody(body)
         }
     }
-}
 
 suspend inline fun <reified Response> HttpClient.delete(
     route: String,
     queryParameters: Map<String, Any?> = mapOf(),
-): Result<Response, DataError.Network> {
-    return safeCall {
+): Result<Response, DataError.Network> =
+    safeCall {
         delete {
             url(constructRoute(route))
             queryParameters.forEach { (key, value) ->
@@ -69,16 +66,12 @@ suspend inline fun <reified Response> HttpClient.delete(
             }
         }
     }
-}
 
-suspend inline fun <reified T> safeCall(
-    noinline execute: suspend () -> HttpResponse,
-): Result<T, DataError.Network> {
-    return platformSafeCall(
+suspend inline fun <reified T> safeCall(noinline execute: suspend () -> HttpResponse): Result<T, DataError.Network> =
+    platformSafeCall(
         execute = execute,
         handleResponse = { response -> responseToResult(response) },
     )
-}
 
 /**
  * Runs the request and maps exceptions to [DataError.Network]. Connectivity exceptions differ
@@ -94,10 +87,8 @@ expect suspend fun <T> platformSafeCall(
  * Maps a response to a [Result] by HTTP status only. Error bodies are never parsed, so bodies
  * that aren't problem details (e.g. from a proxy) are handled the same way.
  */
-suspend inline fun <reified T> responseToResult(
-    response: HttpResponse,
-): Result<T, DataError.Network> {
-    return when (response.status.value) {
+suspend inline fun <reified T> responseToResult(response: HttpResponse): Result<T, DataError.Network> =
+    when (response.status.value) {
         in 200..299 -> {
             if (typeOf<T>() == typeOf<Unit>()) {
                 Result.Success(Unit as T)
@@ -105,26 +96,67 @@ suspend inline fun <reified T> responseToResult(
                 Result.Success(response.body<T>())
             }
         }
-        400 -> Result.Error(DataError.Network.BAD_REQUEST)
-        401 -> Result.Error(DataError.Network.UNAUTHORIZED)
-        403 -> Result.Error(DataError.Network.FORBIDDEN)
-        404 -> Result.Error(DataError.Network.NOT_FOUND)
-        408 -> Result.Error(DataError.Network.REQUEST_TIMEOUT)
-        409 -> Result.Error(DataError.Network.CONFLICT)
-        413 -> Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)
-        415 -> Result.Error(DataError.Network.UNSUPPORTED_MEDIA_TYPE)
-        422 -> Result.Error(DataError.Network.UNPROCESSABLE_ENTITY)
-        429 -> Result.Error(DataError.Network.TOO_MANY_REQUESTS)
-        503 -> Result.Error(DataError.Network.SERVICE_UNAVAILABLE)
-        in 500..599 -> Result.Error(DataError.Network.SERVER_ERROR)
-        else -> Result.Error(DataError.Network.UNKNOWN)
+
+        400 -> {
+            Result.Error(DataError.Network.BAD_REQUEST)
+        }
+
+        401 -> {
+            Result.Error(DataError.Network.UNAUTHORIZED)
+        }
+
+        403 -> {
+            Result.Error(DataError.Network.FORBIDDEN)
+        }
+
+        404 -> {
+            Result.Error(DataError.Network.NOT_FOUND)
+        }
+
+        408 -> {
+            Result.Error(DataError.Network.REQUEST_TIMEOUT)
+        }
+
+        409 -> {
+            Result.Error(DataError.Network.CONFLICT)
+        }
+
+        413 -> {
+            Result.Error(DataError.Network.PAYLOAD_TOO_LARGE)
+        }
+
+        415 -> {
+            Result.Error(DataError.Network.UNSUPPORTED_MEDIA_TYPE)
+        }
+
+        422 -> {
+            Result.Error(DataError.Network.UNPROCESSABLE_ENTITY)
+        }
+
+        429 -> {
+            Result.Error(DataError.Network.TOO_MANY_REQUESTS)
+        }
+
+        503 -> {
+            Result.Error(DataError.Network.SERVICE_UNAVAILABLE)
+        }
+
+        in 500..599 -> {
+            Result.Error(DataError.Network.SERVER_ERROR)
+        }
+
+        else -> {
+            Result.Error(DataError.Network.UNKNOWN)
+        }
     }
-}
 
 /**
  * Joins [baseUrl] and [route]. A route that already starts with [baseUrl] is returned unchanged.
  */
-fun constructRoute(route: String, baseUrl: String = BuildKonfig.BASE_URL): String {
+fun constructRoute(
+    route: String,
+    baseUrl: String = BuildKonfig.BASE_URL,
+): String {
     val base = baseUrl.trimEnd('/')
     return when {
         route.startsWith(base) -> route
@@ -133,12 +165,14 @@ fun constructRoute(route: String, baseUrl: String = BuildKonfig.BASE_URL): Strin
     }
 }
 
-internal fun Exception.toCommonNetworkError(): DataError.Network {
-    return when (this) {
+internal fun Exception.toCommonNetworkError(): DataError.Network =
+    when (this) {
         is CancellationException -> throw this
+
         is HttpRequestTimeoutException -> DataError.Network.REQUEST_TIMEOUT
+
         // Ktor wraps body decoding failures in JsonConvertException, not SerializationException.
         is SerializationException, is ContentConvertException -> DataError.Network.SERIALIZATION
+
         else -> DataError.Network.UNKNOWN
     }
-}

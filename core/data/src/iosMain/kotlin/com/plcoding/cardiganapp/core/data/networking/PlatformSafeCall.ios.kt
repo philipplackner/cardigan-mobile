@@ -16,17 +16,17 @@ import platform.Foundation.NSURLErrorTimedOut
 actual suspend fun <T> platformSafeCall(
     execute: suspend () -> HttpResponse,
     handleResponse: suspend (HttpResponse) -> Result<T, DataError.Network>,
-): Result<T, DataError.Network> {
-    return try {
+): Result<T, DataError.Network> =
+    try {
         handleResponse(execute())
     } catch (e: Exception) {
-        val error = when (e) {
-            is DarwinHttpRequestException -> e.origin.toNetworkError()
-            else -> e.toCommonNetworkError()
-        }
+        val error =
+            when (e) {
+                is DarwinHttpRequestException -> e.origin.toNetworkError()
+                else -> e.toCommonNetworkError()
+            }
         Result.Error(error)
     }
-}
 
 internal fun NSError.toNetworkError(): DataError.Network {
     if (domain != NSURLErrorDomain) {
@@ -37,8 +37,11 @@ internal fun NSError.toNetworkError(): DataError.Network {
         NSURLErrorNetworkConnectionLost,
         NSURLErrorCannotFindHost,
         NSURLErrorCannotConnectToHost,
-        NSURLErrorDNSLookupFailed -> DataError.Network.NO_INTERNET
+        NSURLErrorDNSLookupFailed,
+        -> DataError.Network.NO_INTERNET
+
         NSURLErrorTimedOut -> DataError.Network.REQUEST_TIMEOUT
+
         else -> DataError.Network.UNKNOWN
     }
 }

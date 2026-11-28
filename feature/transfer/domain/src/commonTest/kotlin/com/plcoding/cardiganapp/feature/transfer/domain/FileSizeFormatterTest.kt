@@ -12,7 +12,6 @@ import kotlin.test.Test
  * over it (round half up vs. round up), a typical over-limit size, a negative size and Long.MAX_VALUE.
  */
 class FileSizeFormatterTest {
-
     private fun format(bytes: Long) = FileSizeFormatter.format(bytes)
 
     @Test

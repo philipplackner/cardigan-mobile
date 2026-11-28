@@ -11,12 +11,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 
 private const val BUFFER_SIZE = 64 * 1024
 
@@ -29,16 +29,17 @@ actual fun rememberFilePicker(
     val scope = rememberCoroutineScope()
     val currentOnPicked by rememberUpdatedState(onPicked)
     val currentOnCancelled by rememberUpdatedState(onCancelled)
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri == null) {
-            currentOnCancelled()
-        } else {
-            scope.launch {
-                val file = withContext(Dispatchers.IO) { readPickedFile(resolver, uri) }
-                currentOnPicked(file)
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri == null) {
+                currentOnCancelled()
+            } else {
+                scope.launch {
+                    val file = withContext(Dispatchers.IO) { readPickedFile(resolver, uri) }
+                    currentOnPicked(file)
+                }
             }
         }
-    }
     return remember(launcher) {
         object : FilePicker {
             override fun pickJson() = launcher.launch(arrayOf(JSON_MIME_TYPE))
@@ -46,11 +47,15 @@ actual fun rememberFilePicker(
     }
 }
 
-private fun readPickedFile(resolver: ContentResolver, uri: Uri): PickedFile {
+private fun readPickedFile(
+    resolver: ContentResolver,
+    uri: Uri,
+): PickedFile {
     var name = uri.lastPathSegment.orEmpty()
     var reportedSize: Long? = null
     runCatching {
-        resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+        val projection = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
+        resolver.query(uri, projection, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
@@ -74,7 +79,11 @@ private fun readPickedFile(resolver: ContentResolver, uri: Uri): PickedFile {
  * when it is larger than the cap, since some providers report 0 or a wrong value. Otherwise the
  * rest of the stream is counted so the error shows the real size.
  */
-private fun readCapped(input: InputStream, name: String, reportedSize: Long?): PickedFile {
+private fun readCapped(
+    input: InputStream,
+    name: String,
+    reportedSize: Long?,
+): PickedFile {
     val kept = ByteArrayOutputStream()
     val buffer = ByteArray(BUFFER_SIZE)
     var total = 0L

@@ -8,7 +8,10 @@ interface BoardTransferRepository {
     suspend fun exportBoard(boardId: Uuid): Result<ExportedFile, ExportError>
 
     /** Uploads [file]. [key] replaces the file's board key after a clash; null keeps the file's key. */
-    suspend fun importBoard(file: ByteArray, key: String?): Result<Board, ImportError>
+    suspend fun importBoard(
+        file: ByteArray,
+        key: String?,
+    ): Result<Board, ImportError>
 }
 
 class ExportedFile(

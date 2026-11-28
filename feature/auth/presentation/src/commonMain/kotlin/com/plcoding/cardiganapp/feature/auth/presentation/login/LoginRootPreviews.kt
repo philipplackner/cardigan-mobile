@@ -6,18 +6,23 @@ import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthBanner
 
-private val previewStates = listOf(
-    LoginState(),
-    LoginState(email = "philipp@example.com", password = "wrong password", banner = AuthBanner.WrongCredentials),
-    LoginState(banner = AuthBanner.SessionExpired),
-    LoginState(email = "philipp@example.com", password = "secret", banner = AuthBanner.RateLimited(12)),
-    LoginState(email = "philipp@example.com", password = "secret", banner = AuthBanner.Unavailable),
-    LoginState(email = "philipp@example.com", password = "correct horse", isLoading = true, submitAttempted = true),
-    LoginState(submitAttempted = true),
-)
+private val previewStates =
+    listOf(
+        LoginState(),
+        LoginState(email = "philipp@example.com", password = "wrong password", banner = AuthBanner.WrongCredentials),
+        LoginState(banner = AuthBanner.SessionExpired),
+        LoginState(email = "philipp@example.com", password = "secret", banner = AuthBanner.RateLimited(12)),
+        LoginState(email = "philipp@example.com", password = "secret", banner = AuthBanner.Unavailable),
+        LoginState(email = "philipp@example.com", password = "correct horse", isLoading = true, submitAttempted = true),
+        LoginState(submitAttempted = true),
+    )
 
 @Composable
-private fun LoginPreview(index: Int, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun LoginPreview(
+    index: Int,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         LoginScreen(state = previewStates[index], onAction = {})
     }

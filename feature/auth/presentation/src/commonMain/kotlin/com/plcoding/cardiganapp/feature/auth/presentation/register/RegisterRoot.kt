@@ -111,7 +111,10 @@ fun RegisterScreen(
             onDone = { onAction(RegisterAction.Submit) },
         )
         CardiganButton(
-            text = stringResource(if (state.isLoading) Res.string.register_loading else Res.string.register_create_account),
+            text =
+                stringResource(
+                    if (state.isLoading) Res.string.register_loading else Res.string.register_create_account,
+                ),
             onClick = { onAction(RegisterAction.Submit) },
             isLoading = state.isLoading,
             modifier = Modifier.fillMaxWidth(),
@@ -122,10 +125,17 @@ fun RegisterScreen(
 /** The Figma "Password rules" grid: two columns, 12+ characters and Lowercase on top. */
 @Composable
 private fun PasswordRules(rules: PasswordCheck) {
-    val rows = listOf(
-        listOf(Res.string.register_rule_length to rules.hasMinLength, Res.string.register_rule_lowercase to rules.hasLowercase),
-        listOf(Res.string.register_rule_uppercase to rules.hasUppercase, Res.string.register_rule_digit to rules.hasDigit),
-    )
+    val rows =
+        listOf(
+            listOf(
+                Res.string.register_rule_length to rules.hasMinLength,
+                Res.string.register_rule_lowercase to rules.hasLowercase,
+            ),
+            listOf(
+                Res.string.register_rule_uppercase to rules.hasUppercase,
+                Res.string.register_rule_digit to rules.hasDigit,
+            ),
+        )
     Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s4)) {
         rows.forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s12)) {

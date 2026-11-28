@@ -13,26 +13,32 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 /** Build facts the UI needs. */
-data class AppBuildInfo(val isDebug: Boolean)
+data class AppBuildInfo(
+    val isDebug: Boolean,
+)
 
 /**
  * Starts Koin. Call exactly once per process, from the Android `Application` and the iOS app init.
  * [isDebug] binds the temporary auth fixture (D3, removed in add-auth-ui task 9.1).
  */
-fun initKoin(isDebug: Boolean = false, config: KoinAppDeclaration? = null) {
+fun initKoin(
+    isDebug: Boolean = false,
+    config: KoinAppDeclaration? = null,
+) {
     startKoin {
         config?.invoke(this)
         modules(appModules(isDebug))
     }
 }
 
-fun appModules(isDebug: Boolean = false): List<Module> = listOf(
-    module { single { AppBuildInfo(isDebug) } },
-    coreDataModule,
-    appModule,
-    authPresentationModule,
-    boardsDataModule,
-    boardsPresentationModule,
-    transferDataModule,
-    transferPresentationModule,
-) + if (isDebug) listOf(fixtureAuthModule) else emptyList()
+fun appModules(isDebug: Boolean = false): List<Module> =
+    listOf(
+        module { single { AppBuildInfo(isDebug) } },
+        coreDataModule,
+        appModule,
+        authPresentationModule,
+        boardsDataModule,
+        boardsPresentationModule,
+        transferDataModule,
+        transferPresentationModule,
+    ) + if (isDebug) listOf(fixtureAuthModule) else emptyList()

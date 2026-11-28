@@ -20,7 +20,6 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 @DisableCachingByDefault(because = "Only checks the results of other tasks")
 abstract class StaticAnalysisVerifyTask : DefaultTask() {
-
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.ABSOLUTE)
     abstract val sarifReports: ConfigurableFileCollection
@@ -31,17 +30,21 @@ abstract class StaticAnalysisVerifyTask : DefaultTask() {
     @TaskAction
     fun verify() {
         val findings = sarifReports.files.filter { it.isFile }.sumOf(::countSarifResults)
-        val failedChecks = konsistResultsDir.get().asFile
-            .listFiles { file -> file.extension == "xml" }
-            .orEmpty()
-            .sumOf(::countFailedTests)
+        val failedChecks =
+            konsistResultsDir
+                .get()
+                .asFile
+                .listFiles { file -> file.extension == "xml" }
+                .orEmpty()
+                .sumOf(::countFailedTests)
 
-        val failures = listOfNotNull(
-            "detekt reported $findings finding(s). Merged report: build/reports/detekt/merged.sarif"
-                .takeIf { findings > 0 },
-            "Konsist: $failedChecks check(s) failed. See the :tooling:konsistTest output above."
-                .takeIf { failedChecks > 0 },
-        )
+        val failures =
+            listOfNotNull(
+                "detekt reported $findings finding(s). Merged report: build/reports/detekt/merged.sarif"
+                    .takeIf { findings > 0 },
+                "Konsist: $failedChecks check(s) failed. See the :tooling:konsistTest output above."
+                    .takeIf { failedChecks > 0 },
+            )
         if (failures.isNotEmpty()) {
             throw GradleException(failures.joinToString("\n"))
         }
@@ -55,7 +58,12 @@ abstract class StaticAnalysisVerifyTask : DefaultTask() {
     }
 
     private fun countFailedTests(file: File): Int {
-        val suite = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file).documentElement
+        val suite =
+            DocumentBuilderFactory
+                .newInstance()
+                .newDocumentBuilder()
+                .parse(file)
+                .documentElement
         return listOf("failures", "errors").sumOf { suite.getAttribute(it).toIntOrNull() ?: 0 }
     }
 }

@@ -5,13 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cardiganapp.feature.transfer.presentation.generated.resources.Res
 import cardiganapp.feature.transfer.presentation.generated.resources.import_success
+import com.plcoding.cardiganapp.core.domain.board.BoardKeyRule
 import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.core.presentation.toast.ToastController
 import com.plcoding.cardiganapp.core.presentation.toast.ToastMessage
 import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.core.presentation.util.UiText
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardKeyOwnerLookup
-import com.plcoding.cardiganapp.core.domain.board.BoardKeyRule
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
 import com.plcoding.cardiganapp.feature.transfer.domain.ImportError
@@ -33,7 +33,6 @@ class ImportBoardViewModel(
     private val toastController: ToastController,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val _events = Channel<ImportBoardEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
@@ -121,7 +120,10 @@ class ImportBoardViewModel(
     }
 
     /** [key] is null for the first upload. [retryFrom] is the key dialog a retry was started from. */
-    private fun upload(key: String?, retryFrom: ImportPhase.ChoosingKey?) {
+    private fun upload(
+        key: String?,
+        retryFrom: ImportPhase.ChoosingKey?,
+    ) {
         val file = pickedFile ?: return
         val bytes = pickedBytes ?: return
         setPhase(ImportPhase.Uploading(file.name))
@@ -130,12 +132,18 @@ class ImportBoardViewModel(
                 is Result.Success -> {
                     val board = result.data
                     toastController.show(
-                        ToastMessage(UiText.Resource(Res.string.import_success, arrayOf(board.name, board.key)), ToastType.Success),
+                        ToastMessage(
+                            UiText.Resource(Res.string.import_success, arrayOf(board.name, board.key)),
+                            ToastType.Success,
+                        ),
                     )
                     setPhase(ImportPhase.Done)
                     _events.send(ImportBoardEvent.Imported(board))
                 }
-                is Result.Error -> onUploadFailed(result.error, file, key, retryFrom)
+
+                is Result.Error -> {
+                    onUploadFailed(result.error, file, key, retryFrom)
+                }
             }
         }
     }
@@ -148,20 +156,32 @@ class ImportBoardViewModel(
     ) {
         val clash = key ?: fileKey
         when {
-            error == ImportError.FileTooLarge -> setPhase(ImportPhase.ErrorShown(file, ImportDialogError.TooLarge))
-            error == ImportError.InvalidFile -> setPhase(ImportPhase.ErrorShown(file, ImportDialogError.InvalidFile))
-            error == ImportError.KeyAlreadyUsed && clash != null -> setPhase(
-                ImportPhase.ChoosingKey(
-                    key = clash,
-                    clashKey = clash,
-                    boardName = keyOwnerLookup.boardNameForKey(clash),
-                    usedKeys = retryFrom?.usedKeys.orEmpty() + clash,
-                    fieldError = KeyFieldError.AlreadyUsed(clash),
-                ),
-            )
-            error is ImportError.KeyInvalid && key != null && retryFrom != null -> setPhase(
-                retryFrom.copy(key = key, fieldError = KeyFieldError.Rule(error.rule)),
-            )
+            error == ImportError.FileTooLarge -> {
+                setPhase(ImportPhase.ErrorShown(file, ImportDialogError.TooLarge))
+            }
+
+            error == ImportError.InvalidFile -> {
+                setPhase(ImportPhase.ErrorShown(file, ImportDialogError.InvalidFile))
+            }
+
+            error == ImportError.KeyAlreadyUsed && clash != null -> {
+                setPhase(
+                    ImportPhase.ChoosingKey(
+                        key = clash,
+                        clashKey = clash,
+                        boardName = keyOwnerLookup.boardNameForKey(clash),
+                        usedKeys = retryFrom?.usedKeys.orEmpty() + clash,
+                        fieldError = KeyFieldError.AlreadyUsed(clash),
+                    ),
+                )
+            }
+
+            error is ImportError.KeyInvalid && key != null && retryFrom != null -> {
+                setPhase(
+                    retryFrom.copy(key = key, fieldError = KeyFieldError.Rule(error.rule)),
+                )
+            }
+
             else -> {
                 setPhase(ImportPhase.ErrorShown(file, ImportDialogError.Failed))
                 _events.send(ImportBoardEvent.BoardListChanged)
@@ -184,9 +204,11 @@ class ImportBoardViewModel(
      * a restored upload or key clash shows the import-failed error and reloads the list.
      */
     private fun restorePhase(): ImportPhase {
-        val saved = savedStateHandle.get<String>(KEY_PHASE)
-            ?.let { runCatching { json.decodeFromString(ImportPhase.serializer(), it) }.getOrNull() }
-            ?: return ImportPhase.Picking
+        val saved =
+            savedStateHandle
+                .get<String>(KEY_PHASE)
+                ?.let { runCatching { json.decodeFromString(ImportPhase.serializer(), it) }.getOrNull() }
+                ?: return ImportPhase.Picking
         return when (saved) {
             is ImportPhase.Uploading, is ImportPhase.ChoosingKey -> {
                 val restored = ImportPhase.ErrorShown(file = null, error = ImportDialogError.Failed)
@@ -194,7 +216,10 @@ class ImportBoardViewModel(
                 _events.trySend(ImportBoardEvent.BoardListChanged)
                 restored
             }
-            else -> saved
+
+            else -> {
+                saved
+            }
         }
     }
 

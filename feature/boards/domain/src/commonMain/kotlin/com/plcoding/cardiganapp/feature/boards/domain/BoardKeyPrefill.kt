@@ -13,10 +13,12 @@ object BoardKeyPrefill {
      */
     fun fromName(name: String): String {
         // Decomposing splits diacritics off as combining marks, which the A–Z filter then drops.
-        val letters = name.toNfd()
-            .uppercase()
-            .filter { it in 'A'..'Z' }
-            .take(LENGTH)
+        val letters =
+            name
+                .toNfd()
+                .uppercase()
+                .filter { it in 'A'..'Z' }
+                .take(LENGTH)
         return if (letters.length < MIN_LENGTH) "" else letters
     }
 }

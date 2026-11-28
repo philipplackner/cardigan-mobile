@@ -17,43 +17,45 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 
-private val allIcons: List<Pair<String, @Composable () -> Painter>> = listOf(
-    "more" to { CardiganIcons.More },
-    "board" to { CardiganIcons.Board },
-    "plus" to { CardiganIcons.Plus },
-    "label" to { CardiganIcons.Label },
-    "trash" to { CardiganIcons.Trash },
-    "edit" to { CardiganIcons.Edit },
-    "refresh" to { CardiganIcons.Refresh },
-    "log-out" to { CardiganIcons.LogOut },
-    "boards" to { CardiganIcons.Boards },
-    "search" to { CardiganIcons.Search },
-    "close" to { CardiganIcons.Close },
-    "chevron-down" to { CardiganIcons.ChevronDown },
-    "upload" to { CardiganIcons.Upload },
-    "chevron-left" to { CardiganIcons.ChevronLeft },
-    "close-small" to { CardiganIcons.CloseSmall },
-    "filter" to { CardiganIcons.Filter },
-    "check" to { CardiganIcons.Check },
-    "alert" to { CardiganIcons.Alert },
-    "rename" to { CardiganIcons.Rename },
-    "file" to { CardiganIcons.File },
-    "download" to { CardiganIcons.Download },
-    "cloud-off" to { CardiganIcons.CloudOff },
-    "info" to { CardiganIcons.Info },
-    "arrow-left" to { CardiganIcons.ArrowLeft },
-    "arrow-right" to { CardiganIcons.ArrowRight },
-    "columns" to { CardiganIcons.Columns },
-    "chevron-right" to { CardiganIcons.ChevronRight },
-)
+private val allIcons: List<Pair<String, @Composable () -> Painter>> =
+    listOf(
+        "more" to { CardiganIcons.More },
+        "board" to { CardiganIcons.Board },
+        "plus" to { CardiganIcons.Plus },
+        "label" to { CardiganIcons.Label },
+        "trash" to { CardiganIcons.Trash },
+        "edit" to { CardiganIcons.Edit },
+        "refresh" to { CardiganIcons.Refresh },
+        "log-out" to { CardiganIcons.LogOut },
+        "boards" to { CardiganIcons.Boards },
+        "search" to { CardiganIcons.Search },
+        "close" to { CardiganIcons.Close },
+        "chevron-down" to { CardiganIcons.ChevronDown },
+        "upload" to { CardiganIcons.Upload },
+        "chevron-left" to { CardiganIcons.ChevronLeft },
+        "close-small" to { CardiganIcons.CloseSmall },
+        "filter" to { CardiganIcons.Filter },
+        "check" to { CardiganIcons.Check },
+        "alert" to { CardiganIcons.Alert },
+        "rename" to { CardiganIcons.Rename },
+        "file" to { CardiganIcons.File },
+        "download" to { CardiganIcons.Download },
+        "cloud-off" to { CardiganIcons.CloudOff },
+        "info" to { CardiganIcons.Info },
+        "arrow-left" to { CardiganIcons.ArrowLeft },
+        "arrow-right" to { CardiganIcons.ArrowRight },
+        "columns" to { CardiganIcons.Columns },
+        "chevron-right" to { CardiganIcons.ChevronRight },
+    )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IconGrid() {
     FlowRow(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s16),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s16),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {

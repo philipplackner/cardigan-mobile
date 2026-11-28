@@ -5,8 +5,12 @@ import com.plcoding.cardiganapp.core.domain.util.Error
 /** Name field errors from cardigan-shared-specs `text-length`, shared by board, column and label names. */
 sealed interface NameError : Error {
     data object Required : NameError
+
     data object InvalidCharacter : NameError
-    data class TooLong(val max: Int) : NameError
+
+    data class TooLong(
+        val max: Int,
+    ) : NameError
 }
 
 /**
@@ -16,7 +20,10 @@ sealed interface NameError : Error {
  * and which control characters are allowed is decided by validation.
  */
 @Suppress("UNUSED_PARAMETER")
-fun normalizeText(input: String, multiLine: Boolean = false): String {
+fun normalizeText(
+    input: String,
+    multiLine: Boolean = false,
+): String {
     val lineFeeds = input.replace("\r\n", "\n").replace('\r', '\n')
     return lineFeeds.toNfc().trim(::isUnicodeWhiteSpace)
 }
@@ -43,7 +50,10 @@ fun normalizePassword(input: String): String = input.toNfc()
  * Calls [action] with every Unicode code point of [text]. A valid surrogate pair gives one code
  * point; an unpaired surrogate is passed on as its own code unit value.
  */
-inline fun forEachCodePoint(text: String, action: (codePoint: Int) -> Unit) {
+inline fun forEachCodePoint(
+    text: String,
+    action: (codePoint: Int) -> Unit,
+) {
     var index = 0
     while (index < text.length) {
         val high = text[index]
@@ -63,7 +73,10 @@ inline fun forEachCodePoint(text: String, action: (codePoint: Int) -> Unit) {
  * are rejected" forbids: an unpaired surrogate or U+0000–U+001F. Tab, LF and CR are allowed only
  * when [multiLine] is true.
  */
-fun hasInvalidCharacter(text: String, multiLine: Boolean): Boolean {
+fun hasInvalidCharacter(
+    text: String,
+    multiLine: Boolean,
+): Boolean {
     var index = 0
     while (index < text.length) {
         val char = text[index]
@@ -73,8 +86,14 @@ fun hasInvalidCharacter(text: String, multiLine: Boolean): Boolean {
                 index += 2
                 continue
             }
-            char.isLowSurrogate() -> return true
-            char.code <= 0x1F && !(multiLine && char.isAllowedMultiLineControl()) -> return true
+
+            char.isLowSurrogate() -> {
+                return true
+            }
+
+            char.code <= 0x1F && !(multiLine && char.isAllowedMultiLineControl()) -> {
+                return true
+            }
         }
         index++
     }
@@ -87,16 +106,23 @@ private fun Char.isAllowedMultiLineControl(): Boolean = this == '\t' || this == 
  * Validates an already normalized single-line name and returns the first broken rule in the
  * cardigan-shared-specs `api-errors` order: required, invalid character, too long.
  */
-fun validateName(normalized: String, max: Int): NameError? = when {
-    normalized.isEmpty() -> NameError.Required
-    hasInvalidCharacter(normalized, multiLine = false) -> NameError.InvalidCharacter
-    codePointLength(normalized) > max -> NameError.TooLong(max)
-    else -> null
-}
+fun validateName(
+    normalized: String,
+    max: Int,
+): NameError? =
+    when {
+        normalized.isEmpty() -> NameError.Required
+        hasInvalidCharacter(normalized, multiLine = false) -> NameError.InvalidCharacter
+        codePointLength(normalized) > max -> NameError.TooLong(max)
+        else -> null
+    }
 
 // Kotlin's isWhitespace() differs from the Unicode White_Space property that the shared spec names.
-private fun isUnicodeWhiteSpace(char: Char): Boolean = when (char.code) {
-    in 0x0009..0x000D, 0x0020, 0x0085, 0x00A0, 0x1680, in 0x2000..0x200A,
-    0x2028, 0x2029, 0x202F, 0x205F, 0x3000 -> true
-    else -> false
-}
+private fun isUnicodeWhiteSpace(char: Char): Boolean =
+    when (char.code) {
+        in 0x0009..0x000D, 0x0020, 0x0085, 0x00A0, 0x1680, in 0x2000..0x200A,
+        0x2028, 0x2029, 0x202F, 0x205F, 0x3000,
+        -> true
+
+        else -> false
+    }

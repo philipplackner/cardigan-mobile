@@ -8,7 +8,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class InlineFunctionFilterTest {
-
     private val classes = TestClasses()
     private val facade = classes.compiled(FACADE)
 
@@ -44,14 +43,19 @@ class InlineFunctionFilterTest {
         assertTrue(enclosed.isNotEmpty(), "Expected a class enclosed by wrapped")
 
         enclosed.forEach { node ->
-            assertEquals(emptyList(), survivors(filter(), node, node.methods.filter { it.name == "invokeSuspend" }), node.name)
+            assertEquals(
+                emptyList(),
+                survivors(filter(), node, node.methods.filter { it.name == "invokeSuspend" }),
+                node.name,
+            )
         }
     }
 
     @Test
     fun `class enclosed by a plain function is kept`() {
-        val launch = classNode("${facade.name}\$plain\$1", staticMethod("invokeSuspend", INVOKE_SUSPEND_DESC))
-            .enclosedBy(facade.name, "plain", "(I)I")
+        val launch =
+            classNode("${facade.name}\$plain\$1", staticMethod("invokeSuspend", INVOKE_SUSPEND_DESC))
+                .enclosedBy(facade.name, "plain", "(I)I")
 
         assertEquals(listOf("invokeSuspend"), survivors(filter(), launch))
     }
@@ -65,8 +69,9 @@ class InlineFunctionFilterTest {
 
     @Test
     fun `unreadable metadata fails with the class name`() {
-        val node = classNode("a/BrokenKt", staticMethod("twice", "()V"))
-            .withKotlinMetadata(kind = 99, version = intArrayOf(2, 2, 0))
+        val node =
+            classNode("a/BrokenKt", staticMethod("twice", "()V"))
+                .withKotlinMetadata(kind = 99, version = intArrayOf(2, 2, 0))
 
         val error = assertFailsWith<IllegalStateException> { survivors(filter(), node) }
 
@@ -85,7 +90,8 @@ class InlineFunctionFilterTest {
 
     private fun enclosedClassesOf(function: String): List<ClassNode> {
         val facadeFile = File(javaClass.classLoader.getResource(FACADE.replace('.', '/') + ".class")!!.toURI())
-        return facadeFile.parentFile.listFiles()!!
+        return facadeFile.parentFile
+            .listFiles()!!
             .filter { it.name.startsWith("InlineFixturesKt\$$function\$") && !it.name.contains("\$\$inlined") }
             .map { classes.compiled("$PACKAGE.${it.name.removeSuffix(".class")}") }
             .filter { it.outerMethod == function }

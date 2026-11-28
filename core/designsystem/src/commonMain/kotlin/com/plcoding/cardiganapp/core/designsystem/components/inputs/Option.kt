@@ -44,22 +44,23 @@ fun Option(
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val isHighlighted by source.collectIsHighlightedAsState()
     val shape = RoundedCornerShape(AppTheme.radius.r5)
-    val padding = if (isTouchSize) {
-        PaddingValues(horizontal = AppTheme.space.s6, vertical = AppTheme.space.s12)
-    } else {
-        PaddingValues(AppTheme.space.s8)
-    }
+    val padding =
+        if (isTouchSize) {
+            PaddingValues(horizontal = AppTheme.space.s6, vertical = AppTheme.space.s12)
+        } else {
+            PaddingValues(AppTheme.space.s8)
+        }
     Row(
-        modifier = modifier
-            .background(if (isHighlighted) AppTheme.colors.background.hover else Color.Transparent, shape)
-            .toggleable(
-                value = checked,
-                onValueChange = onCheckedChange,
-                role = Role.Checkbox,
-                interactionSource = source,
-                indication = ripple(),
-            )
-            .padding(padding),
+        modifier =
+            modifier
+                .background(if (isHighlighted) AppTheme.colors.background.hover else Color.Transparent, shape)
+                .toggleable(
+                    value = checked,
+                    onValueChange = onCheckedChange,
+                    role = Role.Checkbox,
+                    interactionSource = source,
+                    indication = ripple(),
+                ).padding(padding),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -71,10 +72,11 @@ fun Option(
 @Composable
 private fun OptionSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s16)
-            .width(260.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s16)
+                .width(260.dp),
     ) {
         listOf(false, true).forEach { highlighted ->
             Option(

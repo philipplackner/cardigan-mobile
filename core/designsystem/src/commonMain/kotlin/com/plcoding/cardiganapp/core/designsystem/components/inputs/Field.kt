@@ -31,7 +31,8 @@ fun Field(
         if (label != null) {
             Text(
                 text = label,
-                style = if (isTouchSize) AppTheme.textStyles.sans13_5Medium100 else AppTheme.textStyles.sans12_5Medium100,
+                style =
+                    if (isTouchSize) AppTheme.textStyles.sans13_5Medium100 else AppTheme.textStyles.sans12_5Medium100,
                 color = AppTheme.colors.text.primary,
             )
         }
@@ -42,10 +43,11 @@ fun Field(
 @Composable
 private fun FieldSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24)
-            .width(320.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24)
+                .width(320.dp),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         Field(label = "Label") {

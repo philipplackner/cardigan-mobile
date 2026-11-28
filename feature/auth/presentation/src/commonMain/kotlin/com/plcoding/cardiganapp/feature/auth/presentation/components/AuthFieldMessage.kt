@@ -13,7 +13,9 @@ import cardiganapp.feature.auth.presentation.generated.resources.register_error_
 import org.jetbrains.compose.resources.StringResource
 
 /** A message shown under an auth field. */
-enum class AuthFieldMessage(val resource: StringResource) {
+enum class AuthFieldMessage(
+    val resource: StringResource,
+) {
     EmailRequired(Res.string.auth_error_email_required),
     EmailInvalid(Res.string.register_error_email_invalid),
     EmailTooLong(Res.string.register_error_email_too_long),

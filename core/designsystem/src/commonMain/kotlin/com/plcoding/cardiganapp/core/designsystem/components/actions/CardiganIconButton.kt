@@ -63,67 +63,79 @@ fun CardiganIconButton(
 ) {
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r6)
-    val containerSize = when (size) {
-        IconButtonSize.Small -> AppTheme.height.iconButtonSmall
-        IconButtonSize.Medium -> AppTheme.height.iconButtonMedium
-        IconButtonSize.Large -> AppTheme.height.iconButtonLarge
-    }
-    val iconSize: Dp = if (size == IconButtonSize.Large) 19.dp else 16.dp
-    val containerColor = when {
-        selected -> colors.background.hover
-        style == IconButtonStyle.Boxed -> colors.background.surface
-        else -> Color.Transparent
-    }
-    val contentColor = if (selected) colors.text.primary else colors.text.muted
-    val buttonColors = IconButtonDefaults.iconButtonColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-    )
-    val buttonModifier = Modifier
-        .size(containerSize)
-        .semantics {
-            this.contentDescription = contentDescription
-            this.selected = selected
+    val containerSize =
+        when (size) {
+            IconButtonSize.Small -> AppTheme.height.iconButtonSmall
+            IconButtonSize.Medium -> AppTheme.height.iconButtonMedium
+            IconButtonSize.Large -> AppTheme.height.iconButtonLarge
         }
+    val iconSize: Dp = if (size == IconButtonSize.Large) 19.dp else 16.dp
+    val containerColor =
+        when {
+            selected -> colors.background.hover
+            style == IconButtonStyle.Boxed -> colors.background.surface
+            else -> Color.Transparent
+        }
+    val contentColor = if (selected) colors.text.primary else colors.text.muted
+    val buttonColors =
+        IconButtonDefaults.iconButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        )
+    val buttonModifier =
+        Modifier
+            .size(containerSize)
+            .semantics {
+                this.contentDescription = contentDescription
+                this.selected = selected
+            }
     val content: @Composable () -> Unit = {
         Icon(painter = icon, contentDescription = null, modifier = Modifier.size(iconSize))
     }
 
     Box(modifier = modifier) {
         when (style) {
-            IconButtonStyle.Ghost -> IconButton(
-                onClick = onClick,
-                modifier = buttonModifier,
-                colors = buttonColors,
-                shape = shape,
-                content = content,
-            )
-            IconButtonStyle.Boxed -> OutlinedIconButton(
-                onClick = onClick,
-                modifier = Modifier
-                    .dropShadow(shape, AppTheme.shadows.small)
-                    .then(buttonModifier),
-                shape = shape,
-                colors = buttonColors,
-                border = BorderStroke(AppTheme.space.s1, colors.border.strong),
-                content = content,
-            )
+            IconButtonStyle.Ghost -> {
+                IconButton(
+                    onClick = onClick,
+                    modifier = buttonModifier,
+                    colors = buttonColors,
+                    shape = shape,
+                    content = content,
+                )
+            }
+
+            IconButtonStyle.Boxed -> {
+                OutlinedIconButton(
+                    onClick = onClick,
+                    modifier =
+                        Modifier
+                            .dropShadow(shape, AppTheme.shadows.small)
+                            .then(buttonModifier),
+                    shape = shape,
+                    colors = buttonColors,
+                    border = BorderStroke(AppTheme.space.s1, colors.border.strong),
+                    content = content,
+                )
+            }
         }
         if (badge != null) {
             val inset = AppTheme.space.s3
-            val badgePosition = if (size == IconButtonSize.Small) {
-                Modifier.offset(x = inset, y = -inset)
-            } else {
-                Modifier.padding(top = inset, end = inset)
-            }
+            val badgePosition =
+                if (size == IconButtonSize.Small) {
+                    Modifier.offset(x = inset, y = -inset)
+                } else {
+                    Modifier.padding(top = inset, end = inset)
+                }
             Text(
                 text = badge,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .then(badgePosition)
-                    .widthIn(min = BadgeMinWidth)
-                    .background(colors.accent.default, RoundedCornerShape(AppTheme.radius.r7))
-                    .padding(horizontal = AppTheme.space.s3),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .then(badgePosition)
+                        .widthIn(min = BadgeMinWidth)
+                        .background(colors.accent.default, RoundedCornerShape(AppTheme.radius.r7))
+                        .padding(horizontal = AppTheme.space.s3),
                 style = AppTheme.textStyles.mono9_5SemiBold147,
                 color = colors.text.onAccent,
                 textAlign = TextAlign.Center,
@@ -136,9 +148,10 @@ fun CardiganIconButton(
 @Composable
 private fun IconButtonMatrix() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         IconButtonStyle.entries.forEach { style ->
@@ -178,9 +191,10 @@ private fun IconButtonDarkPreview() {
 @Composable
 private fun IconButtonBadges() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s32),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -188,7 +202,14 @@ private fun IconButtonBadges() {
             CardiganIconButton(CardiganIcons.Filter, "Filter", {}, size = size, badge = "1")
         }
         IconButtonSize.entries.forEach { size ->
-            CardiganIconButton(CardiganIcons.Filter, "Filter", {}, style = IconButtonStyle.Boxed, size = size, badge = "12")
+            CardiganIconButton(
+                CardiganIcons.Filter,
+                "Filter",
+                {},
+                style = IconButtonStyle.Boxed,
+                size = size,
+                badge = "12",
+            )
         }
     }
 }

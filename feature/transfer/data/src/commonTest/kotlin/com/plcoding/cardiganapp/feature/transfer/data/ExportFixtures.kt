@@ -5,7 +5,8 @@ fun exportJson(
     format: String = "\"cardigan.board\"",
     formatVersion: String = "1",
     key: String = "\"CRD\"",
-): String = """
+): String =
+    """
     {
       "format": $format,
       "formatVersion": $formatVersion,
@@ -31,4 +32,4 @@ fun exportJson(
         ]
       }
     }
-""".trimIndent()
+    """.trimIndent()

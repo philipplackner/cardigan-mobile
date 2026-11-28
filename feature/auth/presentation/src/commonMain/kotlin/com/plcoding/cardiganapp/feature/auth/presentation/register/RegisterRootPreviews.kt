@@ -5,33 +5,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
 import com.plcoding.cardiganapp.core.designsystem.theme.WindowClass
 
-private val previewStates = listOf(
-    RegisterState(),
-    RegisterState(
-        email = "philipp@example.com",
-        password = "Correct horse",
-        repeatPassword = "Correct hors",
-        passwordBlurred = true,
-        repeatPasswordBlurred = true,
-    ),
-    RegisterState(
-        email = "philipp@example.com",
-        password = "Correct horse 7",
-        repeatPassword = "Correct horse 7",
-        emailAlreadyUsed = true,
-    ),
-    RegisterState(submitAttempted = true),
-    RegisterState(
-        email = "philipp@example.com",
-        password = "Correct horse 7",
-        repeatPassword = "Correct horse 7",
-        submitAttempted = true,
-        isLoading = true,
-    ),
-)
+private val previewStates =
+    listOf(
+        RegisterState(),
+        RegisterState(
+            email = "philipp@example.com",
+            password = "Correct horse",
+            repeatPassword = "Correct hors",
+            passwordBlurred = true,
+            repeatPasswordBlurred = true,
+        ),
+        RegisterState(
+            email = "philipp@example.com",
+            password = "Correct horse 7",
+            repeatPassword = "Correct horse 7",
+            emailAlreadyUsed = true,
+        ),
+        RegisterState(submitAttempted = true),
+        RegisterState(
+            email = "philipp@example.com",
+            password = "Correct horse 7",
+            repeatPassword = "Correct horse 7",
+            submitAttempted = true,
+            isLoading = true,
+        ),
+    )
 
 @Composable
-private fun RegisterPreview(index: Int, windowClass: WindowClass, darkTheme: Boolean = false) {
+private fun RegisterPreview(
+    index: Int,
+    windowClass: WindowClass,
+    darkTheme: Boolean = false,
+) {
     AppTheme(darkTheme = darkTheme, windowClass = windowClass) {
         RegisterScreen(state = previewStates[index], onAction = {})
     }

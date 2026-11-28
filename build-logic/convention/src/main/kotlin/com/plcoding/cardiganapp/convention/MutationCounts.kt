@@ -8,7 +8,11 @@ import javax.xml.parsers.DocumentBuilderFactory
 /** PIT's own list of statuses that count as detected, so the summary matches the HTML report. */
 internal val DETECTED_STATUSES = setOf("KILLED", "TIMED_OUT", "MEMORY_ERROR", "RUN_ERROR", "NON_VIABLE")
 
-internal data class MutationCounts(val total: Int, val detected: Int, val noCoverage: Int) {
+internal data class MutationCounts(
+    val total: Int,
+    val detected: Int,
+    val noCoverage: Int,
+) {
     val covered: Int get() = total - noCoverage
     val survived: Int get() = total - detected - noCoverage
     val score: Double get() = detected * 100.0 / total
@@ -24,8 +28,12 @@ internal data class MutationCounts(val total: Int, val detected: Int, val noCove
 
 /** Counts the mutants in a PIT `mutations.xml` by their `status`. */
 internal fun readMutationCounts(xml: File): MutationCounts {
-    val mutations = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml)
-        .getElementsByTagName("mutation")
+    val mutations =
+        DocumentBuilderFactory
+            .newInstance()
+            .newDocumentBuilder()
+            .parse(xml)
+            .getElementsByTagName("mutation")
     val statuses = (0 until mutations.length).map { (mutations.item(it) as Element).getAttribute("status") }
     return MutationCounts(
         total = statuses.size,
@@ -34,5 +42,4 @@ internal fun readMutationCounts(xml: File): MutationCounts {
     )
 }
 
-internal fun Double?.formatPercent(): String =
-    if (this == null) "n/a" else String.format(Locale.ROOT, "%.1f%%", this)
+internal fun Double?.formatPercent(): String = if (this == null) "n/a" else String.format(Locale.ROOT, "%.1f%%", this)

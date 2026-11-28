@@ -1,8 +1,8 @@
 package com.plcoding.cardiganapp.core.designsystem.theme
 
+import androidx.compose.ui.unit.dp
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 
 /*
@@ -14,7 +14,6 @@ import kotlin.test.Test
  * - tall but narrow window (height must not promote a phone)
  */
 class WindowClassTest {
-
     private val tallHeight = 1000.dp
 
     @Test

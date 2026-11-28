@@ -7,7 +7,6 @@ import com.lemonappdev.konsist.api.verify.assertFalse
 import kotlin.test.Test
 
 class DomainLayerKonsistTest {
-
     private val domainModulePath = Regex("^(core/domain/src/|feature/[^/]+/domain/src/)")
 
     private val forbiddenSegments = listOf("data", "presentation", "designsystem")
@@ -20,10 +19,11 @@ class DomainLayerKonsistTest {
 
     @Test
     fun `domain code imports no other layers and no frameworks`() {
-        val domainFiles = Konsist.scopeFromProject().files.filter { file ->
-            domainModulePath.containsMatchIn(file.projectPath.removePrefix("/")) &&
-                file.packagee?.name?.contains(".domain") == true
-        }
+        val domainFiles =
+            Konsist.scopeFromProject().files.filter { file ->
+                domainModulePath.containsMatchIn(file.projectPath.removePrefix("/")) &&
+                    file.packagee?.name?.contains(".domain") == true
+            }
         assertThat(domainFiles).isNotEmpty()
 
         domainFiles.flatMap { it.imports }.assertFalse { isForbidden(it.name) }

@@ -15,7 +15,6 @@ import kotlin.test.Test
  * - repeat: empty, mismatch on exact text (no normalization), match
  */
 class AuthFormsTest {
-
     private val goodEmail = "ann@example.com"
     private val goodPassword = "Correct horse 7"
 
@@ -38,24 +37,28 @@ class AuthFormsTest {
     @Test
     fun registerEveryFieldCombination() {
         val emails = listOf(goodEmail to null, "" to EmailProblem.Required, "ann@" to EmailProblem.InvalidFormat)
-        val passwords = listOf(
-            goodPassword to null,
-            "" to PasswordProblem.Required,
-            "Correct horse!" to PasswordProblem.RulesUnmet,
-        )
+        val passwords =
+            listOf(
+                goodPassword to null,
+                "" to PasswordProblem.Required,
+                "Correct horse!" to PasswordProblem.RulesUnmet,
+            )
         for ((email, emailProblem) in emails) {
             for ((password, passwordProblem) in passwords) {
                 for (repeat in listOf(password, "", password + "x")) {
                     val check = RegisterForm.check(email, password, repeat)
-                    val repeatProblem = when {
-                        repeat.isEmpty() -> RepeatPasswordProblem.Required
-                        repeat != password -> RepeatPasswordProblem.Mismatch
-                        else -> null
-                    }
+                    val repeatProblem =
+                        when {
+                            repeat.isEmpty() -> RepeatPasswordProblem.Required
+                            repeat != password -> RepeatPasswordProblem.Mismatch
+                            else -> null
+                        }
                     assertThat(check.email).isEqualTo(emailProblem)
                     assertThat(check.password).isEqualTo(passwordProblem)
                     assertThat(check.repeatPassword).isEqualTo(repeatProblem)
-                    assertThat(check.isValid).isEqualTo(emailProblem == null && passwordProblem == null && repeatProblem == null)
+                    assertThat(
+                        check.isValid,
+                    ).isEqualTo(emailProblem == null && passwordProblem == null && repeatProblem == null)
                 }
             }
         }

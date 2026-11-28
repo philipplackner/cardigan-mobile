@@ -5,6 +5,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual val coreDataPlatformModule: Module = module {
-    single<HttpClientEngine> { OkHttp.create() }
-}
+actual val coreDataPlatformModule: Module =
+    module {
+        single<HttpClientEngine> { OkHttp.create() }
+    }

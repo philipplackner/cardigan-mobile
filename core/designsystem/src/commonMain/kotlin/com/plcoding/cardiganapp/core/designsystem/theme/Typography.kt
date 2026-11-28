@@ -21,7 +21,10 @@ data class AppTypography(
     val sectionLabel: TextStyle,
 )
 
-internal fun appTypography(styles: AppTextStyles, windowClass: WindowClass): AppTypography {
+internal fun appTypography(
+    styles: AppTextStyles,
+    windowClass: WindowClass,
+): AppTypography {
     val isPhone = windowClass == WindowClass.Phone
     return AppTypography(
         pageTitle = if (isPhone) styles.sans28SemiBold120LsMinus2 else styles.sans22SemiBold120LsMinus2,
@@ -35,20 +38,21 @@ internal fun appTypography(styles: AppTextStyles, windowClass: WindowClass): App
 }
 
 /** Material typography for the Material bases (menus, dialogs, sheets). Components read [AppTypography]. */
-internal fun AppTypography.toMaterialTypography(): Typography = Typography(
-    displayLarge = pageTitle,
-    displayMedium = pageTitle,
-    displaySmall = pageTitle,
-    headlineLarge = pageTitle,
-    headlineMedium = pageTitle,
-    headlineSmall = screenTitle,
-    titleLarge = screenTitle,
-    titleMedium = cardTitle,
-    titleSmall = label,
-    bodyLarge = body,
-    bodyMedium = body,
-    bodySmall = label,
-    labelLarge = label,
-    labelMedium = label,
-    labelSmall = idMetadata,
-)
+internal fun AppTypography.toMaterialTypography(): Typography =
+    Typography(
+        displayLarge = pageTitle,
+        displayMedium = pageTitle,
+        displaySmall = pageTitle,
+        headlineLarge = pageTitle,
+        headlineMedium = pageTitle,
+        headlineSmall = screenTitle,
+        titleLarge = screenTitle,
+        titleMedium = cardTitle,
+        titleSmall = label,
+        bodyLarge = body,
+        bodyMedium = body,
+        bodySmall = label,
+        labelLarge = label,
+        labelMedium = label,
+        labelSmall = idMetadata,
+    )

@@ -6,9 +6,9 @@ import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSaveError
 import com.plcoding.cardiganapp.feature.boards.domain.BoardSummary
 import com.plcoding.cardiganapp.feature.boards.domain.RemoteBoardDataSource
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
-import kotlinx.coroutines.CompletableDeferred
 
 class FakeRemoteBoardDataSource : RemoteBoardDataSource {
     var getBoardsCalls = 0
@@ -28,12 +28,18 @@ class FakeRemoteBoardDataSource : RemoteBoardDataSource {
         return getBoardsResult
     }
 
-    override suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError> {
+    override suspend fun createBoard(
+        name: String,
+        key: String,
+    ): Result<BoardSummary, BoardSaveError> {
         saveGate?.await()
         return createResult ?: Result.Success(summary(name = name, key = key))
     }
 
-    override suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError> {
+    override suspend fun renameBoard(
+        id: Uuid,
+        name: String,
+    ): Result<BoardSummary, BoardSaveError> {
         saveGate?.await()
         return renameResult ?: error("renameResult not set")
     }

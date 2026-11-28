@@ -16,7 +16,6 @@ import kotlin.uuid.Uuid
  * surrogates order differently, and a lone high surrogate at the end of a name.
  */
 class LabelOrderTest {
-
     private fun label(name: String) = Label(Uuid.random(), name, LabelColor.Blue)
 
     private fun List<Label>.names() = map { it.name }

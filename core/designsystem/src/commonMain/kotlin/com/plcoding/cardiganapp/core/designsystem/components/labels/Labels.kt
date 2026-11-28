@@ -81,11 +81,12 @@ fun Label(
         LabelDot(color = color, size = if (size == LabelSize.Small) SmallDotSize else LargeDotSize)
         Text(
             text = name,
-            style = when (size) {
-                LabelSize.Small -> styles.sans12Medium100
-                LabelSize.Medium -> styles.sans13_5Medium100
-                LabelSize.Large -> styles.sans15Medium100
-            },
+            style =
+                when (size) {
+                    LabelSize.Small -> styles.sans12Medium100
+                    LabelSize.Medium -> styles.sans13_5Medium100
+                    LabelSize.Large -> styles.sans15Medium100
+                },
             color = if (size == LabelSize.Small) AppTheme.colors.text.muted else AppTheme.colors.text.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -104,10 +105,18 @@ fun LabelChip(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.full)
     Row(
-        modifier = modifier
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(PaddingValues(start = AppTheme.space.s8, end = AppTheme.space.s9, top = AppTheme.space.s4, bottom = AppTheme.space.s4)),
+        modifier =
+            modifier
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(
+                    PaddingValues(
+                        start = AppTheme.space.s8,
+                        end = AppTheme.space.s9,
+                        top = AppTheme.space.s4,
+                        bottom = AppTheme.space.s4,
+                    ),
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s5),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -146,27 +155,26 @@ fun Swatch(
     val name = stringResource(color.displayName)
     val ringColor = AppTheme.colors.text.primary
     Box(
-        modifier = modifier
-            .size(SwatchSize)
-            .semantics { contentDescription = name }
-            .selectable(
-                selected = selected,
-                onClick = onClick,
-                role = Role.RadioButton,
-                interactionSource = null,
-                indication = ripple(bounded = false, radius = SwatchSize / 2 + SwatchRingGap + SwatchRingWidth),
-            )
-            .drawBehind {
-                if (selected) {
-                    val strokePx = SwatchRingWidth.toPx()
-                    drawCircle(
-                        color = ringColor,
-                        radius = size.minDimension / 2 + SwatchRingGap.toPx() + strokePx / 2,
-                        style = Stroke(strokePx),
-                    )
-                }
-            }
-            .background(color.color, CircleShape),
+        modifier =
+            modifier
+                .size(SwatchSize)
+                .semantics { contentDescription = name }
+                .selectable(
+                    selected = selected,
+                    onClick = onClick,
+                    role = Role.RadioButton,
+                    interactionSource = null,
+                    indication = ripple(bounded = false, radius = SwatchSize / 2 + SwatchRingGap + SwatchRingWidth),
+                ).drawBehind {
+                    if (selected) {
+                        val strokePx = SwatchRingWidth.toPx()
+                        drawCircle(
+                            color = ringColor,
+                            radius = size.minDimension / 2 + SwatchRingGap.toPx() + strokePx / 2,
+                            style = Stroke(strokePx),
+                        )
+                    }
+                }.background(color.color, CircleShape),
     )
 }
 
@@ -189,21 +197,31 @@ fun LabelRow(
     val dividerColor = AppTheme.colors.border.default
     val dividerWidth = AppTheme.space.s1
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .drawBehind {
-                if (showDivider) {
-                    val y = size.height - dividerWidth.toPx() / 2
-                    drawLine(dividerColor, Offset(0f, y), Offset(size.width, y), dividerWidth.toPx())
-                }
-            }
-            .padding(
-                if (touch) {
-                    PaddingValues(start = AppTheme.space.s16, end = AppTheme.space.s6, top = AppTheme.space.s14, bottom = AppTheme.space.s14)
-                } else {
-                    PaddingValues(start = AppTheme.space.s16, end = AppTheme.space.s8, top = AppTheme.space.s10, bottom = AppTheme.space.s10)
-                },
-            ),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    if (showDivider) {
+                        val y = size.height - dividerWidth.toPx() / 2
+                        drawLine(dividerColor, Offset(0f, y), Offset(size.width, y), dividerWidth.toPx())
+                    }
+                }.padding(
+                    if (touch) {
+                        PaddingValues(
+                            start = AppTheme.space.s16,
+                            end = AppTheme.space.s6,
+                            top = AppTheme.space.s14,
+                            bottom = AppTheme.space.s14,
+                        )
+                    } else {
+                        PaddingValues(
+                            start = AppTheme.space.s16,
+                            end = AppTheme.space.s8,
+                            top = AppTheme.space.s10,
+                            bottom = AppTheme.space.s10,
+                        )
+                    },
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s12),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -231,9 +249,10 @@ fun LabelRow(
 @Composable
 private fun LabelDotsGrid() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s12),
     ) {
         LabelColor.entries.chunked(10).forEach { row ->
@@ -259,17 +278,24 @@ private fun LabelDotsDarkPreview() {
 @Composable
 private fun LabelSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         LabelSize.entries.forEach { Label(name = "api", color = LabelColor.Blue, size = it) }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             LabelChip(name = "api", color = LabelColor.Blue)
             LabelChip(name = "api", color = LabelColor.Blue, onRemove = {}, removeContentDescription = "Remove api")
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s16), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Swatch(color = LabelColor.Red, selected = false, onClick = {})
             Swatch(color = LabelColor.Red, selected = true, onClick = {})
         }

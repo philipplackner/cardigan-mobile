@@ -22,9 +22,6 @@ import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeBoardRepos
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeToastController
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.board
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +29,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -48,7 +48,6 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RenameBoardViewModelTest {
-
     private val raytracer = board(id = "0b5c8a6e-1f00-4a3c-9a43-6f5e0e3c1d2a", name = "Raytracer", key = "RAY")
     private val repository = FakeBoardRepository(listOf(raytracer))
     private val toasts = FakeToastController()
@@ -63,13 +62,17 @@ class RenameBoardViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(id: String = raytracer.id.toString(), handle: SavedStateHandle = SavedStateHandle()) =
-        RenameBoardViewModel(id, repository, toasts, handle)
+    private fun viewModel(
+        id: String = raytracer.id.toString(),
+        handle: SavedStateHandle = SavedStateHandle(),
+    ) = RenameBoardViewModel(id, repository, toasts, handle)
 
     @Test
     fun showsTheCurrentNameAndKey() {
         val viewModel = viewModel()
-        assertThat(viewModel.state.value).isEqualTo(RenameBoardState(boardName = "Raytracer", key = "RAY", name = "Raytracer"))
+        assertThat(
+            viewModel.state.value,
+        ).isEqualTo(RenameBoardState(boardName = "Raytracer", key = "RAY", name = "Raytracer"))
     }
 
     @Test
@@ -88,46 +91,50 @@ class RenameBoardViewModelTest {
     }
 
     @Test
-    fun actionsBeforeTheBoardIsFoundAreIgnored() = runTest {
-        repository.state.value = null
-        repository.serverBoards = listOf(raytracer)
-        repository.gate = CompletableDeferred()
-        val viewModel = viewModel()
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.NameChange("Path"))
-            viewModel.onAction(RenameBoardAction.Save)
-            viewModel.onAction(RenameBoardAction.Cancel)
-            expectNoEvents()
+    fun actionsBeforeTheBoardIsFoundAreIgnored() =
+        runTest {
+            repository.state.value = null
+            repository.serverBoards = listOf(raytracer)
+            repository.gate = CompletableDeferred()
+            val viewModel = viewModel()
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.NameChange("Path"))
+                viewModel.onAction(RenameBoardAction.Save)
+                viewModel.onAction(RenameBoardAction.Cancel)
+                expectNoEvents()
+            }
+            assertThat(viewModel.state.value).isEqualTo(RenameBoardState())
+            assertThat(repository.renameCalls).isEmpty()
         }
-        assertThat(viewModel.state.value).isEqualTo(RenameBoardState())
-        assertThat(repository.renameCalls).isEmpty()
-    }
 
     @Test
-    fun missingBoardCloses() = runTest {
-        val viewModel = viewModel(id = "00000000-0000-0000-0000-000000000000")
-        viewModel.events.test { assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close) }
-        assertThat(viewModel.state.value.boardName).isNull()
-    }
-
-    @Test
-    fun failedLoadCloses() = runTest {
-        repository.state.value = null
-        repository.refreshResult = Result.Error(DataError.Network.NO_INTERNET)
-        val viewModel = viewModel()
-        viewModel.events.test { assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close) }
-    }
-
-    @Test
-    fun unchangedNameClosesWithoutARequest() = runTest {
-        val viewModel = viewModel()
-        viewModel.onAction(RenameBoardAction.NameChange("Raytracer "))
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.Save)
-            assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close)
+    fun missingBoardCloses() =
+        runTest {
+            val viewModel = viewModel(id = "00000000-0000-0000-0000-000000000000")
+            viewModel.events.test { assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close) }
+            assertThat(viewModel.state.value.boardName).isNull()
         }
-        assertThat(repository.renameCalls).isEmpty()
-    }
+
+    @Test
+    fun failedLoadCloses() =
+        runTest {
+            repository.state.value = null
+            repository.refreshResult = Result.Error(DataError.Network.NO_INTERNET)
+            val viewModel = viewModel()
+            viewModel.events.test { assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close) }
+        }
+
+    @Test
+    fun unchangedNameClosesWithoutARequest() =
+        runTest {
+            val viewModel = viewModel()
+            viewModel.onAction(RenameBoardAction.NameChange("Raytracer "))
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.Save)
+                assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close)
+            }
+            assertThat(repository.renameCalls).isEmpty()
+        }
 
     @Test
     fun emptyNameShowsTheErrorAndSendsNothing() {
@@ -143,43 +150,46 @@ class RenameBoardViewModelTest {
     }
 
     @Test
-    fun successReportsTheServerName() = runTest {
-        repository.renameResult = Result.Success(raytracer.copy(name = "Path tracer"))
-        val viewModel = viewModel()
-        viewModel.onAction(RenameBoardAction.NameChange("  Path tracer "))
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.Save)
-            assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Renamed("Path tracer"))
+    fun successReportsTheServerName() =
+        runTest {
+            repository.renameResult = Result.Success(raytracer.copy(name = "Path tracer"))
+            val viewModel = viewModel()
+            viewModel.onAction(RenameBoardAction.NameChange("  Path tracer "))
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.Save)
+                assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Renamed("Path tracer"))
+            }
+            assertThat(repository.renameCalls).containsExactly(raytracer.id to "Path tracer")
+            assertThat(toasts.messages).isEmpty()
         }
-        assertThat(repository.renameCalls).containsExactly(raytracer.id to "Path tracer")
-        assertThat(toasts.messages).isEmpty()
-    }
 
     @Test
-    fun notFoundShowsTheToastAndCloses() = runTest {
-        repository.renameResult = Result.Error(BoardSaveError.NotFound)
-        val viewModel = viewModel()
-        viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.Save)
-            assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close)
+    fun notFoundShowsTheToastAndCloses() =
+        runTest {
+            repository.renameResult = Result.Error(BoardSaveError.NotFound)
+            val viewModel = viewModel()
+            viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.Save)
+                assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Close)
+            }
+            assertResource(toasts.messages.single().text, Res.string.board_no_longer_exists, "Raytracer")
         }
-        assertResource(toasts.messages.single().text, Res.string.board_no_longer_exists, "Raytracer")
-    }
 
     @Test
-    fun networkFailureShowsTheToastAndStays() = runTest {
-        repository.renameResult = Result.Error(BoardSaveError.Network(DataError.Network.SERVER_ERROR))
-        val viewModel = viewModel()
-        viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.Save)
-            expectNoEvents()
+    fun networkFailureShowsTheToastAndStays() =
+        runTest {
+            repository.renameResult = Result.Error(BoardSaveError.Network(DataError.Network.SERVER_ERROR))
+            val viewModel = viewModel()
+            viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.Save)
+                expectNoEvents()
+            }
+            assertResource(toasts.messages.single().text, Res.string.rename_board_failed, "Raytracer")
+            assertThat(viewModel.state.value.name).isEqualTo("Path tracer")
+            assertThat(viewModel.state.value.isSaving).isFalse()
         }
-        assertResource(toasts.messages.single().text, Res.string.rename_board_failed, "Raytracer")
-        assertThat(viewModel.state.value.name).isEqualTo("Path tracer")
-        assertThat(viewModel.state.value.isSaving).isFalse()
-    }
 
     @Test
     fun serverNameErrorShowsUnderTheField() {
@@ -191,22 +201,23 @@ class RenameBoardViewModelTest {
     }
 
     @Test
-    fun savingIgnoresCancelAndEdits() = runTest {
-        repository.gate = CompletableDeferred()
-        val viewModel = viewModel()
-        viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
-        viewModel.events.test {
-            viewModel.onAction(RenameBoardAction.Save)
-            assertThat(viewModel.state.value.isSaving).isTrue()
-            viewModel.onAction(RenameBoardAction.Cancel)
-            viewModel.onAction(RenameBoardAction.NameChange("Other"))
-            expectNoEvents()
-            assertThat(viewModel.state.value.name).isEqualTo("Path tracer")
-            repository.gate!!.complete(Unit)
-            assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Renamed("Path tracer"))
+    fun savingIgnoresCancelAndEdits() =
+        runTest {
+            repository.gate = CompletableDeferred()
+            val viewModel = viewModel()
+            viewModel.onAction(RenameBoardAction.NameChange("Path tracer"))
+            viewModel.events.test {
+                viewModel.onAction(RenameBoardAction.Save)
+                assertThat(viewModel.state.value.isSaving).isTrue()
+                viewModel.onAction(RenameBoardAction.Cancel)
+                viewModel.onAction(RenameBoardAction.NameChange("Other"))
+                expectNoEvents()
+                assertThat(viewModel.state.value.name).isEqualTo("Path tracer")
+                repository.gate!!.complete(Unit)
+                assertThat(awaitItem()).isEqualTo(RenameBoardEvent.Renamed("Path tracer"))
+            }
+            assertThat(repository.renameCalls).hasSize(1)
         }
-        assertThat(repository.renameCalls).hasSize(1)
-    }
 
     @Test
     fun restoresTheTypedName() {

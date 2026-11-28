@@ -14,7 +14,6 @@ import kotlin.test.Test
  * emoji made of surrogate pairs, the empty string and a lone space.
  */
 class BoardKeyRuleTest {
-
     private fun check(input: String) = BoardKeyRule.validate(BoardKeyRule.normalize(input))
 
     @Test

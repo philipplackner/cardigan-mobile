@@ -58,13 +58,24 @@ fun ImportBoardScreen(
     onCancel: () -> Unit,
 ) {
     when (val phase = state.phase) {
-        ImportPhase.Picking, ImportPhase.Done -> Unit
-        is ImportPhase.ErrorShown -> ImportErrorDialog(phase, onAction, onCancel)
-        is ImportPhase.Uploading -> ProgressDialog(
-            title = stringResource(Res.string.importing_title, phase.fileName),
-            description = stringResource(Res.string.importing_description),
-        )
-        is ImportPhase.ChoosingKey -> ChooseKeyDialog(phase, onAction, onCancel)
+        ImportPhase.Picking, ImportPhase.Done -> {
+            Unit
+        }
+
+        is ImportPhase.ErrorShown -> {
+            ImportErrorDialog(phase, onAction, onCancel)
+        }
+
+        is ImportPhase.Uploading -> {
+            ProgressDialog(
+                title = stringResource(Res.string.importing_title, phase.fileName),
+                description = stringResource(Res.string.importing_description),
+            )
+        }
+
+        is ImportPhase.ChoosingKey -> {
+            ChooseKeyDialog(phase, onAction, onCancel)
+        }
     }
 }
 
@@ -110,14 +121,23 @@ private fun ImportErrorDialog(
 }
 
 @Composable
-private fun errorMessage(phase: ImportPhase.ErrorShown): String = when (phase.error) {
-    ImportDialogError.TooLarge -> stringResource(
-        Res.string.import_error_too_large,
-        fileSizeText(phase.file?.sizeBytes ?: 0L).asString(),
-    )
-    ImportDialogError.InvalidFile -> stringResource(Res.string.import_error_invalid_file)
-    ImportDialogError.Failed -> stringResource(Res.string.import_error_failed)
-}
+private fun errorMessage(phase: ImportPhase.ErrorShown): String =
+    when (phase.error) {
+        ImportDialogError.TooLarge -> {
+            stringResource(
+                Res.string.import_error_too_large,
+                fileSizeText(phase.file?.sizeBytes ?: 0L).asString(),
+            )
+        }
+
+        ImportDialogError.InvalidFile -> {
+            stringResource(Res.string.import_error_invalid_file)
+        }
+
+        ImportDialogError.Failed -> {
+            stringResource(Res.string.import_error_failed)
+        }
+    }
 
 @Composable
 private fun ChooseKeyDialog(
@@ -126,11 +146,12 @@ private fun ChooseKeyDialog(
     onCancel: () -> Unit,
 ) {
     val touch = isTouchSize
-    val description = if (phase.boardName != null) {
-        stringResource(Res.string.import_key_description_known, phase.boardName, phase.clashKey)
-    } else {
-        stringResource(Res.string.import_key_description_unknown, phase.clashKey)
-    }
+    val description =
+        if (phase.boardName != null) {
+            stringResource(Res.string.import_key_description_known, phase.boardName, phase.clashKey)
+        } else {
+            stringResource(Res.string.import_key_description_unknown, phase.clashKey)
+        }
     CardiganDialog(
         title = stringResource(Res.string.import_key_title),
         description = description,
@@ -141,12 +162,13 @@ private fun ChooseKeyDialog(
                     value = phase.key,
                     onValueChange = { onAction(ImportBoardAction.KeyChange(it)) },
                     isError = phase.fieldError != null,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Characters,
-                        autoCorrectEnabled = false,
-                        keyboardType = KeyboardType.Ascii,
-                        imeAction = ImeAction.Done,
-                    ),
+                    keyboardOptions =
+                        KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters,
+                            autoCorrectEnabled = false,
+                            keyboardType = KeyboardType.Ascii,
+                            imeAction = ImeAction.Done,
+                        ),
                     keyboardActions = KeyboardActions(onDone = { onAction(ImportBoardAction.ImportWithKey) }),
                     modifier = Modifier.fillMaxWidth(),
                 )

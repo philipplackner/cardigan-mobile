@@ -20,23 +20,39 @@ import kotlin.uuid.Uuid
  * call fails, so the board view shows its load error state.
  */
 class NotConnectedBoardDetailRepository : BoardDetailRepository {
-    override suspend fun loadBoard(boardId: Uuid): Result<BoardContent, BoardLoadError> = Result.Error(BoardLoadError.Failed)
+    override suspend fun loadBoard(boardId: Uuid): Result<BoardContent, BoardLoadError> =
+        Result.Error(BoardLoadError.Failed)
 
-    override suspend fun addColumn(boardId: Uuid, name: String): Result<Column, ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
+    override suspend fun addColumn(
+        boardId: Uuid,
+        name: String,
+    ): Result<Column, ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
 
-    override suspend fun renameColumn(boardId: Uuid, columnId: Uuid, name: String): Result<Column, ColumnWriteError> =
-        Result.Error(ColumnWriteError.Failed)
+    override suspend fun renameColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+        name: String,
+    ): Result<Column, ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
 
-    override suspend fun moveColumn(boardId: Uuid, columnId: Uuid, position: Int): Result<List<Uuid>, ColumnWriteError> =
-        Result.Error(ColumnWriteError.Failed)
+    override suspend fun moveColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+        position: Int,
+    ): Result<List<Uuid>, ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
 
-    override suspend fun deleteColumn(boardId: Uuid, columnId: Uuid): EmptyResult<ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
+    override suspend fun deleteColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+    ): EmptyResult<ColumnWriteError> = Result.Error(ColumnWriteError.Failed)
 }
 
 /** Stands in for card create until `mob-cards-connect` binds the Ktor repository. Every call fails. */
 class NotConnectedCardCreateRepository : CardCreateRepository {
-    override suspend fun createCard(boardId: Uuid, columnId: Uuid, title: String): Result<Card, CardCreateError> =
-        Result.Error(CardCreateError.Failed)
+    override suspend fun createCard(
+        boardId: Uuid,
+        columnId: Uuid,
+        title: String,
+    ): Result<Card, CardCreateError> = Result.Error(CardCreateError.Failed)
 }
 
 /** Stands in for the user's labels until the labels feature implements [LabelSource]. Every call fails. */

@@ -24,9 +24,6 @@ import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeBoardRepos
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeToastController
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.board
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +31,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -52,7 +52,6 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewBoardViewModelTest {
-
     private val repository = FakeBoardRepository(listOf(board(name = "Cardigan v1", key = "CRD")))
     private val toasts = FakeToastController()
 
@@ -70,7 +69,10 @@ class NewBoardViewModelTest {
 
     private val NewBoardViewModel.s get() = state.value
 
-    private fun NewBoardViewModel.type(name: String? = null, key: String? = null) {
+    private fun NewBoardViewModel.type(
+        name: String? = null,
+        key: String? = null,
+    ) {
         name?.let { onAction(NewBoardAction.NameChange(it)) }
         key?.let { onAction(NewBoardAction.KeyChange(it)) }
     }
@@ -174,53 +176,56 @@ class NewBoardViewModelTest {
     }
 
     @Test
-    fun sendsTheNormalizedName() = runTest {
-        val viewModel = viewModel()
-        viewModel.type(name = "  Garden irrigation  ")
-        viewModel.events.test {
-            viewModel.onAction(NewBoardAction.Create)
-            val created = awaitItem() as NewBoardEvent.Created
-            assertThat(created.name).isEqualTo("Garden irrigation")
-            assertThat(created.key).isEqualTo("GARD")
+    fun sendsTheNormalizedName() =
+        runTest {
+            val viewModel = viewModel()
+            viewModel.type(name = "  Garden irrigation  ")
+            viewModel.events.test {
+                viewModel.onAction(NewBoardAction.Create)
+                val created = awaitItem() as NewBoardEvent.Created
+                assertThat(created.name).isEqualTo("Garden irrigation")
+                assertThat(created.key).isEqualTo("GARD")
+            }
+            assertThat(repository.createCalls).containsExactly("Garden irrigation" to "GARD")
         }
-        assertThat(repository.createCalls).containsExactly("Garden irrigation" to "GARD")
-    }
 
     @Test
-    fun createdUsesTheServerValues() = runTest {
-        val server = board(id = "0b5c8a6e-1f00-4a3c-9a43-6f5e0e3c1d2a", name = "Garden", key = "GARD")
-        repository.createResult = Result.Success(server)
-        val viewModel = viewModel()
-        viewModel.type(name = "Garden ")
-        viewModel.events.test {
-            viewModel.onAction(NewBoardAction.Create)
-            assertThat(awaitItem()).isEqualTo(NewBoardEvent.Created(server.id.toString(), "Garden", "GARD"))
+    fun createdUsesTheServerValues() =
+        runTest {
+            val server = board(id = "0b5c8a6e-1f00-4a3c-9a43-6f5e0e3c1d2a", name = "Garden", key = "GARD")
+            repository.createResult = Result.Success(server)
+            val viewModel = viewModel()
+            viewModel.type(name = "Garden ")
+            viewModel.events.test {
+                viewModel.onAction(NewBoardAction.Create)
+                assertThat(awaitItem()).isEqualTo(NewBoardEvent.Created(server.id.toString(), "Garden", "GARD"))
+            }
+            assertThat(toasts.messages).isEmpty()
         }
-        assertThat(toasts.messages).isEmpty()
-    }
 
     @Test
-    fun savingIgnoresEveryAction() = runTest {
-        repository.gate = CompletableDeferred()
-        val viewModel = viewModel()
-        viewModel.type(name = "Garden")
-        viewModel.events.test {
-            viewModel.onAction(NewBoardAction.Create)
-            assertThat(viewModel.s.isSaving).isTrue()
-            assertThat(viewModel.s.canCreate).isFalse()
+    fun savingIgnoresEveryAction() =
+        runTest {
+            repository.gate = CompletableDeferred()
+            val viewModel = viewModel()
+            viewModel.type(name = "Garden")
+            viewModel.events.test {
+                viewModel.onAction(NewBoardAction.Create)
+                assertThat(viewModel.s.isSaving).isTrue()
+                assertThat(viewModel.s.canCreate).isFalse()
 
-            viewModel.onAction(NewBoardAction.Cancel)
-            viewModel.type(name = "Changed", key = "XY")
-            viewModel.onAction(NewBoardAction.Create)
-            expectNoEvents()
-            assertThat(viewModel.s.name).isEqualTo("Garden")
-            assertThat(repository.createCalls).hasSize(1)
+                viewModel.onAction(NewBoardAction.Cancel)
+                viewModel.type(name = "Changed", key = "XY")
+                viewModel.onAction(NewBoardAction.Create)
+                expectNoEvents()
+                assertThat(viewModel.s.name).isEqualTo("Garden")
+                assertThat(repository.createCalls).hasSize(1)
 
-            repository.gate!!.complete(Unit)
-            val created = awaitItem() as NewBoardEvent.Created
-            assertThat(created.name to created.key).isEqualTo("Garden" to "GARD")
+                repository.gate!!.complete(Unit)
+                val created = awaitItem() as NewBoardEvent.Created
+                assertThat(created.name to created.key).isEqualTo("Garden" to "GARD")
+            }
         }
-    }
 
     @Test
     fun serverKeyAlreadyUsed() {
@@ -237,7 +242,8 @@ class NewBoardViewModelTest {
     fun serverKeyTooLongAndUnknownCode() {
         val viewModel = viewModel()
         viewModel.type(name = "Garden")
-        repository.createResult = Result.Error(BoardSaveError.InvalidFields(key = KeyFieldError.Rule(BoardKeyError.TooLong)))
+        repository.createResult =
+            Result.Error(BoardSaveError.InvalidFields(key = KeyFieldError.Rule(BoardKeyError.TooLong)))
         viewModel.onAction(NewBoardAction.Create)
         assertThat(viewModel.s.keyError).isEqualTo(BoardKeyFieldError.Rule(BoardKeyError.TooLong))
 
@@ -262,30 +268,32 @@ class NewBoardViewModelTest {
     }
 
     @Test
-    fun networkFailureKeepsTheDialogAndDoesNotRepeat() = runTest {
-        repository.createResult = Result.Error(BoardSaveError.Network(DataError.Network.NO_INTERNET))
-        val viewModel = viewModel()
-        viewModel.type(name = "Garden irrigation")
-        viewModel.events.test {
-            viewModel.onAction(NewBoardAction.Create)
-            expectNoEvents()
+    fun networkFailureKeepsTheDialogAndDoesNotRepeat() =
+        runTest {
+            repository.createResult = Result.Error(BoardSaveError.Network(DataError.Network.NO_INTERNET))
+            val viewModel = viewModel()
+            viewModel.type(name = "Garden irrigation")
+            viewModel.events.test {
+                viewModel.onAction(NewBoardAction.Create)
+                expectNoEvents()
+            }
+            assertThat(toasts.messages).hasSize(1)
+            assertResource(toasts.messages.single().text, Res.string.new_board_failed)
+            assertThat(viewModel.s.name).isEqualTo("Garden irrigation")
+            assertThat(viewModel.s.key).isEqualTo("GARD")
+            assertThat(viewModel.s.isSaving).isFalse()
+            assertThat(repository.createCalls).hasSize(1)
         }
-        assertThat(toasts.messages).hasSize(1)
-        assertResource(toasts.messages.single().text, Res.string.new_board_failed)
-        assertThat(viewModel.s.name).isEqualTo("Garden irrigation")
-        assertThat(viewModel.s.key).isEqualTo("GARD")
-        assertThat(viewModel.s.isSaving).isFalse()
-        assertThat(repository.createCalls).hasSize(1)
-    }
 
     @Test
-    fun cancelCloses() = runTest {
-        val viewModel = viewModel()
-        viewModel.events.test {
-            viewModel.onAction(NewBoardAction.Cancel)
-            assertThat(awaitItem()).isEqualTo(NewBoardEvent.Close)
+    fun cancelCloses() =
+        runTest {
+            val viewModel = viewModel()
+            viewModel.events.test {
+                viewModel.onAction(NewBoardAction.Cancel)
+                assertThat(awaitItem()).isEqualTo(NewBoardEvent.Close)
+            }
         }
-    }
 
     @Test
     fun restoresAfterProcessDeath() {

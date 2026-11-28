@@ -10,6 +10,7 @@ const val EMAIL_FIELD_MAX_CHARS = 500
  */
 fun capEmailInput(input: String): String {
     if (input.length <= EMAIL_FIELD_MAX_CHARS) return input
-    val end = if (input[EMAIL_FIELD_MAX_CHARS - 1].isHighSurrogate()) EMAIL_FIELD_MAX_CHARS - 1 else EMAIL_FIELD_MAX_CHARS
+    val end =
+        if (input[EMAIL_FIELD_MAX_CHARS - 1].isHighSurrogate()) EMAIL_FIELD_MAX_CHARS - 1 else EMAIL_FIELD_MAX_CHARS
     return input.substring(0, end)
 }

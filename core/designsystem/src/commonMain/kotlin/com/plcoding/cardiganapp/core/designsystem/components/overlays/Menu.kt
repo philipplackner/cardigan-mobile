@@ -82,14 +82,15 @@ private fun MenuSurface(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     Column(
-        modifier = modifier
-            .dropShadow(shape, AppTheme.shadows.popover)
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .widthIn(min = if (isTouchSize) MenuTouchMinWidth else MenuMinWidth)
-            .width(IntrinsicSize.Max)
-            .verticalScroll(rememberScrollState())
-            .padding(AppTheme.space.s4),
+        modifier =
+            modifier
+                .dropShadow(shape, AppTheme.shadows.popover)
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .widthIn(min = if (isTouchSize) MenuTouchMinWidth else MenuMinWidth)
+                .width(IntrinsicSize.Max)
+                .verticalScroll(rememberScrollState())
+                .padding(AppTheme.space.s4),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s1),
         content = content,
     )
@@ -113,24 +114,33 @@ fun MenuItem(
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val isHighlighted by source.collectIsHighlightedAsState()
     val shape = RoundedCornerShape(AppTheme.radius.r5)
-    val (iconColor, textColor) = when {
-        !enabled -> colors.text.faint to colors.text.faint
-        danger -> colors.danger.default to colors.danger.default
-        else -> colors.text.muted to colors.text.primary
-    }
+    val (iconColor, textColor) =
+        when {
+            !enabled -> colors.text.faint to colors.text.faint
+            danger -> colors.danger.default to colors.danger.default
+            else -> colors.text.muted to colors.text.primary
+        }
     val touch = isTouchSize
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(if (isHighlighted && enabled) colors.background.hover else Color.Transparent, shape)
-            .clickable(
-                interactionSource = source,
-                indication = ripple(),
-                enabled = enabled,
-                role = Role.Button,
-                onClick = onClick,
-            )
-            .padding(if (touch) PaddingValues(AppTheme.space.s12) else PaddingValues(horizontal = AppTheme.space.s10, vertical = AppTheme.space.s8)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(if (isHighlighted && enabled) colors.background.hover else Color.Transparent, shape)
+                .clickable(
+                    interactionSource = source,
+                    indication = ripple(),
+                    enabled = enabled,
+                    role = Role.Button,
+                    onClick = onClick,
+                ).padding(
+                    if (touch) {
+                        PaddingValues(
+                            AppTheme.space.s12,
+                        )
+                    } else {
+                        PaddingValues(horizontal = AppTheme.space.s10, vertical = AppTheme.space.s8)
+                    },
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -156,16 +166,22 @@ fun MenuHeader(
     val touch = isTouchSize
     Text(
         text = text,
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { heading() }
-            .padding(
-                if (touch) {
-                    PaddingValues(AppTheme.space.s12)
-                } else {
-                    PaddingValues(start = AppTheme.space.s10, end = AppTheme.space.s10, top = AppTheme.space.s8, bottom = AppTheme.space.s6)
-                },
-            ),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics { heading() }
+                .padding(
+                    if (touch) {
+                        PaddingValues(AppTheme.space.s12)
+                    } else {
+                        PaddingValues(
+                            start = AppTheme.space.s10,
+                            end = AppTheme.space.s10,
+                            top = AppTheme.space.s8,
+                            bottom = AppTheme.space.s6,
+                        )
+                    },
+                ),
         style = if (touch) AppTheme.textStyles.sans15Regular145 else AppTheme.textStyles.sans12Regular145,
         color = AppTheme.colors.text.muted,
         maxLines = 1,
@@ -176,20 +192,22 @@ fun MenuHeader(
 @Composable
 fun MenuDivider(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = AppTheme.space.s2, vertical = AppTheme.space.s4)
-            .height(AppTheme.space.s1)
-            .background(AppTheme.colors.border.default),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppTheme.space.s2, vertical = AppTheme.space.s4)
+                .height(AppTheme.space.s1)
+                .background(AppTheme.colors.border.default),
     )
 }
 
 @Composable
 private fun MenuSample() {
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
     ) {
         MenuSurface {
             MenuHeader(text = "Board")

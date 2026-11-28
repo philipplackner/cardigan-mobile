@@ -58,24 +58,39 @@ fun Panel(
     val lineColor = colors.border.default
     val lineWidth = AppTheme.space.s1
     Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .dropShadow(RectangleShape, AppTheme.shadows.panel)
-            .background(colors.background.surface)
-            .drawBehind {
-                val x = if (layoutDirection == LayoutDirection.Ltr) lineWidth.toPx() / 2 else size.width - lineWidth.toPx() / 2
-                drawLine(lineColor, Offset(x, 0f), Offset(x, size.height), lineWidth.toPx())
-            },
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .dropShadow(RectangleShape, AppTheme.shadows.panel)
+                .background(colors.background.surface)
+                .drawBehind {
+                    val x =
+                        if (layoutDirection ==
+                            LayoutDirection.Ltr
+                        ) {
+                            lineWidth.toPx() / 2
+                        } else {
+                            size.width - lineWidth.toPx() / 2
+                        }
+                    drawLine(lineColor, Offset(x, 0f), Offset(x, size.height), lineWidth.toPx())
+                },
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = PanelHeaderMinHeight)
-                .drawBehind {
-                    val y = size.height - lineWidth.toPx() / 2
-                    drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
-                }
-                .padding(PaddingValues(start = AppTheme.space.s20, end = AppTheme.space.s12, top = AppTheme.space.s12, bottom = AppTheme.space.s12)),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = PanelHeaderMinHeight)
+                    .drawBehind {
+                        val y = size.height - lineWidth.toPx() / 2
+                        drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
+                    }.padding(
+                        PaddingValues(
+                            start = AppTheme.space.s20,
+                            end = AppTheme.space.s12,
+                            top = AppTheme.space.s12,
+                            bottom = AppTheme.space.s12,
+                        ),
+                    ),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -88,21 +103,34 @@ fun Panel(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            CardiganIconButton(icon = CardiganIcons.Close, contentDescription = closeContentDescription, onClick = onCloseClick)
+            CardiganIconButton(
+                icon = CardiganIcons.Close,
+                contentDescription = closeContentDescription,
+                onClick = onCloseClick,
+            )
         }
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(AppTheme.space.s20),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(AppTheme.space.s20),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s20),
             content = body,
         )
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingValues(start = AppTheme.space.s12, end = AppTheme.space.s16, top = AppTheme.space.s12, bottom = AppTheme.space.s12)),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        PaddingValues(
+                            start = AppTheme.space.s12,
+                            end = AppTheme.space.s16,
+                            top = AppTheme.space.s12,
+                            bottom = AppTheme.space.s12,
+                        ),
+                    ),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             verticalAlignment = Alignment.CenterVertically,
             content = footer,
@@ -110,9 +138,10 @@ fun Panel(
     }
 }
 
-private val LongDescription = List(12) {
-    "When several requests get a 401 at the same time, only one refresh call runs. The others wait for it."
-}.joinToString("\n")
+private val LongDescription =
+    List(12) {
+        "When several requests get a 401 at the same time, only one refresh call runs. The others wait for it."
+    }.joinToString("\n")
 
 @Composable
 private fun PanelSample() {
@@ -124,16 +153,23 @@ private fun PanelSample() {
             closeContentDescription = "Close",
             modifier = Modifier.width(AppTheme.width.panelTablet),
             footer = {
-                CardiganButton(text = "Delete", onClick = {}, style = ButtonStyle.DangerGhost, leadingIcon = CardiganIcons.Trash)
+                CardiganButton(
+                    text = "Delete",
+                    onClick = {},
+                    style = ButtonStyle.DangerGhost,
+                    leadingIcon = CardiganIcons.Trash,
+                )
                 Box(modifier = Modifier.weight(1f))
                 CardiganButton(text = "Save", onClick = {})
             },
         ) {
             Field(label = "Title") {
-                TextArea(value = "Single-flight token refresh", onValueChange = {}, type = TextAreaType.Title, modifier = Modifier.fillMaxWidth())
+                TextArea(value = "Single-flight token refresh", onValueChange = {
+                }, type = TextAreaType.Title, modifier = Modifier.fillMaxWidth())
             }
             Field(label = "Description") {
-                TextArea(value = LongDescription, onValueChange = {}, type = TextAreaType.Description, modifier = Modifier.fillMaxWidth())
+                TextArea(value = LongDescription, onValueChange = {
+                }, type = TextAreaType.Description, modifier = Modifier.fillMaxWidth())
             }
         }
     }

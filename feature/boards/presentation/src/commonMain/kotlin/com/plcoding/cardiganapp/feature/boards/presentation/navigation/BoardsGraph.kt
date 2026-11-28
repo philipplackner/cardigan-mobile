@@ -2,9 +2,9 @@ package com.plcoding.cardiganapp.feature.boards.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -18,9 +18,9 @@ import com.plcoding.cardiganapp.feature.boards.presentation.deleteboard.DeleteBo
 import com.plcoding.cardiganapp.feature.boards.presentation.newboard.NewBoardRoot
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardRoot
 import com.plcoding.cardiganapp.feature.boards.presentation.renameboard.RenameBoardViewModel
-import kotlin.reflect.KClass
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.reflect.KClass
 
 /**
  * Registers the board list and the New board, Rename board and Delete board dialogs.

@@ -1,5 +1,5 @@
-import com.plcoding.cardiganapp.convention.libs
 import com.plcoding.cardiganapp.convention.library
+import com.plcoding.cardiganapp.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
@@ -8,7 +8,13 @@ class CmpFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.findPlugin("convention-cmp-library").get().get().pluginId)
+                apply(
+                    libs
+                        .findPlugin("convention-cmp-library")
+                        .get()
+                        .get()
+                        .pluginId,
+                )
             }
 
             dependencies {

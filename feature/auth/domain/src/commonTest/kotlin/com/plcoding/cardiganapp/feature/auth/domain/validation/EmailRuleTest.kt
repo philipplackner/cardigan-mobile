@@ -24,7 +24,6 @@ import kotlin.time.measureTime
  * - performance: the pattern itself only ever sees up to 500 characters (field cap), rejected fast
  */
 class EmailRuleTest {
-
     private val domain = "@example.com"
 
     private fun assertValid(email: String) = assertThat(EmailRule.check(email), email).isNull()
@@ -167,7 +166,10 @@ class EmailRuleTest {
         assertPatternRejectsFast("a.".repeat(249) + "a@", "500-character local-part")
     }
 
-    private fun assertPatternRejectsFast(input: String, label: String) {
+    private fun assertPatternRejectsFast(
+        input: String,
+        label: String,
+    ) {
         var valid = true
         val duration = measureTime { valid = EmailRule.hasValidFormat(input) }
         println("EMAIL_PATTERN $label near-match (${input.length} chars): $duration")

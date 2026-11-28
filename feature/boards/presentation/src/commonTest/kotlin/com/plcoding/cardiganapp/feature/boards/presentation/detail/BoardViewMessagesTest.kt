@@ -15,13 +15,16 @@ import cardiganapp.feature.boards.presentation.generated.resources.board_view_re
 import com.plcoding.cardiganapp.core.presentation.toast.ToastMessage
 import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.Test
 import org.jetbrains.compose.resources.StringResource
+import kotlin.test.Test
 
 /** Every board view toast is an error toast with its own string and the column name where it has one. */
 class BoardViewMessagesTest {
-
-    private fun check(message: ToastMessage, id: StringResource, vararg args: Any) {
+    private fun check(
+        message: ToastMessage,
+        id: StringResource,
+        vararg args: Any,
+    ) {
         assertThat(message.type).isEqualTo(ToastType.Error)
         assertResource(message.text, id, *args)
     }

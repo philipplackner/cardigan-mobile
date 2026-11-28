@@ -14,10 +14,11 @@ data class BoardItemUi(
     val updated: UiText,
 )
 
-fun BoardSummary.toBoardItemUi(formatter: RelativeTimeFormatter): BoardItemUi = BoardItemUi(
-    id = id.toString(),
-    name = name,
-    key = key,
-    cardCount = cardCountText(cardCount),
-    updated = formatter.format(updatedAt),
-)
+fun BoardSummary.toBoardItemUi(formatter: RelativeTimeFormatter): BoardItemUi =
+    BoardItemUi(
+        id = id.toString(),
+        name = name,
+        key = key,
+        cardCount = cardCountText(cardCount),
+        updated = formatter.format(updatedAt),
+    )

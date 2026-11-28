@@ -10,8 +10,11 @@ data class BoardListState(
 
 sealed interface BoardListContent {
     data object Loading : BoardListContent
+
     data object Error : BoardListContent
 
     /** An empty [boards] list is the "No boards yet" state. */
-    data class Loaded(val boards: List<BoardItemUi>) : BoardListContent
+    data class Loaded(
+        val boards: List<BoardItemUi>,
+    ) : BoardListContent
 }

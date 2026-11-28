@@ -27,7 +27,6 @@ private const val EXPORTS_DIR = "exports"
 actual fun rememberFileSharer(): FileSharer = remember { IosFileSharer() }
 
 private class IosFileSharer : FileSharer {
-
     @OptIn(ExperimentalForeignApi::class)
     override suspend fun share(file: ExportedFile) {
         val name = ExportFileName.sanitize(file.fileName) ?: ExportFileName.LAST_RESORT
@@ -47,11 +46,22 @@ private class IosFileSharer : FileSharer {
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    private fun writeExport(name: String, bytes: ByteArray): NSURL? {
+    private fun writeExport(
+        name: String,
+        bytes: ByteArray,
+    ): NSURL? {
         val fileManager = NSFileManager.defaultManager
         val dir = NSURL.fileURLWithPath(NSTemporaryDirectory()).URLByAppendingPathComponent(EXPORTS_DIR) ?: return null
         fileManager.removeItemAtURL(dir, error = null)
-        if (!fileManager.createDirectoryAtURL(dir, withIntermediateDirectories = true, attributes = null, error = null)) return null
+        if (!fileManager.createDirectoryAtURL(
+                dir,
+                withIntermediateDirectories = true,
+                attributes = null,
+                error = null,
+            )
+        ) {
+            return null
+        }
         val target = dir.URLByAppendingPathComponent(name) ?: return null
         val data = bytes.usePinned { NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong()) }
         return target.takeIf { data.writeToURL(it, atomically = true) }

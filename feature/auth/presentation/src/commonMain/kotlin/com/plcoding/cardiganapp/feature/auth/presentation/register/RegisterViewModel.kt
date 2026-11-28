@@ -29,7 +29,6 @@ class RegisterViewModel(
     private val repository: AuthRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(restore())
     val state: StateFlow<RegisterState> = _state.asStateFlow()
 
@@ -38,18 +37,38 @@ class RegisterViewModel(
     fun onAction(action: RegisterAction) {
         if (_state.value.isLoading) return
         when (action) {
-            is RegisterAction.EmailChange -> update {
-                copy(email = capEmailInput(action.email), emailAlreadyUsed = false, emailServerError = null)
+            is RegisterAction.EmailChange -> {
+                update {
+                    copy(email = capEmailInput(action.email), emailAlreadyUsed = false, emailServerError = null)
+                }
             }
-            is RegisterAction.PasswordChange -> update { copy(password = action.password, passwordServerError = null) }
-            is RegisterAction.RepeatPasswordChange -> update { copy(repeatPassword = action.repeatPassword) }
-            is RegisterAction.FocusChange -> onFocusChange(action.field, action.focused)
-            RegisterAction.Submit -> submit()
-            RegisterAction.LogInClick -> Unit
+
+            is RegisterAction.PasswordChange -> {
+                update { copy(password = action.password, passwordServerError = null) }
+            }
+
+            is RegisterAction.RepeatPasswordChange -> {
+                update { copy(repeatPassword = action.repeatPassword) }
+            }
+
+            is RegisterAction.FocusChange -> {
+                onFocusChange(action.field, action.focused)
+            }
+
+            RegisterAction.Submit -> {
+                submit()
+            }
+
+            RegisterAction.LogInClick -> {
+                Unit
+            }
         }
     }
 
-    private fun onFocusChange(field: AuthInputField, focused: Boolean) {
+    private fun onFocusChange(
+        field: AuthInputField,
+        focused: Boolean,
+    ) {
         if (focused) {
             focusedOnce += field
             return
@@ -57,9 +76,23 @@ class RegisterViewModel(
         if (field !in focusedOnce) return
         val state = _state.value
         when (field) {
-            AuthInputField.Email -> if (!state.emailBlurred) update { copy(emailBlurred = true) }
-            AuthInputField.Password -> if (!state.passwordBlurred) update { copy(passwordBlurred = true) }
-            AuthInputField.RepeatPassword -> if (!state.repeatPasswordBlurred) update { copy(repeatPasswordBlurred = true) }
+            AuthInputField.Email -> {
+                if (!state.emailBlurred) update { copy(emailBlurred = true) }
+            }
+
+            AuthInputField.Password -> {
+                if (!state.passwordBlurred) update { copy(passwordBlurred = true) }
+            }
+
+            AuthInputField.RepeatPassword -> {
+                if (!state.repeatPasswordBlurred) {
+                    update {
+                        copy(
+                            repeatPasswordBlurred = true,
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -74,38 +107,69 @@ class RegisterViewModel(
         }
     }
 
-    private fun RegisterState.withError(error: AuthError): RegisterState = when (error) {
-        AuthError.EmailAlreadyUsed -> copy(emailAlreadyUsed = true)
-        is AuthError.RateLimited -> copy(
-            banner = error.retryAfterSeconds?.takeIf { it >= 1 }?.let { AuthBanner.RateLimited(it) } ?: AuthBanner.Unavailable,
-        )
-        is AuthError.InvalidFields -> {
-            val mapped = error.fields.mapNotNull { fieldError -> fieldError.toMessage()?.let { fieldError.field to it } }
-            copy(
-                emailServerError = mapped.firstOrNull { it.first == AuthField.Email }?.second,
-                passwordServerError = mapped.firstOrNull { it.first == AuthField.Password }?.second,
-                banner = if (mapped.size < error.fields.size || error.fields.isEmpty()) AuthBanner.Unavailable else null,
-            )
+    private fun RegisterState.withError(error: AuthError): RegisterState =
+        when (error) {
+            AuthError.EmailAlreadyUsed -> {
+                copy(emailAlreadyUsed = true)
+            }
+
+            is AuthError.RateLimited -> {
+                copy(
+                    banner =
+                        error.retryAfterSeconds?.takeIf { it >= 1 }?.let { AuthBanner.RateLimited(it) }
+                            ?: AuthBanner.Unavailable,
+                )
+            }
+
+            is AuthError.InvalidFields -> {
+                val mapped =
+                    error.fields.mapNotNull { fieldError ->
+                        fieldError.toMessage()?.let { fieldError.field to it }
+                    }
+                copy(
+                    emailServerError = mapped.firstOrNull { it.first == AuthField.Email }?.second,
+                    passwordServerError = mapped.firstOrNull { it.first == AuthField.Password }?.second,
+                    banner =
+                        if (mapped.size < error.fields.size ||
+                            error.fields.isEmpty()
+                        ) {
+                            AuthBanner.Unavailable
+                        } else {
+                            null
+                        },
+                )
+            }
+
+            AuthError.InvalidCredentials, AuthError.Unavailable -> {
+                copy(banner = AuthBanner.Unavailable)
+            }
         }
-        AuthError.InvalidCredentials, AuthError.Unavailable -> copy(banner = AuthBanner.Unavailable)
-    }
 
     /** The server field errors Register maps to the local check messages (spec "Server field errors"). */
-    private fun AuthFieldError.toMessage(): AuthFieldMessage? = when (field) {
-        AuthField.Email -> when (code) {
-            FieldErrorCode.Required -> AuthFieldMessage.EmailRequired
-            FieldErrorCode.TooLong -> AuthFieldMessage.EmailTooLong
-            FieldErrorCode.InvalidFormat, FieldErrorCode.InvalidCharacter -> AuthFieldMessage.EmailInvalid
-            else -> null
+    private fun AuthFieldError.toMessage(): AuthFieldMessage? =
+        when (field) {
+            AuthField.Email -> {
+                when (code) {
+                    FieldErrorCode.Required -> AuthFieldMessage.EmailRequired
+                    FieldErrorCode.TooLong -> AuthFieldMessage.EmailTooLong
+                    FieldErrorCode.InvalidFormat, FieldErrorCode.InvalidCharacter -> AuthFieldMessage.EmailInvalid
+                    else -> null
+                }
+            }
+
+            AuthField.Password -> {
+                when (code) {
+                    FieldErrorCode.Required -> AuthFieldMessage.PasswordRequired
+                    FieldErrorCode.TooLong -> AuthFieldMessage.PasswordTooLong
+                    FieldErrorCode.InvalidCharacter -> AuthFieldMessage.PasswordInvalidCharacter
+                    else -> null
+                }
+            }
+
+            AuthField.Other -> {
+                null
+            }
         }
-        AuthField.Password -> when (code) {
-            FieldErrorCode.Required -> AuthFieldMessage.PasswordRequired
-            FieldErrorCode.TooLong -> AuthFieldMessage.PasswordTooLong
-            FieldErrorCode.InvalidCharacter -> AuthFieldMessage.PasswordInvalidCharacter
-            else -> null
-        }
-        AuthField.Other -> null
-    }
 
     private fun update(change: RegisterState.() -> RegisterState) {
         _state.update(change)
@@ -120,12 +184,13 @@ class RegisterViewModel(
         savedStateHandle[KEY_REPEAT_BLURRED] = state.repeatPasswordBlurred
     }
 
-    private fun restore(): RegisterState = RegisterState(
-        email = savedStateHandle[KEY_EMAIL] ?: "",
-        emailBlurred = savedStateHandle[KEY_EMAIL_BLURRED] ?: false,
-        passwordBlurred = savedStateHandle[KEY_PASSWORD_BLURRED] ?: false,
-        repeatPasswordBlurred = savedStateHandle[KEY_REPEAT_BLURRED] ?: false,
-    )
+    private fun restore(): RegisterState =
+        RegisterState(
+            email = savedStateHandle[KEY_EMAIL] ?: "",
+            emailBlurred = savedStateHandle[KEY_EMAIL_BLURRED] ?: false,
+            passwordBlurred = savedStateHandle[KEY_PASSWORD_BLURRED] ?: false,
+            repeatPasswordBlurred = savedStateHandle[KEY_REPEAT_BLURRED] ?: false,
+        )
 
     private companion object {
         const val KEY_EMAIL = "register_email"

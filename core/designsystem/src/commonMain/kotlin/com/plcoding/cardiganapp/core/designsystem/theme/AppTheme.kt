@@ -19,8 +19,10 @@ import androidx.compose.ui.unit.Dp
 
 internal val LocalAppColors = staticCompositionLocalOf { LightColors }
 internal val LocalAppShadows = staticCompositionLocalOf { appShadows(LightColors) }
-internal val LocalAppTextStyles = staticCompositionLocalOf<AppTextStyles> { error("No AppTheme around this composable") }
-internal val LocalAppTypography = staticCompositionLocalOf<AppTypography> { error("No AppTheme around this composable") }
+internal val LocalAppTextStyles =
+    staticCompositionLocalOf<AppTextStyles> { error("No AppTheme around this composable") }
+internal val LocalAppTypography =
+    staticCompositionLocalOf<AppTypography> { error("No AppTheme around this composable") }
 
 /**
  * The app theme. Every screen and preview is wrapped in it.
@@ -68,19 +70,24 @@ private fun measuredWindowClass(): WindowClass {
 /** Entry point for theme values: `AppTheme.colors.text.primary`, `AppTheme.space.s12`, ... */
 object AppTheme {
     val colors: AppColors
-        @Composable @ReadOnlyComposable get() = LocalAppColors.current
+        @Composable @ReadOnlyComposable
+        get() = LocalAppColors.current
 
     val shadows: AppShadows
-        @Composable @ReadOnlyComposable get() = LocalAppShadows.current
+        @Composable @ReadOnlyComposable
+        get() = LocalAppShadows.current
 
     val textStyles: AppTextStyles
-        @Composable @ReadOnlyComposable get() = LocalAppTextStyles.current
+        @Composable @ReadOnlyComposable
+        get() = LocalAppTextStyles.current
 
     val typography: AppTypography
-        @Composable @ReadOnlyComposable get() = LocalAppTypography.current
+        @Composable @ReadOnlyComposable
+        get() = LocalAppTypography.current
 
     val windowClass: WindowClass
-        @Composable @ReadOnlyComposable get() = LocalWindowClass.current
+        @Composable @ReadOnlyComposable
+        get() = LocalWindowClass.current
 
     val space: AppSpacing get() = AppSpacing
     val radius: AppRadius get() = AppRadius

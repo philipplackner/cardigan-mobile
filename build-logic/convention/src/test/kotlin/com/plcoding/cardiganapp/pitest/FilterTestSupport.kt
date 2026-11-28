@@ -17,12 +17,12 @@ import java.util.Optional
 
 /** Classes the filters can load, from synthetic nodes or from the test classpath. */
 internal class TestClasses {
-
     private val registered = mutableMapOf<String, ByteArray>()
 
-    val source = ClassByteArraySource { name ->
-        Optional.ofNullable(registered[name] ?: compiledBytes(name))
-    }
+    val source =
+        ClassByteArraySource { name ->
+            Optional.ofNullable(registered[name] ?: compiledBytes(name))
+        }
 
     fun register(node: ClassNode) {
         val writer = ClassWriter(0)
@@ -40,7 +40,11 @@ internal class TestClasses {
 }
 
 /** Runs [filter] over one mutant per method of [node] and returns the names of the methods whose mutants are left. */
-internal fun survivors(filter: MutationInterceptor, node: ClassNode, methods: List<MethodNode> = node.methods): List<String> {
+internal fun survivors(
+    filter: MutationInterceptor,
+    node: ClassNode,
+    methods: List<MethodNode> = node.methods,
+): List<String> {
     val mutations = methods.mapIndexed { index, method -> mutation(node.name, method.name, method.desc, index) }
     filter.begin(ClassTree(node))
     val result = filter.intercept(mutations, null).map { it.method }
@@ -48,12 +52,20 @@ internal fun survivors(filter: MutationInterceptor, node: ClassNode, methods: Li
     return result
 }
 
-internal fun mutation(owner: String, name: String, desc: String, index: Int = 0): MutationDetails {
+internal fun mutation(
+    owner: String,
+    name: String,
+    desc: String,
+    index: Int = 0,
+): MutationDetails {
     val location = Location.location(ClassName.fromString(owner), name, desc)
     return MutationDetails(MutationIdentifier(location, index, "mutator"), "File.kt", "description", 1, 0)
 }
 
-internal fun classNode(name: String, vararg methods: MethodNode) = ClassNode().apply {
+internal fun classNode(
+    name: String,
+    vararg methods: MethodNode,
+) = ClassNode().apply {
     version = Opcodes.V17
     access = Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL
     this.name = name
@@ -61,22 +73,34 @@ internal fun classNode(name: String, vararg methods: MethodNode) = ClassNode().a
     this.methods.addAll(methods)
 }
 
-internal fun ClassNode.enclosedBy(owner: String, method: String, desc: String) = apply {
+internal fun ClassNode.enclosedBy(
+    owner: String,
+    method: String,
+    desc: String,
+) = apply {
     outerClass = owner
     outerMethod = method
     outerMethodDesc = desc
 }
 
-internal fun ClassNode.withKotlinMetadata(kind: Int, version: IntArray = intArrayOf(2, 2, 0), data: List<String> = emptyList()) = apply {
+internal fun ClassNode.withKotlinMetadata(
+    kind: Int,
+    version: IntArray = intArrayOf(2, 2, 0),
+    data: List<String> = emptyList(),
+) = apply {
     val annotation = AnnotationNode("Lkotlin/Metadata;")
     annotation.values = listOf("k", kind, "mv", version.toList(), "d1", data, "d2", emptyList<String>())
     visibleAnnotations = listOf(annotation)
 }
 
-internal fun staticMethod(name: String, desc: String) =
-    MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_ABSTRACT, name, desc, null, null)
+internal fun staticMethod(
+    name: String,
+    desc: String,
+) = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_ABSTRACT, name, desc, null, null)
 
-internal fun instanceMethod(name: String, desc: String) =
-    MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_ABSTRACT, name, desc, null, null)
+internal fun instanceMethod(
+    name: String,
+    desc: String,
+) = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_ABSTRACT, name, desc, null, null)
 
 internal const val INVOKE_SUSPEND_DESC = "(Ljava/lang/Object;)Ljava/lang/Object;"

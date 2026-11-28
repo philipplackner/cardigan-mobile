@@ -32,7 +32,12 @@ fun ErrorMessage(
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s5),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painter = CardiganIcons.Alert, contentDescription = null, tint = color, modifier = Modifier.size(ErrorIconSize))
+        Icon(
+            painter = CardiganIcons.Alert,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(ErrorIconSize),
+        )
         Text(text = text, style = AppTheme.textStyles.sans12Regular145, color = color)
     }
 }

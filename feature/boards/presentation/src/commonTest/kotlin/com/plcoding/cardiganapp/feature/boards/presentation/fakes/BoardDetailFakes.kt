@@ -15,14 +15,16 @@ import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardLoadError
 import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateError
 import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateRepository
 import com.plcoding.cardiganapp.feature.boards.domain.detail.ColumnWriteError
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.CompletableDeferred
+import kotlin.uuid.Uuid
 
 /**
  * A board server in memory. Writes change [server] like the backend would, unless a scripted
  * result is queued. A queued [gates] entry holds the next call until it completes.
  */
-class FakeBoardDetailRepository(var server: BoardContent) : BoardDetailRepository {
+class FakeBoardDetailRepository(
+    var server: BoardContent,
+) : BoardDetailRepository {
     val calls = mutableListOf<String>()
     var loadResults = ArrayDeque<Result<BoardContent, BoardLoadError>>()
     var writeResults = ArrayDeque<Result<Any, ColumnWriteError>>()
@@ -43,7 +45,10 @@ class FakeBoardDetailRepository(var server: BoardContent) : BoardDetailRepositor
     private fun <T> scripted(): Result<T, ColumnWriteError>? =
         writeResults.removeFirstOrNull() as Result<T, ColumnWriteError>?
 
-    override suspend fun addColumn(boardId: Uuid, name: String): Result<Column, ColumnWriteError> {
+    override suspend fun addColumn(
+        boardId: Uuid,
+        name: String,
+    ): Result<Column, ColumnWriteError> {
         calls += "addColumn:$name"
         gate()
         scripted<Column>()?.let { return it }
@@ -52,22 +57,32 @@ class FakeBoardDetailRepository(var server: BoardContent) : BoardDetailRepositor
         return Result.Success(column)
     }
 
-    override suspend fun renameColumn(boardId: Uuid, columnId: Uuid, name: String): Result<Column, ColumnWriteError> {
+    override suspend fun renameColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+        name: String,
+    ): Result<Column, ColumnWriteError> {
         calls += "renameColumn:$name"
         gate()
         scripted<Column>()?.let { return it }
-        val column = server.columns.firstOrNull { it.id == columnId } ?: return Result.Error(ColumnWriteError.ColumnNotFound)
+        val column =
+            server.columns.firstOrNull { it.id == columnId } ?: return Result.Error(ColumnWriteError.ColumnNotFound)
         val renamed = column.copy(name = name)
         server = server.copy(columns = server.columns.map { if (it.id == columnId) renamed else it })
         return Result.Success(renamed.copy(cards = emptyList()))
     }
 
-    override suspend fun moveColumn(boardId: Uuid, columnId: Uuid, position: Int): Result<List<Uuid>, ColumnWriteError> {
+    override suspend fun moveColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+        position: Int,
+    ): Result<List<Uuid>, ColumnWriteError> {
         calls += "moveColumn:$position"
         moves += columnId to position
         gate()
         scripted<List<Uuid>>()?.let { return it }
-        val column = server.columns.firstOrNull { it.id == columnId } ?: return Result.Error(ColumnWriteError.ColumnNotFound)
+        val column =
+            server.columns.firstOrNull { it.id == columnId } ?: return Result.Error(ColumnWriteError.ColumnNotFound)
         val rest = server.columns.filterNot { it.id == columnId }
         if (position !in 0..rest.size) return Result.Error(ColumnWriteError.Stale)
         val moved = rest.toMutableList().apply { add(position, column) }
@@ -75,7 +90,10 @@ class FakeBoardDetailRepository(var server: BoardContent) : BoardDetailRepositor
         return Result.Success(moved.map { it.id })
     }
 
-    override suspend fun deleteColumn(boardId: Uuid, columnId: Uuid): EmptyResult<ColumnWriteError> {
+    override suspend fun deleteColumn(
+        boardId: Uuid,
+        columnId: Uuid,
+    ): EmptyResult<ColumnWriteError> {
         calls += "deleteColumn"
         gate()
         scripted<Unit>()?.let { return it }
@@ -84,25 +102,48 @@ class FakeBoardDetailRepository(var server: BoardContent) : BoardDetailRepositor
     }
 }
 
-class FakeCardCreateRepository(private val boards: FakeBoardDetailRepository) : CardCreateRepository {
+class FakeCardCreateRepository(
+    private val boards: FakeBoardDetailRepository,
+) : CardCreateRepository {
     val calls = mutableListOf<String>()
     val results = ArrayDeque<Result<Card, CardCreateError>>()
     val gates = ArrayDeque<CompletableDeferred<Unit>>()
     private var nextNumber = 500L
 
-    override suspend fun createCard(boardId: Uuid, columnId: Uuid, title: String): Result<Card, CardCreateError> {
+    override suspend fun createCard(
+        boardId: Uuid,
+        columnId: Uuid,
+        title: String,
+    ): Result<Card, CardCreateError> {
         calls += title
         gates.removeFirstOrNull()?.await()
         val card = Card(Uuid.random(), nextNumber++, title, emptyList())
         val server = boards.server
-        if (server.columns.none { it.id == columnId }) return results.removeFirstOrNull() ?: Result.Error(CardCreateError.ColumnNotFound)
+        if (server.columns.none { it.id == columnId }) {
+            return results.removeFirstOrNull()
+                ?: Result.Error(CardCreateError.ColumnNotFound)
+        }
         // A scripted failure can still create the card on the server, like a lost response.
-        boards.server = server.copy(columns = server.columns.map { if (it.id == columnId) it.copy(cards = it.cards + card) else it })
+        boards.server =
+            server.copy(
+                columns =
+                    server.columns.map {
+                        if (it.id ==
+                            columnId
+                        ) {
+                            it.copy(cards = it.cards + card)
+                        } else {
+                            it
+                        }
+                    },
+            )
         return results.removeFirstOrNull() ?: Result.Success(card)
     }
 }
 
-class FakeLabelSource(var labels: List<Label> = emptyList()) : LabelSource {
+class FakeLabelSource(
+    var labels: List<Label> = emptyList(),
+) : LabelSource {
     val results = ArrayDeque<Result<List<Label>, DataError>>()
     var calls = 0
         private set
@@ -115,12 +156,24 @@ class FakeLabelSource(var labels: List<Label> = emptyList()) : LabelSource {
 
 val sampleBoardId: Uuid = Uuid.parse("6c1f6a52-6a0e-4b9e-9d4f-1f2b3c4d5e6f")
 
-fun label(name: String, color: LabelColor = LabelColor.Blue) = Label(Uuid.random(), name, color)
+fun label(
+    name: String,
+    color: LabelColor = LabelColor.Blue,
+) = Label(Uuid.random(), name, color)
 
-fun card(number: Long, title: String = "Card $number", labels: List<Label> = emptyList()) =
-    Card(Uuid.random(), number, title, labels.map { it.id })
+fun card(
+    number: Long,
+    title: String = "Card $number",
+    labels: List<Label> = emptyList(),
+) = Card(Uuid.random(), number, title, labels.map { it.id })
 
-fun column(name: String, vararg cards: Card) = Column(Uuid.random(), name, cards.toList())
+fun column(
+    name: String,
+    vararg cards: Card,
+) = Column(Uuid.random(), name, cards.toList())
 
-fun boardContent(vararg columns: Column, name: String = "Cardigan v1", key: String = "CRD") =
-    BoardContent(Board(sampleBoardId, name, key), columns.toList())
+fun boardContent(
+    vararg columns: Column,
+    name: String = "Cardigan v1",
+    key: String = "CRD",
+) = BoardContent(Board(sampleBoardId, name, key), columns.toList())

@@ -10,9 +10,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
 import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 /**
@@ -21,7 +21,6 @@ import javax.inject.Inject
  */
 @DisableCachingByDefault(because = "Writes its report to a directory that is not declared as an output")
 abstract class PitestTask : DefaultTask() {
-
     @get:Inject
     abstract val execOperations: ExecOperations
 
@@ -70,39 +69,44 @@ abstract class PitestTask : DefaultTask() {
             return
         }
 
-        val classPathFile = temporaryDir.resolve("classpath.txt").apply {
-            // The host tests load main classes from a jar. PIT mutates the class dirs, so they go first.
-            val entries = mutableCodePaths.files + testRuntimeClasspath.files
-            writeText(entries.filter { it.exists() }.distinct().joinToString("\n") { it.absolutePath })
-        }
-        val javaExecutable = javaLauncher.get().executablePath.asFile.absolutePath
+        val classPathFile =
+            temporaryDir.resolve("classpath.txt").apply {
+                // The host tests load main classes from a jar. PIT mutates the class dirs, so they go first.
+                val entries = mutableCodePaths.files + testRuntimeClasspath.files
+                writeText(entries.filter { it.exists() }.distinct().joinToString("\n") { it.absolutePath })
+            }
+        val javaExecutable =
+            javaLauncher
+                .get()
+                .executablePath.asFile.absolutePath
 
-        val args = buildList {
-            add("--reportDir=${reportDirFile.absolutePath}")
-            add("--targetClasses=${targetClasses.get()}")
-            add("--targetTests=${targetClasses.get()}")
-            add("--excludedTestClasses=*UiTest")
-            add("--sourceDirs=${sourceDirs.files.filter { it.isDirectory }.joinToString(",") { it.absolutePath }}")
-            add("--mutableCodePaths=${mutableCodePaths.files.joinToString(",") { it.absolutePath }}")
-            add("--classPathFile=${classPathFile.absolutePath}")
-            add("--includeLaunchClasspath=false")
-            add("--useClasspathJar=true")
-            add("--mutators=DEFAULTS")
-            add("--excludedClasses=${excludedClasses.get().joinToString(",")}")
-            add("--excludedMethods=equals,hashCode,toString,copy,copy\$default,component*")
-            add("--avoidCallsTo=${MutationExclusions.avoidCallsTo.joinToString(",")}")
-            add("--features=${MutationExclusions.features}")
-            add("--threads=${threads.get()}")
-            add("--failWhenNoMutations=false")
-            add("--outputFormats=HTML,XML")
-            add("--exportLineCoverage=true")
-            add("--timestampedReports=false")
-            add("--inputEncoding=UTF-8")
-            add("--outputEncoding=UTF-8")
-            add("--jvmPath=$javaExecutable")
-            val minionArgs = jvmArgs.get()
-            if (minionArgs.isNotEmpty()) add("--jvmArgs=${minionArgs.joinToString(",")}")
-        }
+        val args =
+            buildList {
+                add("--reportDir=${reportDirFile.absolutePath}")
+                add("--targetClasses=${targetClasses.get()}")
+                add("--targetTests=${targetClasses.get()}")
+                add("--excludedTestClasses=*UiTest")
+                add("--sourceDirs=${sourceDirs.files.filter { it.isDirectory }.joinToString(",") { it.absolutePath }}")
+                add("--mutableCodePaths=${mutableCodePaths.files.joinToString(",") { it.absolutePath }}")
+                add("--classPathFile=${classPathFile.absolutePath}")
+                add("--includeLaunchClasspath=false")
+                add("--useClasspathJar=true")
+                add("--mutators=DEFAULTS")
+                add("--excludedClasses=${excludedClasses.get().joinToString(",")}")
+                add("--excludedMethods=equals,hashCode,toString,copy,copy\$default,component*")
+                add("--avoidCallsTo=${MutationExclusions.avoidCallsTo.joinToString(",")}")
+                add("--features=${MutationExclusions.features}")
+                add("--threads=${threads.get()}")
+                add("--failWhenNoMutations=false")
+                add("--outputFormats=HTML,XML")
+                add("--exportLineCoverage=true")
+                add("--timestampedReports=false")
+                add("--inputEncoding=UTF-8")
+                add("--outputEncoding=UTF-8")
+                add("--jvmPath=$javaExecutable")
+                val minionArgs = jvmArgs.get()
+                if (minionArgs.isNotEmpty()) add("--jvmArgs=${minionArgs.joinToString(",")}")
+            }
 
         execOperations.javaexec {
             executable = javaExecutable

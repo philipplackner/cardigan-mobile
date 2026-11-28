@@ -15,12 +15,19 @@ data class RenameBoardState(
 }
 
 sealed interface RenameBoardAction {
-    data class NameChange(val name: String) : RenameBoardAction
+    data class NameChange(
+        val name: String,
+    ) : RenameBoardAction
+
     data object Save : RenameBoardAction
+
     data object Cancel : RenameBoardAction
 }
 
 sealed interface RenameBoardEvent {
-    data class Renamed(val newName: String) : RenameBoardEvent
+    data class Renamed(
+        val newName: String,
+    ) : RenameBoardEvent
+
     data object Close : RenameBoardEvent
 }

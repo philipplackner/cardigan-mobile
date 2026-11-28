@@ -17,10 +17,16 @@ interface BoardRepository {
     /** Returns at once when [boards] is loaded, otherwise joins the running load or starts one. */
     suspend fun ensureLoaded(): EmptyResult<DataError.Network>
 
-    suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError>
+    suspend fun createBoard(
+        name: String,
+        key: String,
+    ): Result<BoardSummary, BoardSaveError>
 
     /** A [BoardSaveError.NotFound] also removes the board from [boards]. */
-    suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError>
+    suspend fun renameBoard(
+        id: Uuid,
+        name: String,
+    ): Result<BoardSummary, BoardSaveError>
 
     /** A board that no longer exists on the server counts as deleted. */
     suspend fun deleteBoard(id: Uuid): EmptyResult<BoardSaveError>

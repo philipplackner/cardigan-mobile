@@ -68,7 +68,6 @@ import com.plcoding.cardiganapp.core.designsystem.components.inputs.TextArea
 import com.plcoding.cardiganapp.core.designsystem.components.inputs.TextAreaType
 import com.plcoding.cardiganapp.core.designsystem.components.interaction.ControlSize
 import com.plcoding.cardiganapp.core.designsystem.components.interaction.dashedBorder
-import com.plcoding.cardiganapp.core.designsystem.components.labels.Label as LabelChip
 import com.plcoding.cardiganapp.core.designsystem.components.overlays.Menu
 import com.plcoding.cardiganapp.core.designsystem.components.overlays.MenuDivider
 import com.plcoding.cardiganapp.core.designsystem.components.overlays.MenuItem
@@ -80,8 +79,9 @@ import com.plcoding.cardiganapp.core.domain.board.displayId
 import com.plcoding.cardiganapp.core.domain.label.Label
 import com.plcoding.cardiganapp.core.domain.label.sortedForCard
 import com.plcoding.cardiganapp.core.presentation.text.toUiText
-import kotlin.uuid.Uuid
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
+import com.plcoding.cardiganapp.core.designsystem.components.labels.Label as LabelChip
 import com.plcoding.cardiganapp.core.designsystem.components.labels.LabelColor as PaletteColor
 import com.plcoding.cardiganapp.core.domain.label.LabelColor as DomainLabelColor
 
@@ -109,31 +109,37 @@ internal fun BoardViewColumn(
         count = column.cards.size.toString(),
         modifier = modifier.testTag(BoardTestTags.column(column.name)),
         menuButton = { ColumnMenuButton(column, canMoveLeft, canMoveRight, onAction) },
-        addCard = if (quickAdd == null) {
-            {
-                AddCardButton(
-                    text = stringResource(Res.string.board_view_add_card),
-                    onClick = { onAction(BoardAction.OpenQuickAdd(column.id)) },
-                    modifier = Modifier.clearAndSetSemantics {
-                        contentDescription = addCardLabel
-                        role = Role.Button
-                        onClick { onAction(BoardAction.OpenQuickAdd(column.id)); true }
-                    },
-                )
-            }
-        } else {
-            null
-        },
+        addCard =
+            if (quickAdd == null) {
+                {
+                    AddCardButton(
+                        text = stringResource(Res.string.board_view_add_card),
+                        onClick = { onAction(BoardAction.OpenQuickAdd(column.id)) },
+                        modifier =
+                            Modifier.clearAndSetSemantics {
+                                contentDescription = addCardLabel
+                                role = Role.Button
+                                onClick {
+                                    onAction(BoardAction.OpenQuickAdd(column.id))
+                                    true
+                                }
+                            },
+                    )
+                }
+            } else {
+                null
+            },
     ) {
         RefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = { onAction(BoardAction.Refresh(column.id)) },
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .testTag(BoardTestTags.columnCards(column.name)),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .testTag(BoardTestTags.columnCards(column.name)),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             ) {
                 column.cards.forEach { card ->
@@ -154,6 +160,7 @@ private fun ColumnMenuButton(
     onAction: (BoardAction) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+
     fun pick(action: BoardAction) {
         expanded = false
         onAction(action)
@@ -204,27 +211,38 @@ private fun CardTile(
 ) {
     val displayId = card.displayId(boardKey)
     val labels = card.labelIds.mapNotNull(labelsById::get).sortedForCard()
-    val description = if (labels.isEmpty()) {
-        stringResource(Res.string.board_view_card_tile_no_labels, displayId, card.title)
-    } else {
-        stringResource(Res.string.board_view_card_tile, displayId, card.title, labels.joinToString(", ") { it.name })
-    }
+    val description =
+        if (labels.isEmpty()) {
+            stringResource(Res.string.board_view_card_tile_no_labels, displayId, card.title)
+        } else {
+            stringResource(
+                Res.string.board_view_card_tile,
+                displayId,
+                card.title,
+                labels.joinToString(", ") { it.name },
+            )
+        }
     val onClick = { onAction(BoardAction.CardClick(card.id)) }
     BoardCard(
         displayId = displayId,
         title = card.title,
         onClick = onClick,
         // One node for screen readers with the D38 text.
-        modifier = Modifier.clearAndSetSemantics {
-            contentDescription = description
-            role = Role.Button
-            onClick { onClick(); true }
-        },
-        labels = if (labels.isEmpty()) {
-            null
-        } else {
-            { labels.forEach { LabelChip(name = it.name, color = it.color.toPalette()) } }
-        },
+        modifier =
+            Modifier.clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+                onClick {
+                    onClick()
+                    true
+                }
+            },
+        labels =
+            if (labels.isEmpty()) {
+                null
+            } else {
+                { labels.forEach { LabelChip(name = it.name, color = it.color.toPalette()) } }
+            },
     )
 }
 
@@ -235,10 +253,16 @@ private fun NoCardsYet() {
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     Text(
         text = stringResource(Res.string.board_view_no_cards),
-        modifier = Modifier
-            .fillMaxWidth()
-            .dashedBorder(AppTheme.space.s1, AppTheme.colors.border.strong, shape, dash = AppTheme.space.s4, gap = AppTheme.space.s3)
-            .padding(horizontal = AppTheme.space.s7, vertical = AppTheme.space.s15),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .dashedBorder(
+                    AppTheme.space.s1,
+                    AppTheme.colors.border.strong,
+                    shape,
+                    dash = AppTheme.space.s4,
+                    gap = AppTheme.space.s3,
+                ).padding(horizontal = AppTheme.space.s7, vertical = AppTheme.space.s15),
         style = AppTheme.textStyles.sans12_5Regular145,
         color = AppTheme.colors.text.faint,
         textAlign = TextAlign.Center,
@@ -246,23 +270,31 @@ private fun NoCardsYet() {
 }
 
 /** Enter submits, Escape cancels. Pasted line breaks stay in the text and show the error (D33). */
-private fun Modifier.inlineFieldKeys(onAction: (BoardAction) -> Unit): Modifier = onPreviewKeyEvent { event ->
-    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-    when (event.key) {
-        Key.Enter, Key.NumPadEnter -> {
-            onAction(BoardAction.InlineSubmit)
-            true
+private fun Modifier.inlineFieldKeys(onAction: (BoardAction) -> Unit): Modifier =
+    onPreviewKeyEvent { event ->
+        if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+        when (event.key) {
+            Key.Enter, Key.NumPadEnter -> {
+                onAction(BoardAction.InlineSubmit)
+                true
+            }
+
+            Key.Escape -> {
+                onAction(BoardAction.InlineCancel)
+                true
+            }
+
+            else -> {
+                false
+            }
         }
-        Key.Escape -> {
-            onAction(BoardAction.InlineCancel)
-            true
-        }
-        else -> false
     }
-}
 
 @Composable
-private fun FocusEffect(focusRequest: FocusRequest?, requester: FocusRequester) {
+private fun FocusEffect(
+    focusRequest: FocusRequest?,
+    requester: FocusRequester,
+) {
     LaunchedEffect(focusRequest) {
         if (focusRequest != null) runCatching { requester.requestFocus() }
     }
@@ -287,15 +319,19 @@ private fun QuickAddForm(
                 isError = error != null,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onAction(BoardAction.InlineSubmit) }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(requester)
-                    .inlineFieldKeys(onAction)
-                    .testTag(BoardTestTags.InlineField),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(requester)
+                        .inlineFieldKeys(onAction)
+                        .testTag(BoardTestTags.INLINE_FIELD),
             )
             if (error != null) ErrorMessage(text = error)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s6), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             CardiganButton(
                 text = stringResource(Res.string.board_view_add_card),
                 onClick = { onAction(BoardAction.InlineSubmit) },
@@ -326,10 +362,11 @@ internal fun AddColumnForm(
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     val error = field.error?.toUiText()?.asString()
     Column(
-        modifier = modifier
-            .background(AppTheme.colors.background.column, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.space.s9),
+        modifier =
+            modifier
+                .background(AppTheme.colors.background.column, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(AppTheme.space.s9),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6)) {
@@ -340,15 +377,19 @@ internal fun AddColumnForm(
                 enabled = !field.isSaving,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onAction(BoardAction.InlineSubmit) }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(requester)
-                    .inlineFieldKeys(onAction)
-                    .testTag(BoardTestTags.InlineField),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(requester)
+                        .inlineFieldKeys(onAction)
+                        .testTag(BoardTestTags.INLINE_FIELD),
             )
             if (error != null) ErrorMessage(text = error)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s6), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             CardiganButton(
                 text = stringResource(Res.string.board_view_add_column),
                 onClick = { onAction(BoardAction.InlineSubmit) },
@@ -379,36 +420,40 @@ internal fun SkeletonStrip(phone: Boolean) {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     val tileShape = RoundedCornerShape(AppTheme.radius.r8)
     Row(
-        modifier = Modifier
-            .padding(padding)
-            .testTag(BoardTestTags.Skeleton),
+        modifier =
+            Modifier
+                .padding(padding)
+                .testTag(BoardTestTags.SKELETON),
         horizontalArrangement = Arrangement.spacedBy(columnGap(phone)),
     ) {
         (if (phone) PhoneSkeletonColumns else DesktopSkeletonColumns).forEach { tiles ->
             Column(
-                modifier = Modifier
-                    .width(width)
-                    .background(AppTheme.colors.background.column, shape)
-                    .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-                    .padding(AppTheme.space.s9),
+                modifier =
+                    Modifier
+                        .width(width)
+                        .background(AppTheme.colors.background.column, shape)
+                        .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                        .padding(AppTheme.space.s9),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
             ) {
                 Box(
-                    modifier = Modifier
-                        .height(30.dp)
-                        .padding(start = AppTheme.space.s6),
+                    modifier =
+                        Modifier
+                            .height(30.dp)
+                            .padding(start = AppTheme.space.s6),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Skeleton(modifier = Modifier.width(80.dp).height(12.dp))
                 }
                 repeat(tiles) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(SkeletonTileHeight)
-                            .background(AppTheme.colors.background.surface, tileShape)
-                            .border(AppTheme.space.s1, AppTheme.colors.border.default, tileShape)
-                            .padding(horizontal = AppTheme.space.s15, vertical = AppTheme.space.s13),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(SkeletonTileHeight)
+                                .background(AppTheme.colors.background.surface, tileShape)
+                                .border(AppTheme.space.s1, AppTheme.colors.border.default, tileShape)
+                                .padding(horizontal = AppTheme.space.s15, vertical = AppTheme.space.s13),
                         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s7),
                     ) {
                         Skeleton(modifier = Modifier.width(48.dp).height(9.dp))

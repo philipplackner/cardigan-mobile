@@ -13,9 +13,6 @@ import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeBoardTra
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeExportFileChecker
 import com.plcoding.cardiganapp.feature.transfer.presentation.fakes.FakeToastController
 import com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportBoardViewModel
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -24,17 +21,20 @@ import kotlinx.coroutines.test.setMain
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /** Resolves every definition of [transferPresentationModule], with the app-provided ones from a test module. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class TransferPresentationModuleTest {
-
-    private val appDependencies = module {
-        single<BoardTransferRepository> { FakeBoardTransferRepository() }
-        single<ExportFileChecker> { FakeExportFileChecker() }
-        single<BoardKeyOwnerLookup> { FakeBoardKeyOwnerLookup() }
-        single<ToastController> { FakeToastController() }
-    }
+    private val appDependencies =
+        module {
+            single<BoardTransferRepository> { FakeBoardTransferRepository() }
+            single<ExportFileChecker> { FakeExportFileChecker() }
+            single<BoardKeyOwnerLookup> { FakeBoardKeyOwnerLookup() }
+            single<ToastController> { FakeToastController() }
+        }
 
     @BeforeTest
     fun setUp() {
@@ -51,7 +51,13 @@ class TransferPresentationModuleTest {
         val koin = koinApplication { modules(transferPresentationModule, appDependencies) }.koin
 
         koin.get<ImportBoardViewModel> { parametersOf(SavedStateHandle()) }
-        val export = koin.get<ExportBoardViewModel> { parametersOf("8f14e45f-ceea-4e7a-9e2f-5b1d6c3a7b21", "Cardigan v1") }
+        val export =
+            koin.get<ExportBoardViewModel> {
+                parametersOf(
+                    "8f14e45f-ceea-4e7a-9e2f-5b1d6c3a7b21",
+                    "Cardigan v1",
+                )
+            }
         assertThat(export.boardName).isEqualTo("Cardigan v1")
     }
 }

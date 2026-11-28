@@ -8,7 +8,6 @@ import com.plcoding.cardiganapp.core.presentation.util.UiText
 import kotlin.test.Test
 
 class FakeToastControllerTest {
-
     @Test
     fun recordsMessagesInOrder() {
         val controller = FakeToastController()

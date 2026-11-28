@@ -46,7 +46,7 @@ enum class ToastType {
 
 private val ToastDotSize = 8.dp
 private val ToastCloseIconSize = 16.dp
-private const val ToastCloseAlpha = 0.7f
+private const val TOAST_CLOSE_ALPHA = 0.7f
 
 /** Short confirmation or error. Shown through [ToastHost]. */
 @Composable
@@ -59,18 +59,36 @@ fun Toast(
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     Row(
-        modifier = modifier
-            .semantics { liveRegion = LiveRegionMode.Polite }
-            .dropShadow(shape, AppTheme.shadows.popover)
-            .background(colors.background.toast, shape)
-            .padding(PaddingValues(start = AppTheme.space.s14, top = AppTheme.space.s10, end = AppTheme.space.s10, bottom = AppTheme.space.s10)),
+        modifier =
+            modifier
+                .semantics { liveRegion = LiveRegionMode.Polite }
+                .dropShadow(shape, AppTheme.shadows.popover)
+                .background(colors.background.toast, shape)
+                .padding(
+                    PaddingValues(
+                        start = AppTheme.space.s14,
+                        top = AppTheme.space.s10,
+                        end = AppTheme.space.s10,
+                        bottom = AppTheme.space.s10,
+                    ),
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s12),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(ToastDotSize)
-                .background(if (type == ToastType.Success) colors.success.default else colors.danger.default, CircleShape),
+            modifier =
+                Modifier
+                    .size(ToastDotSize)
+                    .background(
+                        if (type ==
+                            ToastType.Success
+                        ) {
+                            colors.success.default
+                        } else {
+                            colors.danger.default
+                        },
+                        CircleShape,
+                    ),
         )
         Text(
             text = message,
@@ -87,7 +105,7 @@ fun Toast(
                 Icon(
                     painter = CardiganIcons.Close,
                     contentDescription = stringResource(Res.string.toast_close),
-                    modifier = Modifier.size(ToastCloseIconSize).alpha(ToastCloseAlpha),
+                    modifier = Modifier.size(ToastCloseIconSize).alpha(TOAST_CLOSE_ALPHA),
                 )
             }
         }
@@ -102,10 +120,11 @@ private class ToastVisuals(
     override val withDismissAction: Boolean = false
 
     // Success: Material's Short is 4s and on Android goes through the accessibility timeout.
-    override val duration: SnackbarDuration = when (type) {
-        ToastType.Success -> SnackbarDuration.Short
-        ToastType.Error -> SnackbarDuration.Indefinite
-    }
+    override val duration: SnackbarDuration =
+        when (type) {
+            ToastType.Success -> SnackbarDuration.Short
+            ToastType.Error -> SnackbarDuration.Indefinite
+        }
 }
 
 /**
@@ -118,11 +137,18 @@ class ToastHostState {
     internal val snackbarHostState = SnackbarHostState()
 
     /** Suspends until the toast closes or is replaced. */
-    suspend fun show(message: String, type: ToastType) {
+    suspend fun show(
+        message: String,
+        type: ToastType,
+    ) {
         show(message, type, closeLabel = getString(Res.string.toast_close))
     }
 
-    internal suspend fun show(message: String, type: ToastType, closeLabel: String) {
+    internal suspend fun show(
+        message: String,
+        type: ToastType,
+        closeLabel: String,
+    ) {
         snackbarHostState.currentSnackbarData?.dismiss()
         // The close control counts as an action, so Android applies its "Time to take action" timeout.
         snackbarHostState.showSnackbar(ToastVisuals(message, type, actionLabel = closeLabel))
@@ -144,9 +170,10 @@ fun ToastHost(
 @Composable
 private fun ToastSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         Toast(message = "Message", type = ToastType.Success, onClose = {})

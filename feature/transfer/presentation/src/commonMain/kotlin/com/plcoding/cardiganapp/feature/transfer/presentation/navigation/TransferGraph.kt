@@ -20,7 +20,10 @@ fun NavGraphBuilder.transferGraph(
     onImported: (Board) -> Unit,
     onBoardListChanged: () -> Unit,
     onDone: () -> Unit,
-    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker = { onPicked, onCancelled ->
+    filePicker: @Composable (
+        onPicked: (PickedFile) -> Unit,
+        onCancelled: () -> Unit,
+    ) -> FilePicker = { onPicked, onCancelled ->
         rememberFilePicker(onPicked, onCancelled)
     },
 ) {

@@ -61,10 +61,11 @@ private fun BoardsSidebarItemsPreview() {
     AppTheme(darkTheme = false) {
         Column(modifier = Modifier.width(AppTheme.width.sidebarDesktop)) {
             BoardsSidebarItems(
-                boards = listOf(
-                    SidebarBoardUi("1", "Cardigan v1", "CRD"),
-                    SidebarBoardUi("2", "Raytracer", "RAY"),
-                ),
+                boards =
+                    listOf(
+                        SidebarBoardUi("1", "Cardigan v1", "CRD"),
+                        SidebarBoardUi("2", "Raytracer", "RAY"),
+                    ),
                 selectedBoardId = "2",
                 onOpenBoard = { _, _, _ -> },
                 onNewBoardClick = {},

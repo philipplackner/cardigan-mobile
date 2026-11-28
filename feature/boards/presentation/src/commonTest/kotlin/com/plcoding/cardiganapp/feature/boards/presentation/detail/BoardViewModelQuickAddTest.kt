@@ -15,9 +15,9 @@ import com.plcoding.cardiganapp.core.domain.util.Result
 import com.plcoding.cardiganapp.feature.boards.domain.detail.CardCreateError
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.boardContent
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -36,8 +36,10 @@ import kotlinx.coroutines.test.runTest
  *   for Add column), closed once the field was cancelled
  */
 class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
-
-    private fun BoardViewModel.type(text: String, columnId: kotlin.uuid.Uuid = todo.id) {
+    private fun BoardViewModel.type(
+        text: String,
+        columnId: kotlin.uuid.Uuid = todo.id,
+    ) {
         onAction(BoardAction.OpenQuickAdd(columnId))
         onAction(BoardAction.InlineTextChange(text))
     }
@@ -63,7 +65,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.InlineSubmit)
         assertThat(viewModel.cardTitles()).containsExactly("Card 101", "Card 102")
-        assertThat(viewModel.state.value.inlineField!!.isSaving).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .isSaving,
+        ).isTrue()
         gate.complete(Unit)
         assertThat(viewModel.cardTitles()).containsExactly("Card 101", "Card 102", "Write docs")
     }
@@ -76,8 +81,14 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.InlineTextChange(""))
         viewModel.onAction(BoardAction.InlineSubmit)
         assertThat(cards.calls).containsExactly()
-        assertThat(viewModel.state.value.inlineField!!.error).isNull()
-        assertThat(viewModel.state.value.inlineField!!.showErrors).isFalse()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isNull()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .showErrors,
+        ).isFalse()
     }
 
     @Test
@@ -85,7 +96,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         val viewModel = viewModel()
         viewModel.type("Fix\nlogin")
         viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.InvalidCharacter)
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.InvalidCharacter)
         assertThat(cards.calls).containsExactly()
     }
 
@@ -97,7 +111,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         assertThat(cards.calls.size).isEqualTo(1)
         viewModel.onAction(BoardAction.InlineTextChange("a".repeat(201)))
         viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.TooLong(200))
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.TooLong(200))
         assertThat(cards.calls.size).isEqualTo(1)
     }
 
@@ -105,11 +122,20 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
     fun errorClearsLiveAfterTheFirstSubmit() {
         val viewModel = viewModel()
         viewModel.type("a".repeat(201))
-        assertThat(viewModel.state.value.inlineField!!.canSubmit).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .canSubmit,
+        ).isTrue()
         viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(viewModel.state.value.inlineField!!.canSubmit).isFalse()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .canSubmit,
+        ).isFalse()
         viewModel.onAction(BoardAction.InlineTextChange("a".repeat(200)))
-        assertThat(viewModel.state.value.inlineField!!.error).isNull()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isNull()
     }
 
     @Test
@@ -118,8 +144,14 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.type("a".repeat(201))
         viewModel.onAction(BoardAction.InlineSubmit)
         viewModel.onAction(BoardAction.InlineTextChange(""))
-        assertThat(viewModel.state.value.inlineField!!.error).isNull()
-        assertThat(viewModel.state.value.inlineField!!.showErrors).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isNull()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .showErrors,
+        ).isTrue()
     }
 
     @Test
@@ -132,7 +164,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.InlineSubmit)
         viewModel.onAction(BoardAction.InlineCancel)
         viewModel.onAction(BoardAction.InlineOutsideTap)
-        assertThat(viewModel.state.value.inlineField!!.isSaving).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .isSaving,
+        ).isTrue()
         gate.complete(Unit)
         assertThat(cards.calls).containsExactly("Write docs")
     }
@@ -151,42 +186,54 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         val viewModel = viewModel()
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.InlineOutsideTap)
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Write docs")
         viewModel.onAction(BoardAction.InlineTextChange("  "))
         viewModel.onAction(BoardAction.InlineOutsideTap)
         assertThat(viewModel.state.value.inlineField).isNull()
     }
 
     @Test
-    fun openingAnotherColumnClosesAnEmptyField() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.OpenQuickAdd(todo.id))
-        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
-        assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(done.id)))
-        assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(done.id)))
-    }
+    fun openingAnotherColumnClosesAnEmptyField() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.OpenQuickAdd(todo.id))
+            viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+            assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(done.id)))
+            assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(done.id)))
+        }
 
     @Test
     fun openingAnotherColumnWithTextAsks() {
         val viewModel = viewModel()
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(done.id)))
-        assertThat(viewModel.state.value.inlineField!!.target).isEqualTo(InlineTarget.QuickAdd(todo.id))
+        assertThat(
+            viewModel.state.value.dialog,
+        ).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(done.id)))
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .target,
+        ).isEqualTo(InlineTarget.QuickAdd(todo.id))
     }
 
     @Test
-    fun keepEditingRefocusesTheOpenField() = runTest {
-        val viewModel = viewModel()
-        viewModel.type("Write docs")
-        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.DiscardKeepEditing)
-        assertThat(viewModel.state.value.dialog).isNull()
-        assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(todo.id), "Write docs"))
-        assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(todo.id)))
-    }
+    fun keepEditingRefocusesTheOpenField() =
+        runTest {
+            val viewModel = viewModel()
+            viewModel.type("Write docs")
+            viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.DiscardKeepEditing)
+            assertThat(viewModel.state.value.dialog).isNull()
+            assertThat(
+                viewModel.state.value.inlineField,
+            ).isEqualTo(InlineField(InlineTarget.QuickAdd(todo.id), "Write docs"))
+            assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(todo.id)))
+        }
 
     @Test
     fun backOnTheDiscardDialogKeepsEditing() {
@@ -195,19 +242,23 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
         viewModel.onAction(BoardAction.DialogDismiss)
         assertThat(viewModel.state.value.dialog).isNull()
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Write docs")
     }
 
     @Test
-    fun discardOpensTheNewField() = runTest {
-        val viewModel = viewModel()
-        viewModel.type("Write docs")
-        viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.DiscardConfirm)
-        assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(done.id)))
-        assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(done.id)))
-    }
+    fun discardOpensTheNewField() =
+        runTest {
+            val viewModel = viewModel()
+            viewModel.type("Write docs")
+            viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.DiscardConfirm)
+            assertThat(viewModel.state.value.inlineField).isEqualTo(InlineField(InlineTarget.QuickAdd(done.id)))
+            assertThat(events.last()).isEqualTo(BoardEvent.FocusInlineField(InlineTarget.QuickAdd(done.id)))
+        }
 
     @Test
     fun quickAddWithTextToAddColumnAsks() {
@@ -223,7 +274,9 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.OpenAddColumn)
         viewModel.onAction(BoardAction.InlineTextChange("Blocked"))
         viewModel.onAction(BoardAction.OpenQuickAdd(todo.id))
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(todo.id)))
+        assertThat(
+            viewModel.state.value.dialog,
+        ).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(todo.id)))
     }
 
     @Test
@@ -234,7 +287,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.InlineSubmit)
         viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
         assertThat(viewModel.state.value.dialog).isNull()
-        assertThat(viewModel.state.value.inlineField!!.target).isEqualTo(InlineTarget.QuickAdd(todo.id))
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .target,
+        ).isEqualTo(InlineTarget.QuickAdd(todo.id))
     }
 
     @Test
@@ -243,7 +299,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.RenameColumnClick(review.id))
         viewModel.onAction(BoardAction.DialogDismiss)
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Write docs")
     }
 
     @Test
@@ -276,7 +335,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         cards.results += Result.Error(CardCreateError.InvalidTitle(NameError.InvalidCharacter))
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.InvalidCharacter)
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.InvalidCharacter)
     }
 
     @Test
@@ -291,39 +353,44 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun createQueuedBehindAMoveThatFindsTheColumnGone() = runTest {
-        val viewModel = viewModel()
-        val gate = CompletableDeferred<Unit>()
-        repository.gates += gate
-        repository.server = boardContent(doing, review, done)
-        viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
-        viewModel.type("Write docs")
-        viewModel.onAction(BoardAction.InlineSubmit)
-        gate.complete(Unit)
-        assertThat(cards.calls).containsExactly("Write docs")
-        assertThat(toasts.messages.size).isEqualTo(2)
-        assertResource(toasts.messages[0].text, Res.string.board_view_column_gone, "To do")
-        assertResource(toasts.messages[1].text, Res.string.board_view_column_gone, "")
-        assertThat(viewModel.state.value.inlineField).isNull()
-    }
+    fun createQueuedBehindAMoveThatFindsTheColumnGone() =
+        runTest {
+            val viewModel = viewModel()
+            val gate = CompletableDeferred<Unit>()
+            repository.gates += gate
+            repository.server = boardContent(doing, review, done)
+            viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
+            viewModel.type("Write docs")
+            viewModel.onAction(BoardAction.InlineSubmit)
+            gate.complete(Unit)
+            assertThat(cards.calls).containsExactly("Write docs")
+            assertThat(toasts.messages.size).isEqualTo(2)
+            assertResource(toasts.messages[0].text, Res.string.board_view_column_gone, "To do")
+            assertResource(toasts.messages[1].text, Res.string.board_view_column_gone, "")
+            assertThat(viewModel.state.value.inlineField).isNull()
+        }
 
     @Test
-    fun boardGone() = runTest {
-        val viewModel = viewModel()
-        cards.results += Result.Error(CardCreateError.BoardNotFound)
-        viewModel.type("Write docs")
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(events.withoutFocus).containsExactly(BoardEvent.BoardMissing)
-        assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
-    }
+    fun boardGone() =
+        runTest {
+            val viewModel = viewModel()
+            cards.results += Result.Error(CardCreateError.BoardNotFound)
+            viewModel.type("Write docs")
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.InlineSubmit)
+            assertThat(events.withoutFocus).containsExactly(BoardEvent.BoardMissing)
+            assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+        }
 
     @Test
     fun refreshKeepsTheFieldText() {
         val viewModel = viewModel()
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.Refresh(todo.id))
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Write docs")
     }
 
     @Test
@@ -343,7 +410,10 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         repository.server = boardContent(todo, doing, review)
         viewModel.onAction(BoardAction.Refresh(todo.id))
         assertThat(viewModel.state.value.dialog).isNull()
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Write docs")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Write docs")
     }
 
     @Test
@@ -352,7 +422,9 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.type("Write docs")
         viewModel.onAction(BoardAction.OpenQuickAdd(done.id))
         viewModel.onAction(BoardAction.Refresh(null))
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(done.id)))
+        assertThat(
+            viewModel.state.value.dialog,
+        ).isEqualTo(BoardDialog.DiscardInlineField(InlineTarget.QuickAdd(done.id)))
     }
 
     @Test
@@ -382,6 +454,9 @@ class BoardViewModelQuickAddTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.InlineTextChange("Blocked"))
         repository.server = boardContent()
         viewModel.onAction(BoardAction.Refresh(todo.id))
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Blocked")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Blocked")
     }
 }

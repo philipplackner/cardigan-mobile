@@ -8,14 +8,14 @@ import com.plcoding.cardiganapp.core.domain.session.SessionState
 import com.plcoding.cardiganapp.core.domain.session.SignOutReason
 import com.plcoding.cardiganapp.fakes.FakeSessionManager
 import com.plcoding.cardiganapp.fakes.RecordingStore
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -28,7 +28,6 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppViewModelTest {
-
     private val log = mutableListOf<String>()
     private lateinit var viewModel: AppViewModel
 
@@ -44,7 +43,11 @@ class AppViewModelTest {
 
     private fun create(session: FakeSessionManager): AppViewModel {
         val published = { viewModel.state.value }
-        viewModel = AppViewModel(session, listOf(RecordingStore("boards", log, published), RecordingStore("labels", log, published)))
+        viewModel =
+            AppViewModel(
+                session,
+                listOf(RecordingStore("boards", log, published), RecordingStore("labels", log, published)),
+            )
         return viewModel
     }
 
@@ -60,11 +63,12 @@ class AppViewModelTest {
 
     @Test
     fun startStatesPassThrough() {
-        val states = listOf(
-            SessionState.SignedIn("ann@example.com"),
-            SessionState.SignedOut(SignOutReason.NoSession),
-            SessionState.SignedOut(SignOutReason.Expired),
-        )
+        val states =
+            listOf(
+                SessionState.SignedIn("ann@example.com"),
+                SessionState.SignedOut(SignOutReason.NoSession),
+                SessionState.SignedOut(SignOutReason.Expired),
+            )
         for (state in states) {
             assertThat(create(FakeSessionManager(restoreTo = state)).state.value).isEqualTo(state)
         }
@@ -104,10 +108,11 @@ class AppViewModelTest {
 
     @Test
     fun noClearWhileSignedInOrBetweenSignedOutStates() {
-        val session = FakeSessionManager(
-            restoreTo = SessionState.SignedOut(SignOutReason.NoSession),
-            initial = SessionState.SignedOut(SignOutReason.NoSession),
-        )
+        val session =
+            FakeSessionManager(
+                restoreTo = SessionState.SignedOut(SignOutReason.NoSession),
+                initial = SessionState.SignedOut(SignOutReason.NoSession),
+            )
         create(session)
         session.signIn("ann@example.com")
         assertThat(log).isEmpty()

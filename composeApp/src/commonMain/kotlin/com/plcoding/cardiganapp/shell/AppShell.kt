@@ -3,22 +3,22 @@ package com.plcoding.cardiganapp.shell
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.toRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.toRoute
 import cardiganapp.composeapp.generated.resources.Res
 import cardiganapp.composeapp.generated.resources.shell_all_boards
 import cardiganapp.composeapp.generated.resources.shell_boards_heading
@@ -58,9 +58,19 @@ fun AppShell(
         return
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val onBoardList = navController.previousNonDialogDestinationIsBoardList(backStackEntry?.destination?.hasRoute<BoardListRoute>() == true)
+    val onBoardList =
+        navController.previousNonDialogDestinationIsBoardList(
+            backStackEntry?.destination?.hasRoute<BoardListRoute>() == true,
+        )
     val startInset = WindowInsets.safeDrawing.only(WindowInsetsSides.Start)
-    val sidebarWidth = if (windowClass == WindowClass.Tablet) AppTheme.width.sidebarTablet else AppTheme.width.sidebarDesktop
+    val sidebarWidth =
+        if (windowClass ==
+            WindowClass.Tablet
+        ) {
+            AppTheme.width.sidebarTablet
+        } else {
+            AppTheme.width.sidebarDesktop
+        }
     Row(modifier = modifier.fillMaxSize()) {
         Sidebar(
             boardsHeading = stringResource(Res.string.shell_boards_heading),
@@ -68,9 +78,11 @@ fun AppShell(
             avatarInitial = accountEmail?.firstOrNull()?.uppercase(),
             onLogOutClick = onLogOut,
             logOutContentDescription = stringResource(Res.string.shell_log_out),
-            modifier = Modifier
-                .width(sidebarWidth + startInset.asPaddingValues().calculateStartPadding(LocalLayoutDirection.current))
-                .fillMaxHeight(),
+            modifier =
+                Modifier
+                    .width(
+                        sidebarWidth + startInset.asPaddingValues().calculateStartPadding(LocalLayoutDirection.current),
+                    ).fillMaxHeight(),
             mainNav = {
                 NavItem(
                     label = stringResource(Res.string.shell_all_boards),
@@ -99,7 +111,11 @@ fun AppShell(
 
 /** The board shown by the screen under any open dialog, or null when that screen isn't a board. */
 private fun NavHostController.openBoardId(): String? {
-    val screen = currentBackStack.value.lastOrNull { it.destination.navigatorName != "dialog" && it.destination.navigatorName != "navigation" }
+    val screen =
+        currentBackStack.value.lastOrNull {
+            it.destination.navigatorName != "dialog" &&
+                it.destination.navigatorName != "navigation"
+        }
     return screen?.takeIf { it.destination.hasRoute<BoardRoute>() }?.toRoute<BoardRoute>()?.boardId
 }
 
@@ -110,6 +126,10 @@ private fun NavHostController.openBoardId(): String? {
 private fun NavHostController.previousNonDialogDestinationIsBoardList(currentIsBoardList: Boolean): Boolean {
     if (currentIsBoardList) return true
     val entries = currentBackStack.value
-    val screen = entries.lastOrNull { it.destination.navigatorName != "dialog" && it.destination.navigatorName != "navigation" }
+    val screen =
+        entries.lastOrNull {
+            it.destination.navigatorName != "dialog" &&
+                it.destination.navigatorName != "navigation"
+        }
     return screen?.destination?.hasRoute<BoardListRoute>() == true
 }

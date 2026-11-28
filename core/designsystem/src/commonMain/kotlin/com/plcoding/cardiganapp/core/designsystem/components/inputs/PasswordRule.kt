@@ -51,9 +51,10 @@ fun PasswordRule(
 @Composable
 private fun PasswordRuleSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
         PasswordRule(text = "12+ characters", met = true)

@@ -16,7 +16,6 @@ import kotlin.test.Test
  * - each rule error must map to that rule's text, not the already-used text
  */
 class TransferUiTextTest {
-
     @Test
     fun alreadyUsedShowsTheSharedTextWithTheKey() {
         val text = KeyFieldError.AlreadyUsed("CRDB").toUiText() as UiText.Resource

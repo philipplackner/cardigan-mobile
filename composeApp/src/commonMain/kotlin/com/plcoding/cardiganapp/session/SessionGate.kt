@@ -30,17 +30,30 @@ fun SessionGate(
     LaunchedEffect(session, navController) {
         val current = navController.currentBackStackEntry?.destination ?: return@LaunchedEffect
         when (session) {
-            is SessionState.SignedIn -> if (current.isAuthScreen()) navController.replaceBackStackWith(BoardListRoute)
-            is SessionState.SignedOut -> if (!current.isAuthScreen()) navController.replaceBackStackWith(destinationFor(session))
-            SessionState.Restoring -> Unit
+            is SessionState.SignedIn -> {
+                if (current.isAuthScreen()) navController.replaceBackStackWith(BoardListRoute)
+            }
+
+            is SessionState.SignedOut -> {
+                if (!current.isAuthScreen()) {
+                    navController.replaceBackStackWith(
+                        destinationFor(session),
+                    )
+                }
+            }
+
+            SessionState.Restoring -> {
+                Unit
+            }
         }
     }
 }
 
-internal fun destinationFor(session: SessionState): Any = when (session) {
-    is SessionState.SignedOut -> LoginRoute(sessionExpired = session.reason == SignOutReason.Expired)
-    is SessionState.SignedIn, SessionState.Restoring -> BoardListRoute
-}
+internal fun destinationFor(session: SessionState): Any =
+    when (session) {
+        is SessionState.SignedOut -> LoginRoute(sessionExpired = session.reason == SignOutReason.Expired)
+        is SessionState.SignedIn, SessionState.Restoring -> BoardListRoute
+    }
 
 private fun NavDestination.isAuthScreen(): Boolean = hasRoute<LoginRoute>() || hasRoute<RegisterRoute>()
 

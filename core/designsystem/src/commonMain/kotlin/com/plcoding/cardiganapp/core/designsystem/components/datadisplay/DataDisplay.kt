@@ -28,10 +28,11 @@ fun Key(
     val shape = RoundedCornerShape(AppTheme.radius.r4)
     Text(
         text = key,
-        modifier = modifier
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.strong, shape)
-            .padding(horizontal = AppTheme.space.s5, vertical = AppTheme.space.s3),
+        modifier =
+            modifier
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.strong, shape)
+                .padding(horizontal = AppTheme.space.s5, vertical = AppTheme.space.s3),
         style = AppTheme.textStyles.mono11Medium100LsPlus2,
         color = AppTheme.colors.text.muted,
         maxLines = 1,
@@ -45,9 +46,10 @@ fun Avatar(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .size(AvatarSize)
-            .background(AppTheme.colors.accent.soft, CircleShape),
+        modifier =
+            modifier
+                .size(AvatarSize)
+                .background(AppTheme.colors.accent.soft, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -62,9 +64,10 @@ fun Avatar(
 @Composable
 private fun DataDisplaySamples() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
         verticalAlignment = Alignment.CenterVertically,
     ) {

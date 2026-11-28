@@ -31,7 +31,9 @@ import org.jetbrains.compose.resources.StringResource
  * The 20 label colors, named as in the shared `domain-label` palette and listed in Figma order.
  * Feature modules map their domain color to this.
  */
-enum class LabelColor(val displayName: StringResource) {
+enum class LabelColor(
+    val displayName: StringResource,
+) {
     Red(Res.string.label_color_red),
     Orange(Res.string.label_color_orange),
     Amber(Res.string.label_color_amber),
@@ -56,28 +58,29 @@ enum class LabelColor(val displayName: StringResource) {
 
 /** The `label/<name>` color for this palette entry in the active theme. */
 val LabelColor.color: Color
-    @Composable @ReadOnlyComposable get() {
+    @Composable @ReadOnlyComposable
+    get() {
         val labels = AppTheme.colors.label
         return when (this) {
-        LabelColor.Red -> labels.red
-        LabelColor.Orange -> labels.orange
-        LabelColor.Amber -> labels.amber
-        LabelColor.Yellow -> labels.yellow
-        LabelColor.Lime -> labels.lime
-        LabelColor.Green -> labels.green
-        LabelColor.Emerald -> labels.emerald
-        LabelColor.Teal -> labels.teal
-        LabelColor.Cyan -> labels.cyan
-        LabelColor.Sky -> labels.sky
-        LabelColor.Blue -> labels.blue
-        LabelColor.Indigo -> labels.indigo
-        LabelColor.Violet -> labels.violet
-        LabelColor.Purple -> labels.purple
-        LabelColor.Fuchsia -> labels.fuchsia
-        LabelColor.Pink -> labels.pink
-        LabelColor.Rose -> labels.rose
-        LabelColor.Brown -> labels.brown
-        LabelColor.Olive -> labels.olive
-        LabelColor.Slate -> labels.slate
+            LabelColor.Red -> labels.red
+            LabelColor.Orange -> labels.orange
+            LabelColor.Amber -> labels.amber
+            LabelColor.Yellow -> labels.yellow
+            LabelColor.Lime -> labels.lime
+            LabelColor.Green -> labels.green
+            LabelColor.Emerald -> labels.emerald
+            LabelColor.Teal -> labels.teal
+            LabelColor.Cyan -> labels.cyan
+            LabelColor.Sky -> labels.sky
+            LabelColor.Blue -> labels.blue
+            LabelColor.Indigo -> labels.indigo
+            LabelColor.Violet -> labels.violet
+            LabelColor.Purple -> labels.purple
+            LabelColor.Fuchsia -> labels.fuchsia
+            LabelColor.Pink -> labels.pink
+            LabelColor.Rose -> labels.rose
+            LabelColor.Brown -> labels.brown
+            LabelColor.Olive -> labels.olive
+            LabelColor.Slate -> labels.slate
         }
     }

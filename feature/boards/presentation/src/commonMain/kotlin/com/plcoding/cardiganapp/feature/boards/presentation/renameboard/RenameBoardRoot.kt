@@ -34,7 +34,10 @@ fun RenameBoardRoot(
                 onClose()
                 onRenamed(event.newName)
             }
-            RenameBoardEvent.Close -> onClose()
+
+            RenameBoardEvent.Close -> {
+                onClose()
+            }
         }
     }
     RenameBoardScreen(state = state, onAction = viewModel::onAction)

@@ -41,7 +41,7 @@ enum class BoardCardState {
     Placeholder,
 }
 
-private const val DraggingRotation = 2.2f
+private const val DRAGGING_ROTATION = 2.2f
 private val PlaceholderStroke = 1.5.dp
 
 /**
@@ -61,47 +61,56 @@ fun BoardCard(
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     val touch = isTouchSize
-    val container = when (state) {
-        BoardCardState.Placeholder -> Modifier.dashedBorder(
-            width = PlaceholderStroke,
-            color = colors.border.strong,
-            shape = shape,
-            dash = AppTheme.space.s5,
-            gap = AppTheme.space.s4,
-        )
-        else -> Modifier
-            .graphicsLayer { rotationZ = if (state == BoardCardState.Dragging) DraggingRotation else 0f }
-            .dropShadow(
-                shape,
-                when (state) {
-                    BoardCardState.Dragging -> AppTheme.shadows.drag
-                    BoardCardState.Selected -> AppTheme.shadows.focusAccent
-                    else -> AppTheme.shadows.small
-                },
-            )
-            .background(colors.background.surface, shape)
-            .border(
-                BorderStroke(
-                    AppTheme.space.s1,
-                    if (state == BoardCardState.Default) colors.border.default else colors.accent.default,
-                ),
-                shape,
-            )
-            .clip(shape)
-            .clickable(onClick = onClick)
-    }
+    val container =
+        when (state) {
+            BoardCardState.Placeholder -> {
+                Modifier.dashedBorder(
+                    width = PlaceholderStroke,
+                    color = colors.border.strong,
+                    shape = shape,
+                    dash = AppTheme.space.s5,
+                    gap = AppTheme.space.s4,
+                )
+            }
+
+            else -> {
+                Modifier
+                    .graphicsLayer { rotationZ = if (state == BoardCardState.Dragging) DRAGGING_ROTATION else 0f }
+                    .dropShadow(
+                        shape,
+                        when (state) {
+                            BoardCardState.Dragging -> AppTheme.shadows.drag
+                            BoardCardState.Selected -> AppTheme.shadows.focusAccent
+                            else -> AppTheme.shadows.small
+                        },
+                    ).background(colors.background.surface, shape)
+                    .border(
+                        BorderStroke(
+                            AppTheme.space.s1,
+                            if (state == BoardCardState.Default) colors.border.default else colors.accent.default,
+                        ),
+                        shape,
+                    ).clip(shape)
+                    .clickable(onClick = onClick)
+            }
+        }
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(container)
-            .padding(
-                if (touch) {
-                    PaddingValues(horizontal = AppTheme.space.s14, vertical = AppTheme.space.s12)
-                } else {
-                    PaddingValues(start = AppTheme.space.s12, end = AppTheme.space.s12, top = AppTheme.space.s10, bottom = AppTheme.space.s11)
-                },
-            )
-            .alpha(if (state == BoardCardState.Placeholder) 0f else 1f),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .then(container)
+                .padding(
+                    if (touch) {
+                        PaddingValues(horizontal = AppTheme.space.s14, vertical = AppTheme.space.s12)
+                    } else {
+                        PaddingValues(
+                            start = AppTheme.space.s12,
+                            end = AppTheme.space.s12,
+                            top = AppTheme.space.s10,
+                            bottom = AppTheme.space.s11,
+                        )
+                    },
+                ).alpha(if (state == BoardCardState.Placeholder) 0f else 1f),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s7),
     ) {
         Text(text = displayId, style = AppTheme.textStyles.mono11Medium100, color = colors.text.muted, maxLines = 1)
@@ -123,10 +132,11 @@ fun BoardCard(
 @Composable
 private fun CardStates() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.column)
-            .padding(AppTheme.space.s24)
-            .width(258.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.column)
+                .padding(AppTheme.space.s24)
+                .width(258.dp),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         BoardCardState.entries.forEach { state ->

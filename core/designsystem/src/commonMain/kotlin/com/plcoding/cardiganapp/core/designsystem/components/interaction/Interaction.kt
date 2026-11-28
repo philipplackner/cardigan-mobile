@@ -40,10 +40,11 @@ fun Modifier.focusRing(
     style: FocusRingStyle = FocusRingStyle.Accent,
 ): Modifier {
     if (!visible) return this
-    val ring = when (style) {
-        FocusRingStyle.Accent -> shadows.focusAccent
-        FocusRingStyle.Danger -> shadows.focusDanger
-    }
+    val ring =
+        when (style) {
+            FocusRingStyle.Accent -> shadows.focusAccent
+            FocusRingStyle.Danger -> shadows.focusDanger
+        }
     return dropShadow(shape, ring)
 }
 

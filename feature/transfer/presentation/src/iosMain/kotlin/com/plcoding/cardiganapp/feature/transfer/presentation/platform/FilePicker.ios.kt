@@ -49,7 +49,6 @@ private class IosFilePicker(
     onPicked: (PickedFile) -> Unit,
     onCancelled: () -> Unit,
 ) : FilePicker {
-
     // UIDocumentPickerViewController holds its delegate weakly, so the picker keeps it alive.
     private val delegate = PickerDelegate(scope, onPicked, onCancelled)
 
@@ -65,9 +64,12 @@ private class PickerDelegate(
     private val scope: CoroutineScope,
     private val onPicked: (PickedFile) -> Unit,
     private val onCancelled: () -> Unit,
-) : NSObject(), UIDocumentPickerDelegateProtocol {
-
-    override fun documentPicker(controller: UIDocumentPickerViewController, didPickDocumentsAtURLs: List<*>) {
+) : NSObject(),
+    UIDocumentPickerDelegateProtocol {
+    override fun documentPicker(
+        controller: UIDocumentPickerViewController,
+        didPickDocumentsAtURLs: List<*>,
+    ) {
         val url = didPickDocumentsAtURLs.firstOrNull() as? NSURL
         if (url == null) {
             onCancelled()
@@ -90,8 +92,9 @@ private fun readPickedFile(url: NSURL): PickedFile {
     val fileManager = NSFileManager.defaultManager
     try {
         val path = url.path ?: return unreadable(name)
-        val size = (fileManager.attributesOfItemAtPath(path, error = null)?.get(NSFileSize) as? NSNumber)?.longLongValue
-            ?: return unreadable(name)
+        val size =
+            (fileManager.attributesOfItemAtPath(path, error = null)?.get(NSFileSize) as? NSNumber)?.longLongValue
+                ?: return unreadable(name)
         if (size >= PICKED_FILE_READ_CAP) return PickedFile(name, size, bytes = null)
         val handle = NSFileHandle.fileHandleForReadingFromURL(url, error = null) ?: return unreadable(name)
         val data = handle.readDataUpToLength(PICKED_FILE_READ_CAP.toULong(), error = null)

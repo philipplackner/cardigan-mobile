@@ -60,7 +60,11 @@ class BoardsGraphTestHost {
     }
 
     @OptIn(ExperimentalTestApi::class)
-    fun show(test: ComposeUiTest, startAtList: Boolean, windowClass: WindowClass = WindowClass.Phone) = with(test) {
+    fun show(
+        test: ComposeUiTest,
+        startAtList: Boolean,
+        windowClass: WindowClass = WindowClass.Phone,
+    ) = with(test) {
         setContent {
             AppTheme(darkTheme = false, windowClass = windowClass) {
                 val controller = rememberNavController()
@@ -89,20 +93,29 @@ class BoardsGraphTestHost {
     }
 
     @OptIn(ExperimentalTestApi::class)
-    fun awaitText(test: ComposeUiTest, text: String) = with(test) {
+    fun awaitText(
+        test: ComposeUiTest,
+        text: String,
+    ) = with(test) {
         waitUntil(timeoutMillis = 5_000) { onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
     }
 
     /** Rows and tiles read as one accessible name, so their texts aren't separate nodes. */
     @OptIn(ExperimentalTestApi::class)
-    fun awaitBoard(test: ComposeUiTest, name: String) = with(test) {
+    fun awaitBoard(
+        test: ComposeUiTest,
+        name: String,
+    ) = with(test) {
         waitUntil(timeoutMillis = 5_000) {
             onAllNodes(hasContentDescription("$name,", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
     @OptIn(ExperimentalTestApi::class)
-    fun awaitGone(test: ComposeUiTest, text: String) = with(test) {
+    fun awaitGone(
+        test: ComposeUiTest,
+        text: String,
+    ) = with(test) {
         waitUntil(timeoutMillis = 5_000) { onAllNodes(hasText(text)).fetchSemanticsNodes().isEmpty() }
     }
 }

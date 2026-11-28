@@ -14,13 +14,19 @@ class FakeAuthRepository : AuthRepository {
     var result: EmptyResult<AuthError> = Result.Success(Unit)
     var gate: CompletableDeferred<Unit>? = null
 
-    override suspend fun login(email: String, password: String): EmptyResult<AuthError> {
+    override suspend fun login(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError> {
         loginCalls += email to password
         gate?.await()
         return result
     }
 
-    override suspend fun register(email: String, password: String): EmptyResult<AuthError> {
+    override suspend fun register(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError> {
         registerCalls += email to password
         gate?.await()
         return result

@@ -11,17 +11,20 @@ import java.nio.channels.UnresolvedAddressException
 actual suspend fun <T> platformSafeCall(
     execute: suspend () -> HttpResponse,
     handleResponse: suspend (HttpResponse) -> Result<T, DataError.Network>,
-): Result<T, DataError.Network> {
-    return try {
+): Result<T, DataError.Network> =
+    try {
         handleResponse(execute())
     } catch (e: Exception) {
-        val error = when (e) {
-            is UnknownHostException,
-            is UnresolvedAddressException,
-            is ConnectException -> DataError.Network.NO_INTERNET
-            is SocketTimeoutException -> DataError.Network.REQUEST_TIMEOUT
-            else -> e.toCommonNetworkError()
-        }
+        val error =
+            when (e) {
+                is UnknownHostException,
+                is UnresolvedAddressException,
+                is ConnectException,
+                -> DataError.Network.NO_INTERNET
+
+                is SocketTimeoutException -> DataError.Network.REQUEST_TIMEOUT
+
+                else -> e.toCommonNetworkError()
+            }
         Result.Error(error)
     }
-}

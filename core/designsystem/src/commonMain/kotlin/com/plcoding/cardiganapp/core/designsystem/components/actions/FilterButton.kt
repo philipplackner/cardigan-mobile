@@ -46,9 +46,10 @@ fun FilterButton(
         border = BorderStroke(AppTheme.space.s1, if (isActive) colors.accent.default else colors.border.strong),
     ) {
         Row(
-            modifier = Modifier
-                .heightIn(min = AppTheme.height.controlMd)
-                .padding(horizontal = AppTheme.space.s11),
+            modifier =
+                Modifier
+                    .heightIn(min = AppTheme.height.controlMd)
+                    .padding(horizontal = AppTheme.space.s11),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s7),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -63,15 +64,20 @@ fun FilterButton(
             if (isActive) {
                 Text(
                     text = selectedCount.toString(),
-                    modifier = Modifier
-                        .background(colors.accent.default, RoundedCornerShape(AppTheme.radius.r4))
-                        .padding(horizontal = AppTheme.space.s5, vertical = AppTheme.space.s2),
+                    modifier =
+                        Modifier
+                            .background(colors.accent.default, RoundedCornerShape(AppTheme.radius.r4))
+                            .padding(horizontal = AppTheme.space.s5, vertical = AppTheme.space.s2),
                     style = AppTheme.textStyles.mono11SemiBold100,
                     color = colors.text.onAccent,
                     maxLines = 1,
                 )
             }
-            Icon(painter = CardiganIcons.ChevronDown, contentDescription = null, modifier = Modifier.size(FilterIconSize))
+            Icon(
+                painter = CardiganIcons.ChevronDown,
+                contentDescription = null,
+                modifier = Modifier.size(FilterIconSize),
+            )
         }
     }
 }
@@ -79,9 +85,10 @@ fun FilterButton(
 @Composable
 private fun FilterButtonSamples() {
     Row(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         FilterButton(label = "Labels", selectedCount = 0, onClick = {})

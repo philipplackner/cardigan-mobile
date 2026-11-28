@@ -9,13 +9,13 @@ import cardiganapp.feature.boards.presentation.generated.resources.relative_time
 import cardiganapp.feature.boards.presentation.generated.resources.relative_time_minutes
 import cardiganapp.feature.boards.presentation.generated.resources.relative_time_yesterday
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.FakeClock
-import kotlin.test.Test
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.toInstant
+import kotlin.test.Test
+import kotlin.time.Instant
 
 /*
  * Break vectors (pinned to Europe/Berlin, which is not UTC and has DST):
@@ -27,14 +27,19 @@ import kotlinx.datetime.toInstant
  * - a fixed UTC+2 zone where UTC dates differ from local dates
  */
 class RelativeTimeFormatterTest {
-
     private val berlin = TimeZone.of("Europe/Berlin")
     private val clock = FakeClock()
 
-    private fun local(text: String, zone: TimeZone = berlin): Instant = LocalDateTime.parse(text).toInstant(zone)
+    private fun local(
+        text: String,
+        zone: TimeZone = berlin,
+    ): Instant = LocalDateTime.parse(text).toInstant(zone)
 
-    private fun format(now: String, updated: String, zone: TimeZone = berlin) =
-        RelativeTimeFormatter(clock.apply { this.now = local(now, zone) }, zone).format(local(updated, zone))
+    private fun format(
+        now: String,
+        updated: String,
+        zone: TimeZone = berlin,
+    ) = RelativeTimeFormatter(clock.apply { this.now = local(now, zone) }, zone).format(local(updated, zone))
 
     @Test
     fun secondsAgoIsJustNow() {

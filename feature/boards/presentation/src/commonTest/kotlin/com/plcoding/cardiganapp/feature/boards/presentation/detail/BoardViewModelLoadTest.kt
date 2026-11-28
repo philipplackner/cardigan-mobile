@@ -15,9 +15,9 @@ import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardLoadError
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.card
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.label
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -31,7 +31,6 @@ import kotlinx.coroutines.test.runTest
  *   board deleted emits BoardDeleted
  */
 class BoardViewModelLoadTest : BoardViewModelTestBase() {
-
     @Test
     fun loadsBoardAndLabels() {
         val api = label("api")
@@ -112,29 +111,41 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun missingBoardOnFirstLoad() = runTest {
-        repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        assertThat(events).containsExactly(BoardEvent.BoardMissing)
-        assertThat(toasts.messages.size).isEqualTo(1)
-        assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
-    }
+    fun missingBoardOnFirstLoad() =
+        runTest {
+            repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            assertThat(events).containsExactly(BoardEvent.BoardMissing)
+            assertThat(toasts.messages.size).isEqualTo(1)
+            assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+        }
 
     @Test
-    fun missingBoardWinsOverFailingLabels() = runTest {
-        repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
-        labels.results += Result.Error(DataError.Network.NO_INTERNET)
-        val viewModel = viewModel()
-        assertThat(events(viewModel)).containsExactly(BoardEvent.BoardMissing)
-    }
+    fun missingBoardWinsOverFailingLabels() =
+        runTest {
+            repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
+            labels.results += Result.Error(DataError.Network.NO_INTERNET)
+            val viewModel = viewModel()
+            assertThat(events(viewModel)).containsExactly(BoardEvent.BoardMissing)
+        }
 
     @Test
     fun refreshPicksUpChanges() {
         val viewModel = viewModel()
-        repository.server = repository.server.copy(
-            columns = repository.server.columns.map { if (it.id == done.id) it.copy(cards = listOf(card(106))) else it },
-        )
+        repository.server =
+            repository.server.copy(
+                columns =
+                    repository.server.columns.map {
+                        if (it.id ==
+                            done.id
+                        ) {
+                            it.copy(cards = listOf(card(106)))
+                        } else {
+                            it
+                        }
+                    },
+            )
         viewModel.onAction(BoardAction.Refresh(todo.id))
         assertThat(viewModel.board.cardCount).isEqualTo(6)
         assertThat(viewModel.state.value.isRefreshing).isFalse()
@@ -183,14 +194,15 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun refreshFindsTheBoardMissing() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
-        viewModel.onAction(BoardAction.Refresh(todo.id))
-        assertThat(events).containsExactly(BoardEvent.BoardMissing)
-        assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
-    }
+    fun refreshFindsTheBoardMissing() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            repository.loadResults += Result.Error(BoardLoadError.BoardNotFound)
+            viewModel.onAction(BoardAction.Refresh(todo.id))
+            assertThat(events).containsExactly(BoardEvent.BoardMissing)
+            assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+        }
 
     @Test
     fun refreshBeforeTheFirstLoadIsIgnored() {
@@ -203,7 +215,8 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
     @Test
     fun unknownLabelIdStaysOnTheCard() {
         val ghost = label("ghost")
-        repository.server = repository.server.copy(columns = listOf(todo.copy(cards = listOf(card(1, labels = listOf(ghost))))))
+        repository.server =
+            repository.server.copy(columns = listOf(todo.copy(cards = listOf(card(1, labels = listOf(ghost))))))
         val viewModel = viewModel()
         val loaded = viewModel.state.value.loaded!!
         assertThat(loaded.labelsById[ghost.id]).isNull()
@@ -236,11 +249,12 @@ class BoardViewModelLoadTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun boardDeletedLeavesWithoutToast() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        viewModel.onAction(BoardAction.BoardDeleted)
-        assertThat(events).containsExactly(BoardEvent.BoardDeleted)
-        assertThat(toasts.messages).containsExactly()
-    }
+    fun boardDeletedLeavesWithoutToast() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            viewModel.onAction(BoardAction.BoardDeleted)
+            assertThat(events).containsExactly(BoardEvent.BoardDeleted)
+            assertThat(toasts.messages).containsExactly()
+        }
 }

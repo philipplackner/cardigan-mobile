@@ -50,19 +50,21 @@ internal fun AuthLayout(
 ) {
     val space = AppTheme.space
     BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.background.app)
-            .windowInsetsPadding(WindowInsets.safeDrawing),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.background.app)
+                .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         val viewportHeight = maxHeight
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             if (AppTheme.windowClass == WindowClass.Phone) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = space.s20, vertical = space.s24)
-                        .padding(top = space.s28),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = space.s20, vertical = space.s24)
+                            .padding(top = space.s28),
                     verticalArrangement = Arrangement.spacedBy(space.s22),
                 ) {
                     Brand(size = BrandSize.Auth)
@@ -74,10 +76,11 @@ internal fun AuthLayout(
                 }
             } else {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = viewportHeight)
-                        .padding(space.s24),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = viewportHeight)
+                            .padding(space.s24),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(
@@ -103,23 +106,28 @@ internal fun AuthLayout(
 private fun AuthCard(content: @Composable ColumnScope.() -> Unit) {
     val shape = RoundedCornerShape(AppTheme.radius.r12)
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .dropShadow(shape, AppTheme.shadows.small)
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.space.s1 + AppTheme.space.s25),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .dropShadow(shape, AppTheme.shadows.small)
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(AppTheme.space.s1 + AppTheme.space.s25),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
         content = content,
     )
 }
 
 @Composable
-private fun AuthTitle(text: String, large: Boolean) {
+private fun AuthTitle(
+    text: String,
+    large: Boolean,
+) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth().semantics { heading() },
-        style = if (large) AppTheme.textStyles.sans28SemiBold120LsMinus2 else AppTheme.textStyles.sans22SemiBold120LsMinus2,
+        style =
+            if (large) AppTheme.textStyles.sans28SemiBold120LsMinus2 else AppTheme.textStyles.sans22SemiBold120LsMinus2,
         color = AppTheme.colors.text.primary,
     )
 }

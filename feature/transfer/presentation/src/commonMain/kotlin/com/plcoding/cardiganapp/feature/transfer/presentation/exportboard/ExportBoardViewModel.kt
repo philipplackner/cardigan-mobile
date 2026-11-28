@@ -12,10 +12,10 @@ import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.core.presentation.util.UiText
 import com.plcoding.cardiganapp.feature.transfer.domain.BoardTransferRepository
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportError
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 /** Exports the board as soon as it is created. The progress dialog is its whole UI, so it has no state. */
 class ExportBoardViewModel(
@@ -24,7 +24,6 @@ class ExportBoardViewModel(
     private val repository: BoardTransferRepository,
     private val toastController: ToastController,
 ) : ViewModel() {
-
     private val _events = Channel<ExportBoardEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
@@ -33,12 +32,16 @@ class ExportBoardViewModel(
             val id = Uuid.parseOrNull(boardId)
             val result = if (id != null) repository.exportBoard(id) else Result.Error(ExportError.Failed)
             when (result) {
-                is Result.Success -> _events.send(ExportBoardEvent.Share(result.data))
+                is Result.Success -> {
+                    _events.send(ExportBoardEvent.Share(result.data))
+                }
+
                 is Result.Error -> {
-                    val message = when (result.error) {
-                        ExportError.BoardNotFound -> Res.string.export_error_not_found
-                        ExportError.Failed -> Res.string.export_error_failed
-                    }
+                    val message =
+                        when (result.error) {
+                            ExportError.BoardNotFound -> Res.string.export_error_not_found
+                            ExportError.Failed -> Res.string.export_error_failed
+                        }
                     toastController.show(ToastMessage(UiText.Resource(message, arrayOf(boardName)), ToastType.Error))
                     _events.send(ExportBoardEvent.Finished)
                 }

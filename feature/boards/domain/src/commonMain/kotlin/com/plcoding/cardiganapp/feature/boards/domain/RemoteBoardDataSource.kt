@@ -9,9 +9,15 @@ import kotlin.uuid.Uuid
 interface RemoteBoardDataSource {
     suspend fun getBoards(): Result<List<BoardSummary>, DataError.Network>
 
-    suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError>
+    suspend fun createBoard(
+        name: String,
+        key: String,
+    ): Result<BoardSummary, BoardSaveError>
 
-    suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError>
+    suspend fun renameBoard(
+        id: Uuid,
+        name: String,
+    ): Result<BoardSummary, BoardSaveError>
 
     suspend fun deleteBoard(id: Uuid): EmptyResult<BoardSaveError>
 }

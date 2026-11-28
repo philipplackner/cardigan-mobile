@@ -22,9 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -62,27 +62,31 @@ fun DropZone(
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     val source = remember { MutableInteractionSource() }
     val isHighlighted by source.collectIsHighlightedAsState()
-    val hintText = remember(hint, hintAccent, colors.accent.default) {
-        val start = hint.indexOf(hintAccent)
-        buildAnnotatedString {
-            if (hintAccent.isEmpty() || start < 0) {
-                append(hint)
-            } else {
-                append(hint.substring(0, start))
-                withStyle(SpanStyle(color = colors.accent.default, fontWeight = FontWeight.Medium)) { append(hintAccent) }
-                append(hint.substring(start + hintAccent.length))
+    val hintText =
+        remember(hint, hintAccent, colors.accent.default) {
+            val start = hint.indexOf(hintAccent)
+            buildAnnotatedString {
+                if (hintAccent.isEmpty() || start < 0) {
+                    append(hint)
+                } else {
+                    append(hint.substring(0, start))
+                    withStyle(
+                        SpanStyle(color = colors.accent.default, fontWeight = FontWeight.Medium),
+                    ) { append(hintAccent) }
+                    append(hint.substring(start + hintAccent.length))
+                }
             }
         }
-    }
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(if (isHighlighted) colors.background.hover else colors.background.app, shape)
-            .dashedBorder(DropZoneStrokeWidth, colors.border.strong, shape, DropZoneDash, DropZoneGap)
-            .clickable(interactionSource = source, indication = ripple(), role = Role.Button, onClick = onClick)
-            .clearAndSetSemantics { this.contentDescription = contentDescription }
-            .padding(horizontal = AppTheme.space.s16, vertical = AppTheme.space.s28),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(shape)
+                .background(if (isHighlighted) colors.background.hover else colors.background.app, shape)
+                .dashedBorder(DropZoneStrokeWidth, colors.border.strong, shape, DropZoneDash, DropZoneGap)
+                .clickable(interactionSource = source, indication = ripple(), role = Role.Button, onClick = onClick)
+                .clearAndSetSemantics { this.contentDescription = contentDescription }
+                .padding(horizontal = AppTheme.space.s16, vertical = AppTheme.space.s28),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -110,9 +114,10 @@ fun DropZone(
 @Composable
 private fun DropZoneSample() {
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s20),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s20),
     ) {
         DropZone(
             title = "Choose a board export",

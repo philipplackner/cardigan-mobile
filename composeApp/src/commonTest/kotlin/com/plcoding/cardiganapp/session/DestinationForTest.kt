@@ -13,7 +13,6 @@ import kotlin.test.Test
  * "Session expired" state on the login screen.
  */
 class DestinationForTest {
-
     @Test
     fun expiredSessionOpensLoginWithTheExpiredState() {
         assertThat(destinationFor(SessionState.SignedOut(SignOutReason.Expired)))

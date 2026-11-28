@@ -1,11 +1,11 @@
 package com.plcoding.cardiganapp.feature.boards.domain
 
-import com.plcoding.cardiganapp.core.domain.board.Board
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isLessThan
+import com.plcoding.cardiganapp.core.domain.board.Board
 import kotlin.test.Test
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -17,7 +17,6 @@ import kotlin.uuid.Uuid
  * an empty list; replace moves a renamed board; toBoard keeps id, name and key.
  */
 class BoardOrderTest {
-
     private fun board(
         id: String,
         updated: String = "2026-11-20T10:00:00.000Z",

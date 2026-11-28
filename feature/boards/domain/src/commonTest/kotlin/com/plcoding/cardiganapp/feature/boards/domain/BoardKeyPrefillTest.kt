@@ -10,7 +10,6 @@ import kotlin.test.Test
  * exactly 2 letters, non-Latin script, lowercase, the edges of A–Z and the characters next to them.
  */
 class BoardKeyPrefillTest {
-
     @Test
     fun firstFourLettersUppercased() {
         assertThat(BoardKeyPrefill.fromName("Garden irrigation")).isEqualTo("GARD")

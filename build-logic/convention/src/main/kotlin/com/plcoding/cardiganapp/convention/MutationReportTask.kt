@@ -22,7 +22,6 @@ import javax.inject.Inject
  */
 @DisableCachingByDefault(because = "Aggregates reports and prints to the terminal")
 abstract class MutationReportTask : DefaultTask() {
-
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
 
@@ -54,10 +53,11 @@ abstract class MutationReportTask : DefaultTask() {
 
     @TaskAction
     fun report() {
-        val results = modulePaths.get().zip(moduleReportDirs.get()).mapNotNull { (path, dir) ->
-            val xml = File(dir, "mutations.xml")
-            if (xml.isFile) ModuleResult(path, File(dir), readMutationCounts(xml)) else null
-        }
+        val results =
+            modulePaths.get().zip(moduleReportDirs.get()).mapNotNull { (path, dir) ->
+                val xml = File(dir, "mutations.xml")
+                if (xml.isFile) ModuleResult(path, File(dir), readMutationCounts(xml)) else null
+            }
         val withMutants = results.filter { it.counts.total > 0 }
 
         if (withMutants.isEmpty()) {
@@ -65,15 +65,16 @@ abstract class MutationReportTask : DefaultTask() {
             return
         }
 
-        workerExecutor.classLoaderIsolation {
-            classpath.from(aggregatorClasspath)
-        }.submit(PitestAggregateAction::class.java) {
-            mutationFiles.from(withMutants.map { File(it.reportDir, "mutations.xml") })
-            lineCoverageFiles.from(withMutants.map { File(it.reportDir, "linecoverage.xml") })
-            sourceDirs.from(this@MutationReportTask.sourceDirs.filter { it.isDirectory })
-            compiledCodeDirs.from(this@MutationReportTask.compiledCodeDirs.filter { it.isDirectory })
-            outputDir.set(this@MutationReportTask.outputDir)
-        }
+        workerExecutor
+            .classLoaderIsolation {
+                classpath.from(aggregatorClasspath)
+            }.submit(PitestAggregateAction::class.java) {
+                mutationFiles.from(withMutants.map { File(it.reportDir, "mutations.xml") })
+                lineCoverageFiles.from(withMutants.map { File(it.reportDir, "linecoverage.xml") })
+                sourceDirs.from(this@MutationReportTask.sourceDirs.filter { it.isDirectory })
+                compiledCodeDirs.from(this@MutationReportTask.compiledCodeDirs.filter { it.isDirectory })
+                outputDir.set(this@MutationReportTask.outputDir)
+            }
         workerExecutor.await()
 
         val moduleLabel = if (withMutants.size == 1) "module" else "modules"
@@ -91,8 +92,11 @@ abstract class MutationReportTask : DefaultTask() {
         }
     }
 
-    private class ModuleResult(val path: String, val reportDir: File, val counts: MutationCounts)
+    private class ModuleResult(
+        val path: String,
+        val reportDir: File,
+        val counts: MutationCounts,
+    )
 }
 
-private fun Double.formatThreshold(): String =
-    if (this % 1.0 == 0.0) toLong().toString() else toString()
+private fun Double.formatThreshold(): String = if (this % 1.0 == 0.0) toLong().toString() else toString()

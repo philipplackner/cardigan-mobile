@@ -41,13 +41,20 @@ class FakeSessionManager(
 }
 
 /** Signs [session] in on success, as the real repository's contract requires. */
-class FakeAuthRepository(private val session: FakeSessionManager) : AuthRepository {
+class FakeAuthRepository(
+    private val session: FakeSessionManager,
+) : AuthRepository {
     var result: EmptyResult<AuthError> = Result.Success(Unit)
 
-    override suspend fun login(email: String, password: String): EmptyResult<AuthError> =
-        result.also { if (it is Result.Success) session.signIn(email.trim().lowercase()) }
+    override suspend fun login(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError> = result.also { if (it is Result.Success) session.signIn(email.trim().lowercase()) }
 
-    override suspend fun register(email: String, password: String): EmptyResult<AuthError> = login(email, password)
+    override suspend fun register(
+        email: String,
+        password: String,
+    ): EmptyResult<AuthError> = login(email, password)
 }
 
 /** Records [clear] calls, and the session state each one saw, into [log]. */

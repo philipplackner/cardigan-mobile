@@ -10,7 +10,13 @@ class CmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.findPlugin("convention-cmp-library").get().get().pluginId)
+                apply(
+                    libs
+                        .findPlugin("convention-cmp-library")
+                        .get()
+                        .get()
+                        .pluginId,
+                )
             }
 
             extensions.configure<KotlinMultiplatformExtension> {

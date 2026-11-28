@@ -57,10 +57,19 @@ fun TextArea(
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val isFocused by source.collectIsFocusedAsState()
     val minHeight = if (isTouchSize) AppTheme.height.controlTouch else AppTheme.height.input
-    val padding = when (type) {
-        TextAreaType.MultiLine, TextAreaType.Title -> PaddingValues(horizontal = AppTheme.space.s10, vertical = AppTheme.space.s8)
-        TextAreaType.Description -> PaddingValues(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10)
-    }
+    val padding =
+        when (type) {
+            TextAreaType.MultiLine, TextAreaType.Title -> {
+                PaddingValues(
+                    horizontal = AppTheme.space.s10,
+                    vertical = AppTheme.space.s8,
+                )
+            }
+
+            TextAreaType.Description -> {
+                PaddingValues(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10)
+            }
+        }
 
     BasicTextField(
         value = value,
@@ -74,10 +83,11 @@ fun TextArea(
         cursorBrush = SolidColor(colors.accent.default),
         decorationBox = { innerTextField ->
             Box(
-                modifier = Modifier
-                    .fieldContainer(isFocused = isFocused, isError = isError, readOnly = false, enabled = true)
-                    .heightIn(min = minHeight)
-                    .padding(padding),
+                modifier =
+                    Modifier
+                        .fieldContainer(isFocused = isFocused, isError = isError, readOnly = false, enabled = true)
+                        .heightIn(min = minHeight)
+                        .padding(padding),
             ) {
                 innerTextField()
             }
@@ -101,9 +111,10 @@ private enum class TextAreaPreviewState { Default, Focus, Error }
 @Composable
 private fun TextAreaMatrix() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s16),
     ) {
         TextAreaType.entries.forEach { type ->
@@ -115,7 +126,11 @@ private fun TextAreaMatrix() {
                         type = type,
                         modifier = Modifier.width(240.dp),
                         isError = state == TextAreaPreviewState.Error,
-                        interactionSource = rememberPreviewInteractionSource(focused = state == TextAreaPreviewState.Focus),
+                        interactionSource =
+                            rememberPreviewInteractionSource(
+                                focused =
+                                    state == TextAreaPreviewState.Focus,
+                            ),
                     )
                 }
             }
@@ -152,9 +167,10 @@ private fun TextAreaPhoneDarkPreview() {
 private fun TextAreaFiveLinesPreview() {
     AppTheme(darkTheme = false, windowClass = WindowClass.Phone) {
         Box(
-            modifier = Modifier
-                .background(AppTheme.colors.background.app)
-                .padding(AppTheme.space.s24),
+            modifier =
+                Modifier
+                    .background(AppTheme.colors.background.app)
+                    .padding(AppTheme.space.s24),
         ) {
             TextArea(
                 value = "Line one\nLine two\nLine three\nLine four\nLine five",

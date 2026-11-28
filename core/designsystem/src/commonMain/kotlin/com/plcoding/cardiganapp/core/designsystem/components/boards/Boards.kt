@@ -57,18 +57,27 @@ fun BoardTile(
     val dividerColor = colors.border.default
     val dividerWidth = AppTheme.space.s1
     Box(
-        modifier = modifier
-            .dropShadow(shape, AppTheme.shadows.small)
-            .background(colors.background.surface, shape)
-            .border(AppTheme.space.s1, colors.border.default, shape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .describedAs(contentDescription),
+        modifier =
+            modifier
+                .dropShadow(shape, AppTheme.shadows.small)
+                .background(colors.background.surface, shape)
+                .border(AppTheme.space.s1, colors.border.default, shape)
+                .clickable(role = Role.Button, onClick = onClick)
+                .describedAs(contentDescription),
     ) {
         Column(
-            modifier = Modifier
-                .hiddenWhenDescribed(contentDescription)
-                .fillMaxWidth()
-                .padding(PaddingValues(start = AppTheme.space.s14, end = AppTheme.space.s14, top = AppTheme.space.s14, bottom = AppTheme.space.s12)),
+            modifier =
+                Modifier
+                    .hiddenWhenDescribed(contentDescription)
+                    .fillMaxWidth()
+                    .padding(
+                        PaddingValues(
+                            start = AppTheme.space.s14,
+                            end = AppTheme.space.s14,
+                            top = AppTheme.space.s14,
+                            bottom = AppTheme.space.s12,
+                        ),
+                    ),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         ) {
             Row(modifier = Modifier.height(TileTopRowHeight), verticalAlignment = Alignment.CenterVertically) {
@@ -76,23 +85,42 @@ fun BoardTile(
             }
             Text(text = name, style = AppTheme.textStyles.sans15SemiBold130LsMinus1, color = colors.text.primary)
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawLine(dividerColor, Offset(0f, dividerWidth.toPx() / 2), Offset(size.width, dividerWidth.toPx() / 2), dividerWidth.toPx())
-                    }
-                    .padding(top = AppTheme.space.s10),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            drawLine(
+                                dividerColor,
+                                Offset(0f, dividerWidth.toPx() / 2),
+                                Offset(
+                                    size.width,
+                                    dividerWidth.toPx() / 2,
+                                ),
+                                dividerWidth.toPx(),
+                            )
+                        }.padding(top = AppTheme.space.s10),
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
             ) {
-                Text(text = cardCount, style = AppTheme.textStyles.mono12Regular100, color = colors.text.muted, maxLines = 1)
+                Text(
+                    text = cardCount,
+                    style = AppTheme.textStyles.mono12Regular100,
+                    color = colors.text.muted,
+                    maxLines = 1,
+                )
                 Box(modifier = Modifier.weight(1f))
-                Text(text = updated, style = AppTheme.textStyles.mono12Regular100, color = colors.text.muted, maxLines = 1)
+                Text(
+                    text = updated,
+                    style = AppTheme.textStyles.mono12Regular100,
+                    color = colors.text.muted,
+                    maxLines = 1,
+                )
             }
         }
         Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = AppTheme.space.s10, end = AppTheme.space.s8),
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = AppTheme.space.s10, end = AppTheme.space.s8),
         ) {
             menuButton()
         }
@@ -121,23 +149,31 @@ fun BoardRow(
     val dividerWidth = AppTheme.space.s1
     val meta = AppTheme.textStyles.mono12Regular100
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(role = Role.Button, onClick = onClick)
-            .describedAs(contentDescription)
-            .drawBehind {
-                if (!showDivider) return@drawBehind
-                val y = size.height - dividerWidth.toPx() / 2
-                drawLine(dividerColor, Offset(0f, y), Offset(size.width, y), dividerWidth.toPx())
-            }
-            .padding(PaddingValues(start = AppTheme.space.s14, end = AppTheme.space.s6, top = AppTheme.space.s12, bottom = AppTheme.space.s12)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(role = Role.Button, onClick = onClick)
+                .describedAs(contentDescription)
+                .drawBehind {
+                    if (!showDivider) return@drawBehind
+                    val y = size.height - dividerWidth.toPx() / 2
+                    drawLine(dividerColor, Offset(0f, y), Offset(size.width, y), dividerWidth.toPx())
+                }.padding(
+                    PaddingValues(
+                        start = AppTheme.space.s14,
+                        end = AppTheme.space.s6,
+                        top = AppTheme.space.s12,
+                        bottom = AppTheme.space.s12,
+                    ),
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .hiddenWhenDescribed(contentDescription),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .hiddenWhenDescribed(contentDescription),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6),
         ) {
             Text(
@@ -147,7 +183,10 @@ fun BoardRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Key(key = boardKey)
                 Text(text = cardCount, style = meta, color = colors.text.muted, maxLines = 1)
                 Text(text = "·", style = meta, color = colors.text.muted)
@@ -172,9 +211,10 @@ private fun SampleMenuButton() {
 @Composable
 private fun BoardsSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s24),
     ) {
         BoardTile(

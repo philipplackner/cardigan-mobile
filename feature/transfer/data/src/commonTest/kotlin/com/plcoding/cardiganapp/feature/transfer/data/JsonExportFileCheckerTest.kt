@@ -7,7 +7,6 @@ import com.plcoding.cardiganapp.feature.transfer.domain.CheckedFile
 import kotlin.test.Test
 
 class JsonExportFileCheckerTest {
-
     private val checker = JsonExportFileChecker()
 
     private fun check(json: String) = checker.check(json.encodeToByteArray())
@@ -74,7 +73,8 @@ class JsonExportFileCheckerTest {
 
     @Test
     fun unknownFieldsAreIgnored() {
-        val json = """{"format": "cardigan.board", "formatVersion": 1, "extra": true, "board": {"key": "CRD", "x": 1}}"""
+        val json =
+            """{"format": "cardigan.board", "formatVersion": 1, "extra": true, "board": {"key": "CRD", "x": 1}}"""
         assertThat(check(json)).isEqualTo(CheckedFile(key = "CRD"))
     }
 

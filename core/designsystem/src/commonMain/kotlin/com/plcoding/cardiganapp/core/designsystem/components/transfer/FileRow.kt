@@ -31,31 +31,43 @@ fun FileRow(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.r8)
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(CardiganIcons.File, contentDescription = null, tint = AppTheme.colors.text.primary, modifier = Modifier.size(FileIconSize))
+        Icon(
+            CardiganIcons.File,
+            contentDescription = null,
+            tint = AppTheme.colors.text.primary,
+            modifier = Modifier.size(FileIconSize),
+        )
         Text(
             text = fileName,
             style = AppTheme.textStyles.sans13Regular145,
             color = AppTheme.colors.text.primary,
             modifier = Modifier.weight(1f),
         )
-        Text(text = size, style = AppTheme.textStyles.mono12Regular145, color = AppTheme.colors.text.muted, maxLines = 1)
+        Text(
+            text = size,
+            style = AppTheme.textStyles.mono12Regular145,
+            color = AppTheme.colors.text.muted,
+            maxLines = 1,
+        )
     }
 }
 
 @Composable
 private fun FileRowSample() {
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s24)
-            .width(380.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s24)
+                .width(380.dp),
     ) {
         FileRow(fileName = "board-backup.json", size = "14 KB")
     }

@@ -30,20 +30,22 @@ class BoardListReloader(
     private var running: Deferred<EmptyResult<DataError.Network>>? = null
 
     suspend fun reload(): EmptyResult<DataError.Network> {
-        val reload = lock.withLock {
-            running?.takeIf { it.isActive } ?: startReload().also { running = it }
-        }
+        val reload =
+            lock.withLock {
+                running?.takeIf { it.isActive } ?: startReload().also { running = it }
+            }
         return reload.await()
     }
 
     private fun startReload(): Deferred<EmptyResult<DataError.Network>> {
         _isReloading.value = true
-        return scope.async(start = CoroutineStart.LAZY) {
-            try {
-                repository.refresh()
-            } finally {
-                _isReloading.value = false
-            }
-        }.also { it.start() }
+        return scope
+            .async(start = CoroutineStart.LAZY) {
+                try {
+                    repository.refresh()
+                } finally {
+                    _isReloading.value = false
+                }
+            }.also { it.start() }
     }
 }

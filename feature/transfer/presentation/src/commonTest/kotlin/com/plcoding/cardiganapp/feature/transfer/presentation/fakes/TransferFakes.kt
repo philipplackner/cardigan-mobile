@@ -10,8 +10,8 @@ import com.plcoding.cardiganapp.feature.transfer.domain.ExportFileChecker
 import com.plcoding.cardiganapp.feature.transfer.domain.ExportedFile
 import com.plcoding.cardiganapp.feature.transfer.domain.ImportError
 import com.plcoding.cardiganapp.feature.transfer.presentation.platform.PickedFile
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.CompletableDeferred
+import kotlin.uuid.Uuid
 
 class FakeBoardTransferRepository : BoardTransferRepository {
     val importCalls = mutableListOf<Pair<ByteArray, String?>>()
@@ -19,8 +19,12 @@ class FakeBoardTransferRepository : BoardTransferRepository {
 
     /** Results for the next import calls, in order. When empty, imports succeed with [importedBoard]. */
     val importResults = ArrayDeque<Result<Board, ImportError>>()
-    var importedBoard = Board(id = Uuid.parse("00000000-0000-0000-0000-000000000001"), name = "Cardigan v1", key = "CRD")
-    var exportResult: Result<ExportedFile, ExportError> = Result.Success(ExportedFile("CRD-2026-11-04.json", byteArrayOf(1, 2, 3)))
+    var importedBoard =
+        Board(id = Uuid.parse("00000000-0000-0000-0000-000000000001"), name = "Cardigan v1", key = "CRD")
+    var exportResult: Result<ExportedFile, ExportError> =
+        Result.Success(
+            ExportedFile("CRD-2026-11-04.json", byteArrayOf(1, 2, 3)),
+        )
 
     /** When set, calls suspend until it completes. */
     var gate: CompletableDeferred<Unit>? = null
@@ -31,14 +35,19 @@ class FakeBoardTransferRepository : BoardTransferRepository {
         return exportResult
     }
 
-    override suspend fun importBoard(file: ByteArray, key: String?): Result<Board, ImportError> {
+    override suspend fun importBoard(
+        file: ByteArray,
+        key: String?,
+    ): Result<Board, ImportError> {
         importCalls += file to key
         gate?.await()
         return importResults.removeFirstOrNull() ?: Result.Success(importedBoard)
     }
 }
 
-class FakeExportFileChecker(var result: CheckedFile? = CheckedFile(key = "CRD")) : ExportFileChecker {
+class FakeExportFileChecker(
+    var result: CheckedFile? = CheckedFile(key = "CRD"),
+) : ExportFileChecker {
     val checked = mutableListOf<ByteArray>()
 
     override fun check(bytes: ByteArray): CheckedFile? {
@@ -47,7 +56,9 @@ class FakeExportFileChecker(var result: CheckedFile? = CheckedFile(key = "CRD"))
     }
 }
 
-class FakeBoardKeyOwnerLookup(var owners: Map<String, String> = emptyMap()) : BoardKeyOwnerLookup {
+class FakeBoardKeyOwnerLookup(
+    var owners: Map<String, String> = emptyMap(),
+) : BoardKeyOwnerLookup {
     val lookups = mutableListOf<String>()
 
     override fun boardNameForKey(key: String): String? {
@@ -56,8 +67,12 @@ class FakeBoardKeyOwnerLookup(var owners: Map<String, String> = emptyMap()) : Bo
     }
 }
 
-fun validPick(name: String = "board-backup.json", bytes: ByteArray = "{}".encodeToByteArray()) =
-    PickedFile(name = name, sizeBytes = bytes.size.toLong(), bytes = bytes)
+fun validPick(
+    name: String = "board-backup.json",
+    bytes: ByteArray = "{}".encodeToByteArray(),
+) = PickedFile(name = name, sizeBytes = bytes.size.toLong(), bytes = bytes)
 
-fun oversizedPick(name: String = "board-backup.json", size: Long = 7_549_747) =
-    PickedFile(name = name, sizeBytes = size, bytes = null)
+fun oversizedPick(
+    name: String = "board-backup.json",
+    size: Long = 7_549_747,
+) = PickedFile(name = name, sizeBytes = size, bytes = null)

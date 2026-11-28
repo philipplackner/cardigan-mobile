@@ -12,8 +12,6 @@ import com.plcoding.cardiganapp.feature.boards.presentation.fakes.boardContent
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.card
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.column
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.sampleBoardId
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -21,10 +19,11 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class BoardViewModelTestBase {
-
     protected val todo = column("To do", card(101), card(102))
     protected val doing = column("In progress", card(103))
     protected val review = column("Review", card(104), card(105))
@@ -44,7 +43,10 @@ abstract class BoardViewModelTestBase {
         Dispatchers.resetMain()
     }
 
-    protected fun handle(name: String? = null, key: String? = null) = SavedStateHandle(
+    protected fun handle(
+        name: String? = null,
+        key: String? = null,
+    ) = SavedStateHandle(
         buildMap {
             put(BoardViewModel.ARG_BOARD_ID, sampleBoardId.toString())
             name?.let { put(BoardViewModel.ARG_NAME, it) }
@@ -63,7 +65,10 @@ abstract class BoardViewModelTestBase {
     }
 
     /** Events other than focus requests, which every opened field sends. */
-    protected val List<BoardEvent>.withoutFocus: List<BoardEvent> get() = filterNot { it is BoardEvent.FocusInlineField }
+    protected val List<BoardEvent>.withoutFocus: List<BoardEvent> get() =
+        filterNot {
+            it is BoardEvent.FocusInlineField
+        }
 
     protected val BoardViewModel.board: BoardContent
         get() {

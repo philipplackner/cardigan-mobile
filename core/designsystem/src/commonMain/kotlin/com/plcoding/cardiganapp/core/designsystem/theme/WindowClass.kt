@@ -22,11 +22,15 @@ object WindowBreakpoints {
  * Classifies a window. A window narrower than [WindowBreakpoints.TabletMinWidth] or lower than
  * [WindowBreakpoints.NonPhoneMinHeight] is always [WindowClass.Phone].
  */
-fun windowClassOf(width: Dp, height: Dp): WindowClass = when {
-    width < WindowBreakpoints.TabletMinWidth -> WindowClass.Phone
-    height < WindowBreakpoints.NonPhoneMinHeight -> WindowClass.Phone
-    width < WindowBreakpoints.DesktopMinWidth -> WindowClass.Tablet
-    else -> WindowClass.Desktop
-}
+fun windowClassOf(
+    width: Dp,
+    height: Dp,
+): WindowClass =
+    when {
+        width < WindowBreakpoints.TabletMinWidth -> WindowClass.Phone
+        height < WindowBreakpoints.NonPhoneMinHeight -> WindowClass.Phone
+        width < WindowBreakpoints.DesktopMinWidth -> WindowClass.Tablet
+        else -> WindowClass.Desktop
+    }
 
 val LocalWindowClass = staticCompositionLocalOf { WindowClass.Phone }

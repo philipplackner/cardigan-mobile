@@ -8,7 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class MutationCountsTest {
-
     private val files = mutableListOf<File>()
 
     @AfterTest
@@ -16,11 +15,15 @@ class MutationCountsTest {
         files.forEach { it.delete() }
     }
 
-    private fun xml(vararg statuses: String, detectedAttribute: Boolean? = null): File {
-        val mutations = statuses.joinToString("\n") { status ->
-            val detected = detectedAttribute ?: (status in DETECTED_STATUSES)
-            "<mutation detected='$detected' status='$status' numberOfTestsRun='1'><mutatedClass>a.B</mutatedClass></mutation>"
-        }
+    private fun xml(
+        vararg statuses: String,
+        detectedAttribute: Boolean? = null,
+    ): File {
+        val mutations =
+            statuses.joinToString("\n") { status ->
+                val detected = detectedAttribute ?: (status in DETECTED_STATUSES)
+                "<mutation detected='$detected' status='$status' numberOfTestsRun='1'><mutatedClass>a.B</mutatedClass></mutation>"
+            }
         return createTempFile(suffix = ".xml").toFile().apply {
             writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mutations>\n$mutations\n</mutations>")
             files += this
@@ -69,7 +72,10 @@ class MutationCountsTest {
 
         assertEquals(0.0, counts.score)
         assertNull(counts.strength)
-        assertEquals("mutation score 0.0%, test strength n/a (0 killed, 0 survived, 2 no coverage, 2 total)", counts.describe())
+        assertEquals(
+            "mutation score 0.0%, test strength n/a (0 killed, 0 survived, 2 no coverage, 2 total)",
+            counts.describe(),
+        )
     }
 
     @Test

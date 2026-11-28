@@ -16,15 +16,15 @@ import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthBanner
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthFieldMessage
 import com.plcoding.cardiganapp.feature.auth.presentation.components.AuthInputField
 import com.plcoding.cardiganapp.feature.auth.presentation.fakes.FakeAuthRepository
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -45,7 +45,6 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
-
     private val repository = FakeAuthRepository()
     private val goodEmail = "ann@example.com"
     private val goodPassword = "Correct horse 7"
@@ -64,7 +63,11 @@ class RegisterViewModelTest {
 
     private val RegisterViewModel.s get() = state.value
 
-    private fun RegisterViewModel.fill(email: String = goodEmail, password: String = goodPassword, repeat: String = password) {
+    private fun RegisterViewModel.fill(
+        email: String = goodEmail,
+        password: String = goodPassword,
+        repeat: String = password,
+    ) {
         onAction(RegisterAction.EmailChange(email))
         onAction(RegisterAction.PasswordChange(password))
         onAction(RegisterAction.RepeatPasswordChange(repeat))
@@ -223,15 +226,17 @@ class RegisterViewModelTest {
 
     @Test
     fun serverFieldErrorTable() {
-        val table = listOf(
-            AuthFieldError(AuthField.Email, FieldErrorCode.Required) to AuthFieldMessage.EmailRequired,
-            AuthFieldError(AuthField.Email, FieldErrorCode.TooLong) to AuthFieldMessage.EmailTooLong,
-            AuthFieldError(AuthField.Email, FieldErrorCode.InvalidFormat) to AuthFieldMessage.EmailInvalid,
-            AuthFieldError(AuthField.Email, FieldErrorCode.InvalidCharacter) to AuthFieldMessage.EmailInvalid,
-            AuthFieldError(AuthField.Password, FieldErrorCode.Required) to AuthFieldMessage.PasswordRequired,
-            AuthFieldError(AuthField.Password, FieldErrorCode.TooLong) to AuthFieldMessage.PasswordTooLong,
-            AuthFieldError(AuthField.Password, FieldErrorCode.InvalidCharacter) to AuthFieldMessage.PasswordInvalidCharacter,
-        )
+        val table =
+            listOf(
+                AuthFieldError(AuthField.Email, FieldErrorCode.Required) to AuthFieldMessage.EmailRequired,
+                AuthFieldError(AuthField.Email, FieldErrorCode.TooLong) to AuthFieldMessage.EmailTooLong,
+                AuthFieldError(AuthField.Email, FieldErrorCode.InvalidFormat) to AuthFieldMessage.EmailInvalid,
+                AuthFieldError(AuthField.Email, FieldErrorCode.InvalidCharacter) to AuthFieldMessage.EmailInvalid,
+                AuthFieldError(AuthField.Password, FieldErrorCode.Required) to AuthFieldMessage.PasswordRequired,
+                AuthFieldError(AuthField.Password, FieldErrorCode.TooLong) to AuthFieldMessage.PasswordTooLong,
+                AuthFieldError(AuthField.Password, FieldErrorCode.InvalidCharacter) to
+                    AuthFieldMessage.PasswordInvalidCharacter,
+            )
         for ((fieldError, message) in table) {
             val viewModel = viewModel()
             viewModel.submitWith(AuthError.InvalidFields(listOf(fieldError)))
@@ -244,7 +249,9 @@ class RegisterViewModelTest {
     @Test
     fun serverPasswordErrorMarksAValidPasswordField() {
         val viewModel = viewModel()
-        viewModel.submitWith(AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Password, FieldErrorCode.TooLong))))
+        viewModel.submitWith(
+            AuthError.InvalidFields(listOf(AuthFieldError(AuthField.Password, FieldErrorCode.TooLong))),
+        )
         assertThat(viewModel.s.passwordIsError).isTrue()
     }
 
@@ -268,13 +275,14 @@ class RegisterViewModelTest {
 
     @Test
     fun unlistedCodesGoToTheBanner() {
-        val unlisted = listOf(
-            AuthFieldError(AuthField.Password, FieldErrorCode.PasswordTooWeak),
-            AuthFieldError(AuthField.Password, FieldErrorCode.TooShort),
-            AuthFieldError(AuthField.Password, FieldErrorCode.InvalidFormat),
-            AuthFieldError(AuthField.Email, FieldErrorCode.Other),
-            AuthFieldError(AuthField.Other, FieldErrorCode.Required),
-        )
+        val unlisted =
+            listOf(
+                AuthFieldError(AuthField.Password, FieldErrorCode.PasswordTooWeak),
+                AuthFieldError(AuthField.Password, FieldErrorCode.TooShort),
+                AuthFieldError(AuthField.Password, FieldErrorCode.InvalidFormat),
+                AuthFieldError(AuthField.Email, FieldErrorCode.Other),
+                AuthFieldError(AuthField.Other, FieldErrorCode.Required),
+            )
         for (fieldError in unlisted) {
             val viewModel = viewModel()
             viewModel.submitWith(AuthError.InvalidFields(listOf(fieldError)))
@@ -301,13 +309,14 @@ class RegisterViewModelTest {
 
     @Test
     fun rateLimitAndGenericErrors() {
-        val cases = listOf(
-            AuthError.RateLimited(1) to AuthBanner.RateLimited(1),
-            AuthError.RateLimited(null) to AuthBanner.Unavailable,
-            AuthError.InvalidCredentials to AuthBanner.Unavailable,
-            AuthError.Unavailable to AuthBanner.Unavailable,
-            AuthError.InvalidFields(emptyList()) to AuthBanner.Unavailable,
-        )
+        val cases =
+            listOf(
+                AuthError.RateLimited(1) to AuthBanner.RateLimited(1),
+                AuthError.RateLimited(null) to AuthBanner.Unavailable,
+                AuthError.InvalidCredentials to AuthBanner.Unavailable,
+                AuthError.Unavailable to AuthBanner.Unavailable,
+                AuthError.InvalidFields(emptyList()) to AuthBanner.Unavailable,
+            )
         for ((error, banner) in cases) {
             val viewModel = viewModel()
             viewModel.submitWith(error)

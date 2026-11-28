@@ -19,18 +19,20 @@ data class LoginState(
 
     /** Shown after the first blur or a submit (D4), or when the server reported the field empty. */
     val emailError: AuthFieldMessage?
-        get() = when {
-            emailServerRequired -> AuthFieldMessage.EmailRequired
-            (emailBlurred || submitAttempted) && check.email != null -> AuthFieldMessage.EmailRequired
-            else -> null
-        }
+        get() =
+            when {
+                emailServerRequired -> AuthFieldMessage.EmailRequired
+                (emailBlurred || submitAttempted) && check.email != null -> AuthFieldMessage.EmailRequired
+                else -> null
+            }
 
     val passwordError: AuthFieldMessage?
-        get() = when {
-            passwordServerRequired -> AuthFieldMessage.PasswordRequired
-            (passwordBlurred || submitAttempted) && check.password != null -> AuthFieldMessage.PasswordRequired
-            else -> null
-        }
+        get() =
+            when {
+                passwordServerRequired -> AuthFieldMessage.PasswordRequired
+                (passwordBlurred || submitAttempted) && check.password != null -> AuthFieldMessage.PasswordRequired
+                else -> null
+            }
 
     /** Wrong credentials put only the password field in its error state (D10). */
     val passwordIsError: Boolean get() = passwordError != null || banner == AuthBanner.WrongCredentials

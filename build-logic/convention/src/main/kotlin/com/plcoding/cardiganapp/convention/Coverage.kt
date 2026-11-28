@@ -17,8 +17,7 @@ private val coverageTaskNames = setOf("coverageReport", "coverageDiff")
 internal val Project.isCoverageRequested: Boolean
     get() = gradle.startParameter.taskNames.any { isCoverageTaskName(it.substringAfterLast(':')) }
 
-internal fun isCoverageTaskName(name: String): Boolean =
-    name in coverageTaskNames || name.startsWith("kover")
+internal fun isCoverageTaskName(name: String): Boolean = name in coverageTaskNames || name.startsWith("kover")
 
 /**
  * The exclusions shared by the module reports and the merged root report.

@@ -10,8 +10,12 @@ sealed interface BoardEvent {
     data object BoardDeleted : BoardEvent
 
     /** A column was added: scroll the strip to it (D32). */
-    data class ScrollToColumn(val columnId: Uuid) : BoardEvent
+    data class ScrollToColumn(
+        val columnId: Uuid,
+    ) : BoardEvent
 
     /** Scroll the inline field into view and focus it. */
-    data class FocusInlineField(val target: InlineTarget) : BoardEvent
+    data class FocusInlineField(
+        val target: InlineTarget,
+    ) : BoardEvent
 }

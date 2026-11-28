@@ -13,10 +13,14 @@ data class LoginFormCheck(
 }
 
 object LoginForm {
-    fun check(email: String, password: String): LoginFormCheck = LoginFormCheck(
-        email = RequiredProblem.Required.takeIf { normalizeText(email).isEmpty() },
-        password = RequiredProblem.Required.takeIf { password.isEmpty() },
-    )
+    fun check(
+        email: String,
+        password: String,
+    ): LoginFormCheck =
+        LoginFormCheck(
+            email = RequiredProblem.Required.takeIf { normalizeText(email).isEmpty() },
+            password = RequiredProblem.Required.takeIf { password.isEmpty() },
+        )
 }
 
 /** [RulesUnmet] has no message of its own; the live rules show what is missing. */
@@ -34,25 +38,31 @@ data class RegisterFormCheck(
 }
 
 object RegisterForm {
-    fun check(email: String, password: String, repeatPassword: String): RegisterFormCheck {
+    fun check(
+        email: String,
+        password: String,
+        repeatPassword: String,
+    ): RegisterFormCheck {
         val rules = PasswordRules.check(password)
         return RegisterFormCheck(
             email = EmailRule.check(email),
             password = passwordProblem(rules),
-            repeatPassword = when {
-                repeatPassword.isEmpty() -> RepeatPasswordProblem.Required
-                repeatPassword != password -> RepeatPasswordProblem.Mismatch
-                else -> null
-            },
+            repeatPassword =
+                when {
+                    repeatPassword.isEmpty() -> RepeatPasswordProblem.Required
+                    repeatPassword != password -> RepeatPasswordProblem.Mismatch
+                    else -> null
+                },
             rules = rules,
         )
     }
 
-    private fun passwordProblem(rules: PasswordCheck): PasswordProblem? = when {
-        rules.isEmpty -> PasswordProblem.Required
-        rules.hasInvalidCharacter -> PasswordProblem.InvalidCharacter
-        rules.isTooLong -> PasswordProblem.TooLong
-        !rules.meetsAllRules -> PasswordProblem.RulesUnmet
-        else -> null
-    }
+    private fun passwordProblem(rules: PasswordCheck): PasswordProblem? =
+        when {
+            rules.isEmpty -> PasswordProblem.Required
+            rules.hasInvalidCharacter -> PasswordProblem.InvalidCharacter
+            rules.isTooLong -> PasswordProblem.TooLong
+            !rules.meetsAllRules -> PasswordProblem.RulesUnmet
+            else -> null
+        }
 }

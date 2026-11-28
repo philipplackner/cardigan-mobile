@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class MutationExclusionsTest {
-
     private val sharedGlobs = CodeExclusions.pitClassGlobs.map(::Glob)
     private val globs = sharedGlobs + MutationExclusions.classGlobs.map(::Glob)
 
@@ -34,9 +33,23 @@ class MutationExclusionsTest {
     @Test
     fun `design tokens are excluded`() {
         listOf(
-            "AccentColors", "AppColors", "LabelColors", "ColorsKt", "AppSpacing", "AppRadius", "AppHeight",
-            "AppWidth", "AppShadow", "AppShadows", "AppTextStyles", "AppTypography", "AppTheme", "AppThemeKt",
-            "ShadowsKt", "TextStylesKt", "TypographyKt",
+            "AccentColors",
+            "AppColors",
+            "LabelColors",
+            "ColorsKt",
+            "AppSpacing",
+            "AppRadius",
+            "AppHeight",
+            "AppWidth",
+            "AppShadow",
+            "AppShadows",
+            "AppTextStyles",
+            "AppTypography",
+            "AppTheme",
+            "AppThemeKt",
+            "ShadowsKt",
+            "TextStylesKt",
+            "TypographyKt",
         ).forEach {
             val name = "com.plcoding.cardiganapp.core.designsystem.theme.$it"
             assertTrue(excluded(name), name)
@@ -45,17 +58,18 @@ class MutationExclusionsTest {
 
     @Test
     fun `logic next to tokens and navigation stays in`() {
-        val kept = listOf(
-            "com.plcoding.cardiganapp.core.designsystem.theme.WindowBreakpoints",
-            "com.plcoding.cardiganapp.core.designsystem.theme.WindowClassKt",
-            "com.plcoding.cardiganapp.core.designsystem.theme.WindowClass",
-            "com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader",
-            "com.plcoding.cardiganapp.shell.AppShellKt",
-            "com.plcoding.cardiganapp.session.SessionGateKt",
-            "com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel",
-            "com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel\$confirmDelete\$2",
-            "com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportPhase\$ChoosingKey",
-        ).filter(::excluded)
+        val kept =
+            listOf(
+                "com.plcoding.cardiganapp.core.designsystem.theme.WindowBreakpoints",
+                "com.plcoding.cardiganapp.core.designsystem.theme.WindowClassKt",
+                "com.plcoding.cardiganapp.core.designsystem.theme.WindowClass",
+                "com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader",
+                "com.plcoding.cardiganapp.shell.AppShellKt",
+                "com.plcoding.cardiganapp.session.SessionGateKt",
+                "com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel",
+                "com.plcoding.cardiganapp.feature.boards.presentation.detail.BoardViewModel\$confirmDelete\$2",
+                "com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportPhase\$ChoosingKey",
+            ).filter(::excluded)
 
         assertEquals(emptyList(), kept)
     }
@@ -76,11 +90,12 @@ class MutationExclusionsTest {
 
     @Test
     fun `compiler noise stays mutation-only`() {
-        val shared = listOf(
-            "com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListScreenKt\$WhenMappings",
-            "com.plcoding.cardiganapp.core.data.networking.HttpClientExtKt\$get\$\$inlined\$safeCall\$1",
-            "com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportPhase\$ChoosingKey\$\$serializer",
-        ).filter(::excludedFromCoverage)
+        val shared =
+            listOf(
+                "com.plcoding.cardiganapp.feature.boards.presentation.boardlist.BoardListScreenKt\$WhenMappings",
+                "com.plcoding.cardiganapp.core.data.networking.HttpClientExtKt\$get\$\$inlined\$safeCall\$1",
+                "com.plcoding.cardiganapp.feature.transfer.presentation.importboard.ImportPhase\$ChoosingKey\$\$serializer",
+            ).filter(::excludedFromCoverage)
 
         assertEquals(emptyList(), shared)
         assertTrue(MutationExclusions.classGlobs.none { it in CodeExclusions.pitClassGlobs })

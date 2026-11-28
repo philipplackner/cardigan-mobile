@@ -10,7 +10,6 @@ import com.plcoding.cardiganapp.core.presentation.util.UiText
 import kotlin.test.Test
 
 class RetryTimeTest {
-
     @Test
     fun oneSecond() = assertTime(1, RetryTime.Seconds(1))
 
@@ -32,11 +31,18 @@ class RetryTimeTest {
         assertPlural(RetryTime.Minutes(2).toUiText(), "minutes", 2)
     }
 
-    private fun assertTime(seconds: Int, expected: RetryTime) {
+    private fun assertTime(
+        seconds: Int,
+        expected: RetryTime,
+    ) {
         assertThat(RetryTime.of(seconds)).isEqualTo(expected)
     }
 
-    private fun assertPlural(text: UiText, unit: String, quantity: Int) {
+    private fun assertPlural(
+        text: UiText,
+        unit: String,
+        quantity: Int,
+    ) {
         assertThat(text).isInstanceOf<UiText.PluralResource>()
         text as UiText.PluralResource
         val expected = if (unit == "seconds") Res.plurals.auth_time_seconds else Res.plurals.auth_time_minutes

@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
-import com.plcoding.cardiganapp.convention.libs
 import com.plcoding.cardiganapp.convention.library
+import com.plcoding.cardiganapp.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -11,7 +11,13 @@ class CmpLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply(libs.findPlugin("convention-kmp-library").get().get().pluginId)
+                apply(
+                    libs
+                        .findPlugin("convention-kmp-library")
+                        .get()
+                        .get()
+                        .pluginId,
+                )
                 apply("org.jetbrains.kotlin.plugin.compose")
                 apply("org.jetbrains.compose")
             }

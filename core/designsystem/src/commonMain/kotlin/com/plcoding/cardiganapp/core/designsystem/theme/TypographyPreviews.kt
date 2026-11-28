@@ -15,10 +15,11 @@ import androidx.compose.ui.tooling.preview.Preview
 private fun TypeSpecimen() {
     val type = AppTheme.typography
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s20),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s20),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s18),
     ) {
         SpecimenRow("Page title", "Log in to Cardigan", type.pageTitle)
@@ -36,7 +37,11 @@ private fun TypeSpecimen() {
 }
 
 @Composable
-private fun SpecimenRow(role: String, sample: String, style: TextStyle) {
+private fun SpecimenRow(
+    role: String,
+    sample: String,
+    style: TextStyle,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s6)) {
         Text(
             text = role.uppercase(),

@@ -49,11 +49,12 @@ private fun PopoverSurface(
 ) {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     Column(
-        modifier = modifier
-            .dropShadow(shape, AppTheme.shadows.popover)
-            .background(AppTheme.colors.background.surface, shape)
-            .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
-            .padding(AppTheme.space.s1),
+        modifier =
+            modifier
+                .dropShadow(shape, AppTheme.shadows.popover)
+                .background(AppTheme.colors.background.surface, shape)
+                .border(AppTheme.space.s1, AppTheme.colors.border.default, shape)
+                .padding(AppTheme.space.s1),
         content = content,
     )
 }
@@ -61,9 +62,10 @@ private fun PopoverSurface(
 @Composable
 private fun PopoverSample() {
     Box(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
     ) {
         PopoverSurface(modifier = Modifier.width(280.dp)) {
             listOf("bug", "feature", "docs").forEachIndexed { index, name ->

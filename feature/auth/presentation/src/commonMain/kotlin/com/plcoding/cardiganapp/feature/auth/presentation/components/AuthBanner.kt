@@ -19,22 +19,42 @@ import org.jetbrains.compose.resources.stringResource
 /** The one banner an auth screen shows at a time. */
 sealed interface AuthBanner {
     data object SessionExpired : AuthBanner
+
     data object WrongCredentials : AuthBanner
-    data class RateLimited(val seconds: Int) : AuthBanner
+
+    data class RateLimited(
+        val seconds: Int,
+    ) : AuthBanner
+
     data object Unavailable : AuthBanner
 }
 
 @Composable
-internal fun AuthBannerView(banner: AuthBanner, modifier: Modifier = Modifier) {
-    val message = when (banner) {
-        AuthBanner.SessionExpired -> stringResource(Res.string.login_session_expired)
-        AuthBanner.WrongCredentials -> stringResource(Res.string.login_error_wrong_credentials)
-        is AuthBanner.RateLimited -> stringResource(
-            Res.string.auth_error_rate_limited,
-            RetryTime.of(banner.seconds).toUiText().asString(),
-        )
-        AuthBanner.Unavailable -> stringResource(Res.string.auth_error_unavailable)
-    }
+internal fun AuthBannerView(
+    banner: AuthBanner,
+    modifier: Modifier = Modifier,
+) {
+    val message =
+        when (banner) {
+            AuthBanner.SessionExpired -> {
+                stringResource(Res.string.login_session_expired)
+            }
+
+            AuthBanner.WrongCredentials -> {
+                stringResource(Res.string.login_error_wrong_credentials)
+            }
+
+            is AuthBanner.RateLimited -> {
+                stringResource(
+                    Res.string.auth_error_rate_limited,
+                    RetryTime.of(banner.seconds).toUiText().asString(),
+                )
+            }
+
+            AuthBanner.Unavailable -> {
+                stringResource(Res.string.auth_error_unavailable)
+            }
+        }
     Banner(
         message = message,
         type = if (banner == AuthBanner.SessionExpired) BannerType.Info else BannerType.Error,

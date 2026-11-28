@@ -50,7 +50,10 @@ val LabelOrder: Comparator<Label> = Comparator { a, b -> compareByCodePoints(a.n
 fun List<Label>.sortedForCard(): List<Label> = sortedWith(LabelOrder)
 
 // String.compareTo compares UTF-16 units, which puts surrogate pairs before U+E000..U+FFFF.
-private fun compareByCodePoints(a: String, b: String): Int {
+private fun compareByCodePoints(
+    a: String,
+    b: String,
+): Int {
     var i = 0
     var j = 0
     while (i < a.length && j < b.length) {
@@ -63,7 +66,10 @@ private fun compareByCodePoints(a: String, b: String): Int {
     return (a.length - i).compareTo(b.length - j)
 }
 
-private fun codePointAt(text: String, index: Int): Int {
+private fun codePointAt(
+    text: String,
+    index: Int,
+): Int {
     val high = text[index]
     if (high.isHighSurrogate() && index + 1 < text.length) {
         val low = text[index + 1]

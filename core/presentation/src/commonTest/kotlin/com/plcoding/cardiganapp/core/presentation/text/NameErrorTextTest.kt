@@ -13,7 +13,6 @@ import com.plcoding.cardiganapp.core.presentation.util.UiText
 import kotlin.test.Test
 
 class NameErrorTextTest {
-
     @Test
     fun requiredMapsToItsString() {
         val text = NameError.Required.toUiText()

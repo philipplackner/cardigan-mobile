@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.plcoding.cardiganapp.core.domain.session.SessionState
 import com.plcoding.cardiganapp.core.designsystem.theme.AppTheme
+import com.plcoding.cardiganapp.core.domain.session.SessionState
 import com.plcoding.cardiganapp.di.AppBuildInfo
 import com.plcoding.cardiganapp.feature.auth.data.fixture.InMemorySessionManager
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
@@ -49,31 +49,37 @@ fun App(
             if (signedInEmail != null) boardRepository.ensureLoaded()
         }
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(AppTheme.colors.background.app),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(AppTheme.colors.background.app),
         ) {
             if (session != SessionState.Restoring) {
                 val accountEmail by rememberUpdatedState(signedInEmail)
                 val onLogOut = appViewModel::onLogout
-                val onOpenBoard: (String, String, String) -> Unit = { id, name, key -> navController.navigateToBoard(id, name, key) }
+                val onOpenBoard: (
+                    String,
+                    String,
+                    String,
+                ) -> Unit = { id, name, key -> navController.navigateToBoard(id, name, key) }
                 // TODO(labels): navigate to the labels page once mob-labels-ui lands.
                 val onLabelsClick = {}
                 SessionGate(session = session, navController = navController) { startDestination ->
                     // Kept in one movable slot, so the NavHost survives the shell appearing at sign-in.
-                    val host = remember(navController) {
-                        movableContentOf { contentModifier: Modifier ->
-                            AppNavHost(
-                                navController = navController,
-                                startDestination = startDestination,
-                                accountEmail = accountEmail,
-                                onLogOut = onLogOut,
-                                onOpenBoard = onOpenBoard,
-                                onLabelsClick = onLabelsClick,
-                                modifier = contentModifier,
-                            )
+                    val host =
+                        remember(navController) {
+                            movableContentOf { contentModifier: Modifier ->
+                                AppNavHost(
+                                    navController = navController,
+                                    startDestination = startDestination,
+                                    accountEmail = accountEmail,
+                                    onLogOut = onLogOut,
+                                    onOpenBoard = onOpenBoard,
+                                    onLabelsClick = onLabelsClick,
+                                    modifier = contentModifier,
+                                )
+                            }
                         }
-                    }
                     if (signedInEmail != null) {
                         AppShell(
                             navController = navController,
@@ -88,7 +94,11 @@ fun App(
                 }
             }
             // TEMPORARY (D3): removed with the auth fixture in add-auth-ui task 9.1.
-            val fixtureSession = koinInject<AppBuildInfo>().takeIf { it.isDebug }?.let { getKoin().getOrNull<InMemorySessionManager>() }
+            val fixtureSession =
+                koinInject<AppBuildInfo>()
+                    .takeIf {
+                        it.isDebug
+                    }?.let { getKoin().getOrNull<InMemorySessionManager>() }
             if (fixtureSession != null && signedInEmail != null) {
                 DebugSessionOverlay(
                     onExpireSession = fixtureSession::expire,

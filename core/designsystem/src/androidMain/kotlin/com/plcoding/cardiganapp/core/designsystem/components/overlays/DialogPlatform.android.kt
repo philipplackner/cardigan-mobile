@@ -7,7 +7,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 
-internal actual fun cardiganDialogProperties(dismissible: Boolean, scrimColor: Color): DialogProperties =
+internal actual fun cardiganDialogProperties(
+    dismissible: Boolean,
+    scrimColor: Color,
+): DialogProperties =
     DialogProperties(
         dismissOnBackPress = dismissible,
         dismissOnClickOutside = dismissible,

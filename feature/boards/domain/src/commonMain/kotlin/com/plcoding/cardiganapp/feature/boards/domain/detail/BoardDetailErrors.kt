@@ -9,24 +9,35 @@ import com.plcoding.cardiganapp.core.domain.util.Error
  */
 sealed interface BoardLoadError : Error {
     data object BoardNotFound : BoardLoadError
+
     data object Failed : BoardLoadError
 }
 
 /** Why a column write failed. */
 sealed interface ColumnWriteError : Error {
     data object BoardNotFound : ColumnWriteError
+
     data object ColumnNotFound : ColumnWriteError
 
     /** A move rejected with `OUT_OF_RANGE`: the board changed since it was loaded. */
     data object Stale : ColumnWriteError
-    data class InvalidName(val rule: NameError) : ColumnWriteError
+
+    data class InvalidName(
+        val rule: NameError,
+    ) : ColumnWriteError
+
     data object Failed : ColumnWriteError
 }
 
 /** Why a card create failed. */
 sealed interface CardCreateError : Error {
     data object BoardNotFound : CardCreateError
+
     data object ColumnNotFound : CardCreateError
-    data class InvalidTitle(val rule: NameError) : CardCreateError
+
+    data class InvalidTitle(
+        val rule: NameError,
+    ) : CardCreateError
+
     data object Failed : CardCreateError
 }

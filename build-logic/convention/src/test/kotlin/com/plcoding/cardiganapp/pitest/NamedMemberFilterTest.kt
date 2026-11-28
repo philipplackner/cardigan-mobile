@@ -7,7 +7,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class NamedMemberFilterTest {
-
     private val filter = NamedMemberFilter(MutationExclusions.namedMembers)
 
     @Test
@@ -31,7 +30,10 @@ class NamedMemberFilterTest {
 
     @Test
     fun `same-named method in another class is kept`() {
-        assertEquals(listOf("asStringAsync"), survive("com/plcoding/cardiganapp/core/presentation/util/UiTextExtKt", "asStringAsync"))
+        assertEquals(
+            listOf("asStringAsync"),
+            survive("com/plcoding/cardiganapp/core/presentation/util/UiTextExtKt", "asStringAsync"),
+        )
         assertEquals(listOf("asStringAsync"), survive("com/plcoding/cardiganapp/other/Message", "asStringAsync"))
     }
 
@@ -40,7 +42,10 @@ class NamedMemberFilterTest {
         assertEquals(emptyList(), survive(HTTP_CLIENT_FACTORY, "create\$lambda\$0"))
         assertEquals(emptyList(), survive(HTTP_CLIENT_FACTORY, "create\$lambda\$0\$0\$0"))
         assertEquals(listOf("create"), survive(HTTP_CLIENT_FACTORY, "create"))
-        assertEquals(listOf("create\$lambda\$0"), survive("com/plcoding/cardiganapp/other/OtherFactory", "create\$lambda\$0"))
+        assertEquals(
+            listOf("create\$lambda\$0"),
+            survive("com/plcoding/cardiganapp/other/OtherFactory", "create\$lambda\$0"),
+        )
     }
 
     @Test
@@ -57,7 +62,10 @@ class NamedMemberFilterTest {
         assertTrue(!feature.isOnByDefault)
     }
 
-    private fun survive(owner: String, method: String): List<String> {
+    private fun survive(
+        owner: String,
+        method: String,
+    ): List<String> {
         val mutations = listOf(mutation(owner, method, "()V"))
         return filter.intercept(mutations, null).map { it.method }
     }

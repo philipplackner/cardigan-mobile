@@ -30,13 +30,15 @@ fun AppToastHost(
     }
     ToastHost(
         state = state,
-        modifier = modifier
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(bottom = if (isTouchSize) AppTheme.space.s28 else AppTheme.space.s24),
+        modifier =
+            modifier
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(bottom = if (isTouchSize) AppTheme.space.s28 else AppTheme.space.s24),
     )
 }
 
-private fun ToastType.toDesignToastType(): DesignToastType = when (this) {
-    ToastType.Success -> DesignToastType.Success
-    ToastType.Error -> DesignToastType.Error
-}
+private fun ToastType.toDesignToastType(): DesignToastType =
+    when (this) {
+        ToastType.Success -> DesignToastType.Success
+        ToastType.Error -> DesignToastType.Error
+    }

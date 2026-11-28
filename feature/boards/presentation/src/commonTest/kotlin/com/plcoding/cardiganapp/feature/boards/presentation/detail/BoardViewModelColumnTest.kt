@@ -21,9 +21,9 @@ import com.plcoding.cardiganapp.feature.boards.domain.detail.BoardLoadError
 import com.plcoding.cardiganapp.feature.boards.domain.detail.ColumnWriteError
 import com.plcoding.cardiganapp.feature.boards.presentation.fakes.boardContent
 import com.plcoding.cardiganapp.feature.boards.presentation.util.assertResource
-import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
 /*
  * Break vectors:
@@ -42,7 +42,6 @@ import kotlinx.coroutines.test.runTest
  * - outside tap on the add column field: empty closes, text stays, ignored while saving (D42)
  */
 class BoardViewModelColumnTest : BoardViewModelTestBase() {
-
     private fun BoardViewModel.addColumn(name: String) {
         onAction(BoardAction.OpenAddColumn)
         onAction(BoardAction.InlineTextChange(name))
@@ -50,16 +49,17 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun addColumnAppendsClosesAndScrolls() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        viewModel.addColumn("Blocked")
-        assertThat(viewModel.columnNames).containsExactly("To do", "In progress", "Review", "Done", "Blocked")
-        assertThat(viewModel.state.value.inlineField).isNull()
-        val added = viewModel.board.columns.last()
-        assertThat(events.last()).isEqualTo(BoardEvent.ScrollToColumn(added.id))
-        assertThat(repository.calls).containsExactly("load", "addColumn:Blocked")
-    }
+    fun addColumnAppendsClosesAndScrolls() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            viewModel.addColumn("Blocked")
+            assertThat(viewModel.columnNames).containsExactly("To do", "In progress", "Review", "Done", "Blocked")
+            assertThat(viewModel.state.value.inlineField).isNull()
+            val added = viewModel.board.columns.last()
+            assertThat(events.last()).isEqualTo(BoardEvent.ScrollToColumn(added.id))
+            assertThat(repository.calls).containsExactly("load", "addColumn:Blocked")
+        }
 
     @Test
     fun addColumnSendsTheNormalizedName() {
@@ -81,11 +81,20 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         val viewModel = viewModel()
         viewModel.onAction(BoardAction.OpenAddColumn)
         viewModel.onAction(BoardAction.InlineTextChange("x".repeat(31)))
-        assertThat(viewModel.state.value.inlineField!!.error).isNull()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isNull()
         viewModel.onAction(BoardAction.InlineSubmit)
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.TooLong(30))
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.TooLong(30))
         viewModel.onAction(BoardAction.InlineTextChange("x".repeat(30)))
-        assertThat(viewModel.state.value.inlineField!!.error).isNull()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isNull()
         assertThat(repository.calls).containsExactly("load")
     }
 
@@ -93,14 +102,20 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     fun addColumnEmptyShowsRequired() {
         val viewModel = viewModel()
         viewModel.addColumn("   ")
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.Required)
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.Required)
     }
 
     @Test
     fun addColumnWithPastedLineBreak() {
         val viewModel = viewModel()
         viewModel.addColumn("To\ndo")
-        assertThat(viewModel.state.value.inlineField!!.error).isEqualTo(NameError.InvalidCharacter)
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .error,
+        ).isEqualTo(NameError.InvalidCharacter)
     }
 
     @Test
@@ -112,8 +127,14 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.InlineSubmit)
         viewModel.onAction(BoardAction.InlineTextChange("Other"))
         viewModel.onAction(BoardAction.InlineCancel)
-        assertThat(viewModel.state.value.inlineField!!.isSaving).isTrue()
-        assertThat(viewModel.state.value.inlineField!!.text).isEqualTo("Blocked")
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .isSaving,
+        ).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .text,
+        ).isEqualTo("Blocked")
         gate.complete(Unit)
         assertThat(repository.calls).containsExactly("load", "addColumn:Blocked")
     }
@@ -151,14 +172,15 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun addColumnOnAMissingBoard() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
-        viewModel.addColumn("Blocked")
-        assertThat(events.withoutFocus).containsExactly(BoardEvent.BoardMissing)
-        assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
-    }
+    fun addColumnOnAMissingBoard() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
+            viewModel.addColumn("Blocked")
+            assertThat(events.withoutFocus).containsExactly(BoardEvent.BoardMissing)
+            assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+        }
 
     @Test
     fun moveRightSendsTheNextIndexAndAppliesTheResponse() {
@@ -297,13 +319,14 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun moveOnAMissingBoard() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
-        viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
-        assertThat(events).containsExactly(BoardEvent.BoardMissing)
-    }
+    fun moveOnAMissingBoard() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
+            viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
+            assertThat(events).containsExactly(BoardEvent.BoardMissing)
+        }
 
     @Test
     fun renameReplacesTheNameAndKeepsCards() {
@@ -360,7 +383,9 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.RenameColumnClick(review.id))
         viewModel.onAction(BoardAction.RenameTextChange("QA"))
         viewModel.onAction(BoardAction.RenameSave)
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.RenameColumn(review.id, "Review", "QA", showErrors = true))
+        assertThat(
+            viewModel.state.value.dialog,
+        ).isEqualTo(BoardDialog.RenameColumn(review.id, "Review", "QA", showErrors = true))
         assertResource(toasts.messages.single().text, Res.string.board_view_rename_column_failed, "Review")
         assertThat(repository.calls).containsExactly("load", "renameColumn:QA")
     }
@@ -426,7 +451,9 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.DeleteConfirm)
         viewModel.onAction(BoardAction.DialogDismiss)
         viewModel.onAction(BoardAction.DeleteConfirm)
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2, isSaving = true))
+        assertThat(
+            viewModel.state.value.dialog,
+        ).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2, isSaving = true))
         assertThat((viewModel.state.value.dialog as BoardDialog.DeleteColumn).isSaving).isTrue()
         gate.complete(Unit)
         assertThat(repository.calls).containsExactly("load", "deleteColumn")
@@ -466,16 +493,17 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun deleteOnAMissingBoard() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
-        viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
-        viewModel.onAction(BoardAction.DeleteConfirm)
-        assertThat(events).containsExactly(BoardEvent.BoardMissing)
-        assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
-        assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2))
-    }
+    fun deleteOnAMissingBoard() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
+            viewModel.onAction(BoardAction.DeleteColumnClick(review.id))
+            viewModel.onAction(BoardAction.DeleteConfirm)
+            assertThat(events).containsExactly(BoardEvent.BoardMissing)
+            assertResource(toasts.messages.single().text, Res.string.board_view_board_gone)
+            assertThat(viewModel.state.value.dialog).isEqualTo(BoardDialog.DeleteColumn(review.id, "Review", 2))
+        }
 
     @Test
     fun refreshClosesAMenuDialogWhoseColumnIsGone() {
@@ -504,16 +532,17 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
     }
 
     @Test
-    fun boardMissingIsReportedOnce() = runTest {
-        val viewModel = viewModel()
-        val events = events(viewModel)
-        repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
-        repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
-        viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
-        viewModel.onAction(BoardAction.MoveColumnRight(doing.id))
-        assertThat(events).containsExactly(BoardEvent.BoardMissing)
-        assertThat(toasts.messages.size).isEqualTo(1)
-    }
+    fun boardMissingIsReportedOnce() =
+        runTest {
+            val viewModel = viewModel()
+            val events = events(viewModel)
+            repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
+            repository.writeResults += Result.Error(ColumnWriteError.BoardNotFound)
+            viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
+            viewModel.onAction(BoardAction.MoveColumnRight(doing.id))
+            assertThat(events).containsExactly(BoardEvent.BoardMissing)
+            assertThat(toasts.messages.size).isEqualTo(1)
+        }
 
     @Test
     fun backToBackWritesApplyInOrder() {
@@ -526,7 +555,9 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         viewModel.onAction(BoardAction.RenameSave)
         viewModel.onAction(BoardAction.MoveColumnRight(todo.id))
         first.complete(Unit)
-        assertThat(repository.calls).containsExactly("load", "addColumn:Blocked", "renameColumn:Backlog", "moveColumn:1")
+        assertThat(
+            repository.calls,
+        ).containsExactly("load", "addColumn:Blocked", "renameColumn:Backlog", "moveColumn:1")
         assertThat(viewModel.columnNames).containsExactly("In progress", "Backlog", "Review", "Done", "Blocked")
     }
 
@@ -577,6 +608,9 @@ class BoardViewModelColumnTest : BoardViewModelTestBase() {
         repository.gates += CompletableDeferred()
         viewModel.addColumn("Blocked")
         viewModel.onAction(BoardAction.InlineOutsideTap)
-        assertThat(viewModel.state.value.inlineField!!.isSaving).isTrue()
+        assertThat(
+            viewModel.state.value.inlineField!!
+                .isSaving,
+        ).isTrue()
     }
 }

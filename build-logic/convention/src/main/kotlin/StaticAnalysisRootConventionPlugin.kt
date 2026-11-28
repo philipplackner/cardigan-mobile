@@ -31,42 +31,48 @@ class StaticAnalysisRootConventionPlugin : Plugin<Project> {
             check(this == rootProject) { "$STATIC_ANALYSIS_ROOT_PLUGIN must be applied to the root project" }
 
             val staticAnalysisRequested = isStaticAnalysisRequested
-            val rootDetektRequested = staticAnalysisRequested ||
-                gradle.startParameter.taskNames.any { it == DETEKT_TASK || it == ":$DETEKT_TASK" }
+            val rootDetektRequested =
+                staticAnalysisRequested ||
+                    gradle.startParameter.taskNames.any { it == DETEKT_TASK || it == ":$DETEKT_TASK" }
 
             val buildLogicBuildDir = rootDir.resolve("build-logic/convention/build")
-            val sarifReportFiles = JVM_TYPE_RESOLVED_DETEKT_TASKS
-                .map { detektSarifReport(buildLogicBuildDir, it) }
-                .toMutableList()
+            val sarifReportFiles =
+                JVM_TYPE_RESOLVED_DETEKT_TASKS
+                    .map { detektSarifReport(buildLogicBuildDir, it) }
+                    .toMutableList()
             val moduleDetektTaskPaths = mutableListOf<String>()
 
-            val merge = tasks.register<ReportMergeTask>(DETEKT_MERGE_TASK) {
-                description = "Merges the SARIF reports of all detekt tasks into one file."
-                input.from(provider { sarifReportFiles.toList() })
-                output.set(layout.buildDirectory.file("reports/detekt/merged.sarif"))
-            }
+            val merge =
+                tasks.register<ReportMergeTask>(DETEKT_MERGE_TASK) {
+                    description = "Merges the SARIF reports of all detekt tasks into one file."
+                    input.from(provider { sarifReportFiles.toList() })
+                    output.set(layout.buildDirectory.file("reports/detekt/merged.sarif"))
+                }
 
-            val detekt = tasks.register(DETEKT_TASK) {
-                group = STATIC_ANALYSIS_GROUP
-                description = "Runs detekt on every opted-in module and build-logic."
-                dependsOn(gradle.includedBuild(BUILD_LOGIC).task(":convention:$DETEKT_TASK"))
-                finalizedBy(merge)
-            }
+            val detekt =
+                tasks.register(DETEKT_TASK) {
+                    group = STATIC_ANALYSIS_GROUP
+                    description = "Runs detekt on every opted-in module and build-logic."
+                    dependsOn(gradle.includedBuild(BUILD_LOGIC).task(":convention:$DETEKT_TASK"))
+                    finalizedBy(merge)
+                }
 
-            val konsist = tasks.register(KONSIST_TASK) {
-                group = STATIC_ANALYSIS_GROUP
-                description = "Runs the Konsist architecture checks."
-                dependsOn("$TOOLING_PROJECT:$KONSIST_TEST_TASK")
-            }
+            val konsist =
+                tasks.register(KONSIST_TASK) {
+                    group = STATIC_ANALYSIS_GROUP
+                    description = "Runs the Konsist architecture checks."
+                    dependsOn("$TOOLING_PROJECT:$KONSIST_TEST_TASK")
+                }
 
-            val verify = tasks.register<StaticAnalysisVerifyTask>(STATIC_ANALYSIS_VERIFY_TASK) {
-                description = "Fails when detekt reported a finding or a Konsist check failed."
-                sarifReports.from(provider { sarifReportFiles.toList() })
-                konsistResultsDir.set(
-                    rootDir.resolve("tooling/build/test-results/$KONSIST_TEST_TASK"),
-                )
-                mustRunAfter(merge)
-            }
+            val verify =
+                tasks.register<StaticAnalysisVerifyTask>(STATIC_ANALYSIS_VERIFY_TASK) {
+                    description = "Fails when detekt reported a finding or a Konsist check failed."
+                    sarifReports.from(provider { sarifReportFiles.toList() })
+                    konsistResultsDir.set(
+                        rootDir.resolve("tooling/build/test-results/$KONSIST_TEST_TASK"),
+                    )
+                    mustRunAfter(merge)
+                }
 
             tasks.register(STATIC_ANALYSIS_TASK) {
                 group = STATIC_ANALYSIS_GROUP
@@ -81,7 +87,10 @@ class StaticAnalysisRootConventionPlugin : Plugin<Project> {
                     .sortedBy { it.path }
                     .forEach { module ->
                         detekt.configure { dependsOn("${module.path}:$DETEKT_TASK") }
-                        val buildDir = module.layout.buildDirectory.get().asFile
+                        val buildDir =
+                            module.layout.buildDirectory
+                                .get()
+                                .asFile
                         module.detektAnalysisTaskNames().forEach { taskName ->
                             sarifReportFiles += detektSarifReport(buildDir, taskName)
                             moduleDetektTaskPaths += "${module.path}:$taskName"

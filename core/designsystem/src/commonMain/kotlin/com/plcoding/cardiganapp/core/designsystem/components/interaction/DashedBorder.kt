@@ -18,15 +18,20 @@ fun Modifier.dashedBorder(
     shape: Shape,
     dash: Dp,
     gap: Dp,
-): Modifier = drawBehind {
-    val strokePx = width.toPx()
-    val inset = strokePx / 2
-    val outline = shape.createOutline(Size(size.width - strokePx, size.height - strokePx), layoutDirection, this)
-    translate(inset, inset) {
-        drawOutline(
-            outline = outline,
-            color = color,
-            style = Stroke(width = strokePx, pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash.toPx(), gap.toPx()))),
-        )
+): Modifier =
+    drawBehind {
+        val strokePx = width.toPx()
+        val inset = strokePx / 2
+        val outline = shape.createOutline(Size(size.width - strokePx, size.height - strokePx), layoutDirection, this)
+        translate(inset, inset) {
+            drawOutline(
+                outline = outline,
+                color = color,
+                style =
+                    Stroke(
+                        width = strokePx,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash.toPx(), gap.toPx())),
+                    ),
+            )
+        }
     }
-}

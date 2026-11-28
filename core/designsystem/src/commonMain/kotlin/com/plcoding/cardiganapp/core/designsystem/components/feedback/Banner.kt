@@ -38,18 +38,19 @@ fun Banner(
 ) {
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r8)
-    val (fill, stroke, iconColor) = when (type) {
-        BannerType.Error -> Triple(colors.danger.soft, colors.border.dangerSubtle, colors.danger.default)
-        BannerType.Info -> Triple(colors.accent.soft, colors.border.accentSubtle, colors.accent.default)
-    }
+    val (fill, stroke, iconColor) =
+        when (type) {
+            BannerType.Error -> Triple(colors.danger.soft, colors.border.dangerSubtle, colors.danger.default)
+            BannerType.Info -> Triple(colors.accent.soft, colors.border.accentSubtle, colors.accent.default)
+        }
     Row(
-        modifier = modifier
-            .semantics(mergeDescendants = true) {
-                if (type == BannerType.Error) liveRegion = LiveRegionMode.Polite
-            }
-            .background(fill, shape)
-            .border(AppTheme.space.s1, stroke, shape)
-            .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10),
+        modifier =
+            modifier
+                .semantics(mergeDescendants = true) {
+                    if (type == BannerType.Error) liveRegion = LiveRegionMode.Polite
+                }.background(fill, shape)
+                .border(AppTheme.space.s1, stroke, shape)
+                .padding(horizontal = AppTheme.space.s12, vertical = AppTheme.space.s10),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s9),
         verticalAlignment = Alignment.Top,
     ) {
@@ -71,10 +72,11 @@ fun Banner(
 @Composable
 private fun BannerSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.surface)
-            .padding(AppTheme.space.s24)
-            .width(332.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.surface)
+                .padding(AppTheme.space.s24)
+                .width(332.dp),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s12),
     ) {
         Banner(message = "Message", type = BannerType.Error)

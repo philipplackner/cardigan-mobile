@@ -11,16 +11,23 @@ sealed interface AuthError : Error {
     data object EmailAlreadyUsed : AuthError
 
     /** 429 `RATE_LIMITED`. [retryAfterSeconds] is null when `Retry-After` was missing or unusable. */
-    data class RateLimited(val retryAfterSeconds: Int?) : AuthError
+    data class RateLimited(
+        val retryAfterSeconds: Int?,
+    ) : AuthError
 
     /** 400 `VALIDATION_FAILED` with the reported field errors. */
-    data class InvalidFields(val fields: List<AuthFieldError>) : AuthError
+    data class InvalidFields(
+        val fields: List<AuthFieldError>,
+    ) : AuthError
 
     /** No connection, a 5xx, or any error not covered above. */
     data object Unavailable : AuthError
 }
 
-data class AuthFieldError(val field: AuthField, val code: FieldErrorCode)
+data class AuthFieldError(
+    val field: AuthField,
+    val code: FieldErrorCode,
+)
 
 enum class AuthField { Email, Password, Other }
 

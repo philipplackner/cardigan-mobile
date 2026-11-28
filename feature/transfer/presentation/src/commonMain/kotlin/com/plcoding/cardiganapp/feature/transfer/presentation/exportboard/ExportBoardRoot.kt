@@ -32,11 +32,16 @@ fun ExportBoardRoot(
     val scope = rememberCoroutineScope()
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            is ExportBoardEvent.Share -> scope.launch {
-                fileSharer.share(event.file)
+            is ExportBoardEvent.Share -> {
+                scope.launch {
+                    fileSharer.share(event.file)
+                    onDone()
+                }
+            }
+
+            ExportBoardEvent.Finished -> {
                 onDone()
             }
-            ExportBoardEvent.Finished -> onDone()
         }
     }
     ExportBoardScreen(boardName = viewModel.boardName)

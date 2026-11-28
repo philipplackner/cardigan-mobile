@@ -20,24 +20,37 @@ fun ImportBoardRoot(
     onBoardListChanged: () -> Unit,
     onDone: () -> Unit,
     viewModel: ImportBoardViewModel = koinViewModel(),
-    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker = { onPicked, onCancelled ->
+    filePicker: @Composable (
+        onPicked: (PickedFile) -> Unit,
+        onCancelled: () -> Unit,
+    ) -> FilePicker = { onPicked, onCancelled ->
         rememberFilePicker(onPicked, onCancelled)
     },
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val picker = filePicker(
-        { viewModel.onAction(ImportBoardAction.FilePicked(it)) },
-        { viewModel.onAction(ImportBoardAction.PickerCancelled) },
-    )
+    val picker =
+        filePicker(
+            { viewModel.onAction(ImportBoardAction.FilePicked(it)) },
+            { viewModel.onAction(ImportBoardAction.PickerCancelled) },
+        )
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            ImportBoardEvent.OpenPicker -> picker.pickJson()
+            ImportBoardEvent.OpenPicker -> {
+                picker.pickJson()
+            }
+
             is ImportBoardEvent.Imported -> {
                 onImported(event.board)
                 onDone()
             }
-            ImportBoardEvent.BoardListChanged -> onBoardListChanged()
-            ImportBoardEvent.Finished -> onDone()
+
+            ImportBoardEvent.BoardListChanged -> {
+                onBoardListChanged()
+            }
+
+            ImportBoardEvent.Finished -> {
+                onDone()
+            }
         }
     }
     ImportBoardScreen(state = state, onAction = viewModel::onAction, onCancel = onDone)

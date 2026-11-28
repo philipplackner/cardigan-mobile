@@ -41,7 +41,10 @@ fun NewBoardRoot(
                 onClose()
                 onCreated(event.boardId, event.name, event.key)
             }
-            NewBoardEvent.Close -> onClose()
+
+            NewBoardEvent.Close -> {
+                onClose()
+            }
         }
     }
     NewBoardScreen(state = state, onAction = viewModel::onAction)
@@ -69,10 +72,11 @@ fun NewBoardScreen(
             BoardKeyField(
                 value = state.key,
                 onValueChange = { onAction(NewBoardAction.KeyChange(it)) },
-                hint = stringResource(
-                    Res.string.new_board_key_hint,
-                    state.key.ifEmpty { stringResource(Res.string.new_board_key_hint_placeholder) },
-                ),
+                hint =
+                    stringResource(
+                        Res.string.new_board_key_hint,
+                        state.key.ifEmpty { stringResource(Res.string.new_board_key_hint_placeholder) },
+                    ),
                 error = state.keyError?.toUiText(),
                 enabled = editable,
                 readOnly = false,

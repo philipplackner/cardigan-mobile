@@ -6,17 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -52,24 +52,34 @@ private fun AppBarContainer(
     val colors = AppTheme.colors
     val lineColor = colors.border.default
     val lineWidth = AppTheme.space.s1
-    val raisedModifier = if (raised) {
-        Modifier
-            .dropShadow(RectangleShape, AppTheme.shadows.raised)
-            .background(colors.background.app)
-            .drawBehind {
-                val y = size.height - lineWidth.toPx() / 2
-                drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
-            }
-    } else {
-        Modifier.background(colors.background.app)
-    }
+    val raisedModifier =
+        if (raised) {
+            Modifier
+                .dropShadow(RectangleShape, AppTheme.shadows.raised)
+                .background(colors.background.app)
+                .drawBehind {
+                    val y = size.height - lineWidth.toPx() / 2
+                    drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
+                }
+        } else {
+            Modifier.background(colors.background.app)
+        }
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(raisedModifier)
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .heightIn(min = AppBarMinHeight)
-            .padding(PaddingValues(start = AppTheme.space.s10, end = AppTheme.space.s8, top = AppTheme.space.s6, bottom = AppTheme.space.s6)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .then(raisedModifier)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ).heightIn(min = AppBarMinHeight)
+                .padding(
+                    PaddingValues(
+                        start = AppTheme.space.s10,
+                        end = AppTheme.space.s8,
+                        top = AppTheme.space.s6,
+                        bottom = AppTheme.space.s6,
+                    ),
+                ),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s2),
         verticalAlignment = Alignment.CenterVertically,
         content = content,
@@ -113,9 +123,10 @@ fun TitleAppBar(
     AppBarContainer(raised = raised, modifier = modifier) {
         navigationIcon?.invoke()
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = AppTheme.space.s2),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(start = AppTheme.space.s2),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s3),
         ) {
             Text(
@@ -127,7 +138,12 @@ fun TitleAppBar(
                 overflow = TextOverflow.Ellipsis,
             )
             if (subtitle != null) {
-                Text(text = subtitle, style = AppTheme.textStyles.mono11_5Regular100, color = AppTheme.colors.text.muted, maxLines = 1)
+                Text(
+                    text = subtitle,
+                    style = AppTheme.textStyles.mono11_5Regular100,
+                    color = AppTheme.colors.text.muted,
+                    maxLines = 1,
+                )
             }
         }
         AppBarActions(actions)
@@ -147,9 +163,10 @@ fun CenteredAppBar(
         navigationIcon?.invoke()
         Text(
             text = title,
-            modifier = Modifier
-                .weight(1f)
-                .semantics { heading() },
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .semantics { heading() },
             style = AppTheme.textStyles.mono13Medium100,
             color = AppTheme.colors.text.muted,
             textAlign = TextAlign.Center,
@@ -162,13 +179,20 @@ fun CenteredAppBar(
 
 @Composable
 private fun SampleBack() {
-    CardiganIconButton(icon = CardiganIcons.ChevronLeft, contentDescription = "Back", onClick = {}, size = IconButtonSize.Large)
+    CardiganIconButton(icon = CardiganIcons.ChevronLeft, contentDescription = "Back", onClick = {
+    }, size = IconButtonSize.Large)
 }
 
 @Composable
 private fun SampleActions() {
-    CardiganIconButton(icon = CardiganIcons.Search, contentDescription = "Search", onClick = {}, size = IconButtonSize.Large)
-    CardiganIconButton(icon = CardiganIcons.More, contentDescription = "More", onClick = {}, size = IconButtonSize.Large)
+    CardiganIconButton(icon = CardiganIcons.Search, contentDescription = "Search", onClick = {
+    }, size = IconButtonSize.Large)
+    CardiganIconButton(
+        icon = CardiganIcons.More,
+        contentDescription = "More",
+        onClick = {},
+        size = IconButtonSize.Large,
+    )
 }
 
 @Composable
@@ -179,8 +203,15 @@ private fun AppBarSamples() {
     ) {
         listOf(false, true).forEach { raised ->
             BrandAppBar(raised = raised, actions = { SampleActions() })
-            TitleAppBar(title = "Cardigan v1", subtitle = "CRD · 24 cards", raised = raised, navigationIcon = { SampleBack() }, actions = { SampleActions() })
-            CenteredAppBar(title = "CRD-109", raised = raised, navigationIcon = { SampleBack() }, actions = { SampleActions() })
+            TitleAppBar(title = "Cardigan v1", subtitle = "CRD · 24 cards", raised = raised, navigationIcon = {
+                SampleBack()
+            }, actions = { SampleActions() })
+            CenteredAppBar(
+                title = "CRD-109",
+                raised = raised,
+                navigationIcon = { SampleBack() },
+                actions = { SampleActions() },
+            )
         }
     }
 }

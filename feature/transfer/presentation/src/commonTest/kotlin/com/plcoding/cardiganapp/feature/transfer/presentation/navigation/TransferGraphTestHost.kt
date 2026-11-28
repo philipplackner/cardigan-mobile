@@ -54,30 +54,34 @@ class TransferGraphTestHost {
     }
 
     @OptIn(ExperimentalTestApi::class)
-    fun openImport(test: ComposeUiTest) = with(test) {
-        setContent {
-            AppTheme(darkTheme = false) {
-                val navController = rememberNavController()
-                NavHost(navController, startDestination = TestHostRoute) {
-                    composable<TestHostRoute> { Box {} }
-                    transferGraph(
-                        onImported = {},
-                        onBoardListChanged = {},
-                        onDone = {
-                            doneCount++
-                            navController.popBackStack()
-                        },
-                        filePicker = { onPicked, onCancelled -> picker.bind(onPicked, onCancelled) },
-                    )
+    fun openImport(test: ComposeUiTest) =
+        with(test) {
+            setContent {
+                AppTheme(darkTheme = false) {
+                    val navController = rememberNavController()
+                    NavHost(navController, startDestination = TestHostRoute) {
+                        composable<TestHostRoute> { Box {} }
+                        transferGraph(
+                            onImported = {},
+                            onBoardListChanged = {},
+                            onDone = {
+                                doneCount++
+                                navController.popBackStack()
+                            },
+                            filePicker = { onPicked, onCancelled -> picker.bind(onPicked, onCancelled) },
+                        )
+                    }
+                    LaunchedEffect(Unit) { navController.navigate(ImportBoardRoute) }
                 }
-                LaunchedEffect(Unit) { navController.navigate(ImportBoardRoute) }
             }
+            waitUntil { picker.openCount == 1 }
         }
-        waitUntil { picker.openCount == 1 }
-    }
 
     @OptIn(ExperimentalTestApi::class)
-    fun awaitText(test: ComposeUiTest, text: String) = with(test) {
+    fun awaitText(
+        test: ComposeUiTest,
+        text: String,
+    ) = with(test) {
         waitUntil { onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
     }
 }

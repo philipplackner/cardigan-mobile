@@ -26,11 +26,16 @@ data class BoardState(
     fun column(id: Uuid): Column? = loaded?.content?.columns?.firstOrNull { it.id == id }
 }
 
-data class BoardHeaderHint(val name: String, val key: String)
+data class BoardHeaderHint(
+    val name: String,
+    val key: String,
+)
 
 sealed interface BoardLoadState {
     data object Loading : BoardLoadState
+
     data object Error : BoardLoadState
+
     data class Loaded(
         val content: BoardContent,
         val labelsById: Map<Uuid, Label>,
@@ -39,7 +44,10 @@ sealed interface BoardLoadState {
 
 /** Where an inline field sits. */
 sealed interface InlineTarget {
-    data class QuickAdd(val columnId: Uuid) : InlineTarget
+    data class QuickAdd(
+        val columnId: Uuid,
+    ) : InlineTarget
+
     data object AddColumn : InlineTarget
 }
 
@@ -77,5 +85,7 @@ sealed interface BoardDialog {
     ) : BoardDialog
 
     /** Asks before the open inline field with text is dropped for [pending] (D41). */
-    data class DiscardInlineField(val pending: InlineTarget) : BoardDialog
+    data class DiscardInlineField(
+        val pending: InlineTarget,
+    ) : BoardDialog
 }

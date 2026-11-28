@@ -15,7 +15,6 @@ import kotlin.test.Test
  * - empty
  */
 class PasswordRulesTest {
-
     @Test
     fun lengthEdges() {
         assertThat(PasswordRules.check("Aa1" + "x".repeat(8)).hasMinLength).isFalse()

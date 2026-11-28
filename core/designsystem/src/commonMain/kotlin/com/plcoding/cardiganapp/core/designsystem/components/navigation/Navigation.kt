@@ -9,18 +9,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -76,21 +76,23 @@ fun NavItem(
     val colors = AppTheme.colors
     val shape = RoundedCornerShape(AppTheme.radius.r6)
     val isSelected = state == NavItemState.Selected
-    val container = if (isSelected) {
-        Modifier
-            .dropShadow(shape, AppTheme.shadows.small)
-            .background(colors.background.surface, shape)
-            .border(AppTheme.space.s1, colors.border.default, shape)
-    } else {
-        Modifier
-    }
+    val container =
+        if (isSelected) {
+            Modifier
+                .dropShadow(shape, AppTheme.shadows.small)
+                .background(colors.background.surface, shape)
+                .border(AppTheme.space.s1, colors.border.default, shape)
+        } else {
+            Modifier
+        }
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(container)
-            .semantics { selected = isSelected }
-            .clickable(role = Role.Tab, onClick = onClick)
-            .padding(horizontal = AppTheme.space.s8, vertical = AppTheme.space.s7),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .then(container)
+                .semantics { selected = isSelected }
+                .clickable(role = Role.Tab, onClick = onClick)
+                .padding(horizontal = AppTheme.space.s8, vertical = AppTheme.space.s7),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s9),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -136,41 +138,80 @@ fun Sidebar(
     val lineColor = colors.border.default
     val lineWidth = AppTheme.space.s1
     Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .background(colors.background.sidebar)
-            .drawBehind {
-                val x = if (layoutDirection == LayoutDirection.Ltr) size.width - lineWidth.toPx() / 2 else lineWidth.toPx() / 2
-                drawLine(lineColor, Offset(x, 0f), Offset(x, size.height), lineWidth.toPx())
-            }
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start))
-            .padding(PaddingValues(start = AppTheme.space.s10, end = AppTheme.space.s10, top = AppTheme.space.s14, bottom = AppTheme.space.s10)),
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .background(colors.background.sidebar)
+                .drawBehind {
+                    val x =
+                        if (layoutDirection ==
+                            LayoutDirection.Ltr
+                        ) {
+                            size.width - lineWidth.toPx() / 2
+                        } else {
+                            lineWidth.toPx() / 2
+                        }
+                    drawLine(lineColor, Offset(x, 0f), Offset(x, size.height), lineWidth.toPx())
+                }.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start),
+                ).padding(
+                    PaddingValues(
+                        start = AppTheme.space.s10,
+                        end = AppTheme.space.s10,
+                        top = AppTheme.space.s14,
+                        bottom = AppTheme.space.s10,
+                    ),
+                ),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s18),
     ) {
         Brand(size = BrandSize.Sidebar)
         Column(verticalArrangement = Arrangement.spacedBy(AppTheme.space.s1), content = mainNav)
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s1),
         ) {
             Text(
                 text = boardsHeading.uppercase(),
-                modifier = Modifier
-                    .semantics { heading() }
-                    .padding(start = AppTheme.space.s8, end = AppTheme.space.s8, top = AppTheme.space.s2, bottom = AppTheme.space.s8),
+                modifier =
+                    Modifier
+                        .semantics { heading() }
+                        .padding(
+                            start = AppTheme.space.s8,
+                            end = AppTheme.space.s8,
+                            top = AppTheme.space.s2,
+                            bottom = AppTheme.space.s8,
+                        ),
                 style = AppTheme.typography.sectionLabel,
                 color = colors.text.muted,
             )
             boards()
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .drawBehind { drawLine(lineColor, Offset(0f, lineWidth.toPx() / 2), Offset(size.width, lineWidth.toPx() / 2), lineWidth.toPx()) }
-                .padding(top = AppTheme.space.s8)
-                .padding(PaddingValues(start = AppTheme.space.s8, end = AppTheme.space.s4, top = AppTheme.space.s4, bottom = AppTheme.space.s4)),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            lineColor,
+                            Offset(0f, lineWidth.toPx() / 2),
+                            Offset(
+                                size.width,
+                                lineWidth.toPx() / 2,
+                            ),
+                            lineWidth.toPx(),
+                        )
+                    }.padding(top = AppTheme.space.s8)
+                    .padding(
+                        PaddingValues(
+                            start = AppTheme.space.s8,
+                            end = AppTheme.space.s4,
+                            top = AppTheme.space.s4,
+                            bottom = AppTheme.space.s4,
+                        ),
+                    ),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s9),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -187,7 +228,11 @@ fun Sidebar(
             } else {
                 Spacer(modifier = Modifier.weight(1f))
             }
-            CardiganIconButton(icon = CardiganIcons.LogOut, contentDescription = logOutContentDescription, onClick = onLogOutClick)
+            CardiganIconButton(
+                icon = CardiganIcons.LogOut,
+                contentDescription = logOutContentDescription,
+                onClick = onLogOutClick,
+            )
         }
     }
 }
@@ -208,16 +253,17 @@ fun PageHeader(
     val lineColor = colors.border.default
     val lineWidth = AppTheme.space.s1
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(colors.background.app)
-            .drawBehind {
-                val y = size.height - lineWidth.toPx() / 2
-                drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
-            }
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .heightIn(min = PageHeaderMinHeight)
-            .padding(horizontal = AppTheme.space.s20, vertical = AppTheme.space.s12),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(colors.background.app)
+                .drawBehind {
+                    val y = size.height - lineWidth.toPx() / 2
+                    drawLine(lineColor, Offset(0f, y), Offset(size.width, y), lineWidth.toPx())
+                }.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ).heightIn(min = PageHeaderMinHeight)
+                .padding(horizontal = AppTheme.space.s20, vertical = AppTheme.space.s12),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s10),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -230,7 +276,11 @@ fun PageHeader(
             overflow = TextOverflow.Ellipsis,
         )
         if (boardKey != null) Key(key = boardKey)
-        if (meta != null) Text(text = meta, style = AppTheme.textStyles.mono12Regular100, color = colors.text.muted, maxLines = 1)
+        if (meta !=
+            null
+        ) {
+            Text(text = meta, style = AppTheme.textStyles.mono12Regular100, color = colors.text.muted, maxLines = 1)
+        }
         Box(modifier = Modifier.weight(1f))
         if (actions != null) {
             Row(
@@ -245,14 +295,16 @@ fun PageHeader(
 @Composable
 private fun NavSamples() {
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.sidebar)
-            .padding(AppTheme.space.s10)
-            .size(width = 228.dp, height = 140.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.sidebar)
+                .padding(AppTheme.space.s10)
+                .size(width = 228.dp, height = 140.dp),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
         NavItem(label = "Cardigan v1", icon = CardiganIcons.Board, onClick = {}, boardKey = "CRD")
-        NavItem(label = "Cardigan v1", icon = CardiganIcons.Board, onClick = {}, state = NavItemState.Selected, boardKey = "CRD")
+        NavItem(label = "Cardigan v1", icon = CardiganIcons.Board, onClick = {
+        }, state = NavItemState.Selected, boardKey = "CRD")
         NavItem(label = "New board", icon = CardiganIcons.Plus, onClick = {}, state = NavItemState.Dim)
     }
 }
@@ -326,4 +378,3 @@ private fun PageHeaderLightPreview() {
 private fun PageHeaderDarkPreview() {
     AppTheme(darkTheme = true, windowClass = WindowClass.Tablet) { PageHeaderSamples() }
 }
-

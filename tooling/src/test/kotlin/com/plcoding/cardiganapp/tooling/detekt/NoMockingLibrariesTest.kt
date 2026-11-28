@@ -9,7 +9,6 @@ import dev.detekt.test.lint
 import kotlin.test.Test
 
 class NoMockingLibrariesTest {
-
     private fun lint(code: String): List<Finding> = NoMockingLibraries(TestConfig("active" to true)).lint(code)
 
     private fun fileWithImport(import: String) = lines("package com.example", "", import, "", "class FooTest")
@@ -70,17 +69,18 @@ class NoMockingLibrariesTest {
     // tests.md: add-detekt-konsist C04
     @Test
     fun `findings land on the mocking imports only in a file with mixed imports`() {
-        val code = lines(
-            "package com.example",
-            "",
-            "import kotlin.test.Test",
-            "import io.mockk.every",
-            "import assertk.assertThat",
-            "import org.mockito.Mockito.verify",
-            "import kotlin.test.assertEquals",
-            "",
-            "class FooTest",
-        )
+        val code =
+            lines(
+                "package com.example",
+                "",
+                "import kotlin.test.Test",
+                "import io.mockk.every",
+                "import assertk.assertThat",
+                "import org.mockito.Mockito.verify",
+                "import kotlin.test.assertEquals",
+                "",
+                "class FooTest",
+            )
 
         assertThat(lint(code).lines()).containsExactly(4, 6)
     }
@@ -88,14 +88,15 @@ class NoMockingLibrariesTest {
     // tests.md: add-detekt-konsist C05
     @Test
     fun `the same mocking import twice gives two findings`() {
-        val code = lines(
-            "package com.example",
-            "",
-            "import io.mockk.every",
-            "import io.mockk.every",
-            "",
-            "class FooTest",
-        )
+        val code =
+            lines(
+                "package com.example",
+                "",
+                "import io.mockk.every",
+                "import io.mockk.every",
+                "",
+                "class FooTest",
+            )
 
         assertThat(lint(code).lines()).containsExactly(3, 4)
     }

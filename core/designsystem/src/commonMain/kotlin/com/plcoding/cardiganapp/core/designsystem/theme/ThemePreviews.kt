@@ -15,16 +15,18 @@ import androidx.compose.ui.tooling.preview.Preview
 private fun ThemeSurfaceSample() {
     val shape = RoundedCornerShape(AppTheme.radius.r10)
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(AppTheme.space.s24),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(AppTheme.space.s24),
     ) {
         Column(
-            modifier = Modifier
-                .dropShadow(shape, AppTheme.shadows.small)
-                .background(AppTheme.colors.background.surface, shape)
-                .border(width = AppTheme.space.s1, color = AppTheme.colors.border.default, shape = shape)
-                .padding(AppTheme.space.s16),
+            modifier =
+                Modifier
+                    .dropShadow(shape, AppTheme.shadows.small)
+                    .background(AppTheme.colors.background.surface, shape)
+                    .border(width = AppTheme.space.s1, color = AppTheme.colors.border.default, shape = shape)
+                    .padding(AppTheme.space.s16),
             verticalArrangement = Arrangement.spacedBy(AppTheme.space.s4),
         ) {
             Text(text = "Primary text", color = AppTheme.colors.text.primary)

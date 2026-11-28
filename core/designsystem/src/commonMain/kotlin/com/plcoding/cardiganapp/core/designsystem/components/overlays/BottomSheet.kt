@@ -21,10 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.plcoding.cardiganapp.core.designsystem.components.inputs.Option
@@ -52,9 +52,10 @@ fun BottomSheet(
     val shape = sheetShape()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        modifier = modifier
-            .dropShadow(shape, AppTheme.shadows.popover)
-            .topBorder(shape),
+        modifier =
+            modifier
+                .dropShadow(shape, AppTheme.shadows.popover)
+                .topBorder(shape),
         sheetState = sheetState,
         shape = shape,
         containerColor = AppTheme.colors.background.surface,
@@ -81,7 +82,12 @@ private fun Modifier.topBorder(shape: Shape): Modifier {
         val strokePx = strokeWidth.toPx()
         clipRect(bottom = bandHeight.toPx()) {
             val inset = strokePx / 2
-            val outline = shape.createOutline(Size(size.width - strokePx, size.height - strokePx), layoutDirection, this)
+            val outline =
+                shape.createOutline(
+                    Size(size.width - strokePx, size.height - strokePx),
+                    layoutDirection,
+                    this,
+                )
             translate(inset, inset) { drawOutline(outline, color, style = Stroke(strokePx)) }
         }
     }
@@ -90,15 +96,17 @@ private fun Modifier.topBorder(shape: Shape): Modifier {
 @Composable
 private fun SheetHandle() {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = AppTheme.space.s8, bottom = AppTheme.space.s4),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = AppTheme.space.s8, bottom = AppTheme.space.s4),
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier
-                .size(width = HandleWidth, height = HandleHeight)
-                .background(AppTheme.colors.border.strong, RoundedCornerShape(AppTheme.radius.r2)),
+            modifier =
+                Modifier
+                    .size(width = HandleWidth, height = HandleHeight)
+                    .background(AppTheme.colors.border.strong, RoundedCornerShape(AppTheme.radius.r2)),
         )
     }
 }
@@ -106,9 +114,15 @@ private fun SheetHandle() {
 @Composable
 private fun SheetContent(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = AppTheme.space.s16, end = AppTheme.space.s16, top = AppTheme.space.s12, bottom = AppTheme.space.s16),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = AppTheme.space.s16,
+                    end = AppTheme.space.s16,
+                    top = AppTheme.space.s12,
+                    bottom = AppTheme.space.s16,
+                ),
         verticalArrangement = Arrangement.spacedBy(AppTheme.space.s12),
         content = content,
     )
@@ -118,15 +132,17 @@ private fun SheetContent(content: @Composable ColumnScope.() -> Unit) {
 private fun BottomSheetSample() {
     val shape = sheetShape()
     Column(
-        modifier = Modifier
-            .background(AppTheme.colors.background.app)
-            .padding(top = AppTheme.space.s32)
-            .width(390.dp),
+        modifier =
+            Modifier
+                .background(AppTheme.colors.background.app)
+                .padding(top = AppTheme.space.s32)
+                .width(390.dp),
     ) {
         Column(
-            modifier = Modifier
-                .topBorder(shape)
-                .background(AppTheme.colors.background.surface, shape),
+            modifier =
+                Modifier
+                    .topBorder(shape)
+                    .background(AppTheme.colors.background.surface, shape),
         ) {
             SheetHandle()
             SheetContent {

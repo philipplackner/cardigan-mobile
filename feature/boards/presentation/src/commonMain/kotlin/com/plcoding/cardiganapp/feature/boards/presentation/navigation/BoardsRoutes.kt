@@ -9,7 +9,11 @@ data object BoardListRoute
 data object NewBoardRoute
 
 @Serializable
-data class RenameBoardRoute(val boardId: String)
+data class RenameBoardRoute(
+    val boardId: String,
+)
 
 @Serializable
-data class DeleteBoardRoute(val boardId: String)
+data class DeleteBoardRoute(
+    val boardId: String,
+)

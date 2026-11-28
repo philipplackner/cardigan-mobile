@@ -55,11 +55,12 @@ fun EmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .size(IconBoxSize)
-                .dropShadow(iconBoxShape, AppTheme.shadows.small)
-                .background(colors.background.surface, iconBoxShape)
-                .border(AppTheme.space.s1, colors.border.default, iconBoxShape),
+            modifier =
+                Modifier
+                    .size(IconBoxSize)
+                    .dropShadow(iconBoxShape, AppTheme.shadows.small)
+                    .background(colors.background.surface, iconBoxShape)
+                    .border(AppTheme.space.s1, colors.border.default, iconBoxShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -113,7 +114,12 @@ private fun EmptyStateSamples() {
             modifier = Modifier.fillMaxWidth(),
             type = EmptyStateType.Error,
             actions = {
-                CardiganButton(text = "Button", onClick = {}, style = ButtonStyle.Secondary, leadingIcon = CardiganIcons.Refresh)
+                CardiganButton(
+                    text = "Button",
+                    onClick = {},
+                    style = ButtonStyle.Secondary,
+                    leadingIcon = CardiganIcons.Refresh,
+                )
             },
         )
     }

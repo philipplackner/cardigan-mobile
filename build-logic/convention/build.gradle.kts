@@ -35,8 +35,10 @@ detekt {
 }
 
 // build-logic can't apply its own convention plugins, so this mirrors DetektConventionPlugin for a JVM module.
-val staticAnalysisRequested = (gradle.parent ?: gradle).startParameter.taskNames
-    .any { it.substringAfterLast(':') == "staticAnalysis" }
+val staticAnalysisRequested =
+    (gradle.parent ?: gradle)
+        .startParameter.taskNames
+        .any { it.substringAfterLast(':') == "staticAnalysis" }
 
 // A lambda written directly in the script would capture the script object, which the configuration cache rejects.
 fun fileUnder(dir: File): Spec<FileTreeElement> = Spec { it.file.startsWith(dir) }
@@ -96,63 +98,110 @@ tasks.validatePlugins {
 gradlePlugin {
     plugins {
         register("kmpLibrary") {
-            id = libs.plugins.convention.kmp.library.get().pluginId
+            id =
+                libs.plugins.convention.kmp.library
+                    .get()
+                    .pluginId
             implementationClass = "KmpLibraryConventionPlugin"
         }
         register("cmpLibrary") {
-            id = libs.plugins.convention.cmp.library.get().pluginId
+            id =
+                libs.plugins.convention.cmp.library
+                    .get()
+                    .pluginId
             implementationClass = "CmpLibraryConventionPlugin"
         }
         register("cmpFeature") {
-            id = libs.plugins.convention.cmp.feature.get().pluginId
+            id =
+                libs.plugins.convention.cmp.feature
+                    .get()
+                    .pluginId
             implementationClass = "CmpFeatureConventionPlugin"
         }
         register("cmpApplication") {
-            id = libs.plugins.convention.cmp.application.get().pluginId
+            id =
+                libs.plugins.convention.cmp.application
+                    .get()
+                    .pluginId
             implementationClass = "CmpApplicationConventionPlugin"
         }
         register("androidApplication") {
-            id = libs.plugins.convention.android.application.asProvider().get().pluginId
+            id =
+                libs.plugins.convention.android.application
+                    .asProvider()
+                    .get()
+                    .pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("androidApplicationCompose") {
-            id = libs.plugins.convention.android.application.compose.get().pluginId
+            id =
+                libs.plugins.convention.android.application.compose
+                    .get()
+                    .pluginId
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
         register("buildkonfig") {
-            id = libs.plugins.convention.buildkonfig.get().pluginId
+            id =
+                libs.plugins.convention.buildkonfig
+                    .get()
+                    .pluginId
             implementationClass = "BuildKonfigConventionPlugin"
         }
         register("kover") {
-            id = libs.plugins.convention.kover.get().pluginId
+            id =
+                libs.plugins.convention.kover
+                    .get()
+                    .pluginId
             implementationClass = "KoverConventionPlugin"
         }
         register("coverage") {
-            id = libs.plugins.convention.coverage.get().pluginId
+            id =
+                libs.plugins.convention.coverage
+                    .get()
+                    .pluginId
             implementationClass = "CoverageConventionPlugin"
         }
         register("mutation") {
-            id = libs.plugins.convention.mutation.asProvider().get().pluginId
+            id =
+                libs.plugins.convention.mutation
+                    .asProvider()
+                    .get()
+                    .pluginId
             implementationClass = "MutationConventionPlugin"
         }
         register("mutationRoot") {
-            id = libs.plugins.convention.mutation.root.get().pluginId
+            id =
+                libs.plugins.convention.mutation.root
+                    .get()
+                    .pluginId
             implementationClass = "MutationRootConventionPlugin"
         }
         register("jvmLibrary") {
-            id = libs.plugins.convention.jvm.library.get().pluginId
+            id =
+                libs.plugins.convention.jvm.library
+                    .get()
+                    .pluginId
             implementationClass = "JvmLibraryConventionPlugin"
         }
         register("detekt") {
-            id = libs.plugins.convention.detekt.get().pluginId
+            id =
+                libs.plugins.convention.detekt
+                    .get()
+                    .pluginId
             implementationClass = "DetektConventionPlugin"
         }
         register("staticAnalysisRoot") {
-            id = libs.plugins.convention.static.analysis.root.get().pluginId
+            id =
+                libs.plugins.convention.static.analysis.root
+                    .get()
+                    .pluginId
             implementationClass = "StaticAnalysisRootConventionPlugin"
         }
         register("ktlint") {
-            id = libs.plugins.convention.ktlint.get().pluginId
+            id =
+                libs.plugins.convention.ktlint
+                    .get()
+                    .pluginId
             implementationClass = "KtlintConventionPlugin"
         }
     }

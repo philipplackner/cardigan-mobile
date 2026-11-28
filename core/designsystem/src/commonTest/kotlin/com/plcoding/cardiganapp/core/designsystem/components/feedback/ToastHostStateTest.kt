@@ -1,12 +1,12 @@
 package com.plcoding.cardiganapp.core.designsystem.components.feedback
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarVisuals
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isTrue
-import androidx.compose.material3.SnackbarVisuals
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -19,42 +19,44 @@ import kotlin.test.Test
  * - a second toast replaces the first instead of queueing behind it
  */
 class ToastHostStateTest {
+    @Test
+    fun successToastShowsTheMessageWithACloseActionAndClosesOnItsOwn() =
+        runTest {
+            val state = ToastHostState()
+            backgroundScope.launch { state.show("Board created", ToastType.Success, closeLabel = "Close") }
+            runCurrent()
+
+            val visuals = state.current()
+            assertThat(visuals).isNotNull()
+            assertThat(visuals!!.message).isEqualTo("Board created")
+            assertThat(visuals.actionLabel).isEqualTo("Close")
+            assertThat(visuals.withDismissAction).isFalse()
+            assertThat(visuals.duration).isEqualTo(SnackbarDuration.Short)
+        }
 
     @Test
-    fun successToastShowsTheMessageWithACloseActionAndClosesOnItsOwn() = runTest {
-        val state = ToastHostState()
-        backgroundScope.launch { state.show("Board created", ToastType.Success, closeLabel = "Close") }
-        runCurrent()
+    fun errorToastStaysUntilClosed() =
+        runTest {
+            val state = ToastHostState()
+            backgroundScope.launch { state.show("Couldn't save", ToastType.Error, closeLabel = "Close") }
+            runCurrent()
 
-        val visuals = state.current()
-        assertThat(visuals).isNotNull()
-        assertThat(visuals!!.message).isEqualTo("Board created")
-        assertThat(visuals.actionLabel).isEqualTo("Close")
-        assertThat(visuals.withDismissAction).isFalse()
-        assertThat(visuals.duration).isEqualTo(SnackbarDuration.Short)
-    }
+            assertThat(state.current()?.duration).isEqualTo(SnackbarDuration.Indefinite)
+        }
 
     @Test
-    fun errorToastStaysUntilClosed() = runTest {
-        val state = ToastHostState()
-        backgroundScope.launch { state.show("Couldn't save", ToastType.Error, closeLabel = "Close") }
-        runCurrent()
+    fun newToastReplacesTheOneShowing() =
+        runTest {
+            val state = ToastHostState()
+            val first = backgroundScope.launch { state.show("First", ToastType.Error, closeLabel = "Close") }
+            runCurrent()
 
-        assertThat(state.current()?.duration).isEqualTo(SnackbarDuration.Indefinite)
-    }
+            backgroundScope.launch { state.show("Second", ToastType.Success, closeLabel = "Close") }
+            runCurrent()
 
-    @Test
-    fun newToastReplacesTheOneShowing() = runTest {
-        val state = ToastHostState()
-        val first = backgroundScope.launch { state.show("First", ToastType.Error, closeLabel = "Close") }
-        runCurrent()
-
-        backgroundScope.launch { state.show("Second", ToastType.Success, closeLabel = "Close") }
-        runCurrent()
-
-        assertThat(state.current()?.message).isEqualTo("Second")
-        assertThat(first.isCompleted).isTrue()
-    }
+            assertThat(state.current()?.message).isEqualTo("Second")
+            assertThat(first.isCompleted).isTrue()
+        }
 
     private fun ToastHostState.current(): SnackbarVisuals? = snackbarHostState.currentSnackbarData?.visuals
 }

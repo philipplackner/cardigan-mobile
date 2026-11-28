@@ -47,9 +47,10 @@ private fun RefreshingSample() {
     RefreshBox(
         isRefreshing = true,
         onRefresh = {},
-        modifier = Modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.background.app),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.background.app),
     ) {
         Text(
             text = "Boards",

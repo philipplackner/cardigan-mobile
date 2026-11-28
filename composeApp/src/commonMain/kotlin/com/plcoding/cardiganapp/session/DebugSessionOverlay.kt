@@ -25,7 +25,12 @@ fun DebugSessionOverlay(
         modifier = modifier.safeDrawingPadding().padding(AppTheme.space.s8),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.space.s8),
     ) {
-        CardiganButton(text = "Expire session", onClick = onExpireSession, style = ButtonStyle.Secondary, size = ControlSize.Small)
+        CardiganButton(
+            text = "Expire session",
+            onClick = onExpireSession,
+            style = ButtonStyle.Secondary,
+            size = ControlSize.Small,
+        )
         CardiganButton(text = "Log out", onClick = onLogOut, style = ButtonStyle.Secondary, size = ControlSize.Small)
     }
 }

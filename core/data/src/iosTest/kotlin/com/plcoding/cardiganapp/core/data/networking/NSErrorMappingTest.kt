@@ -20,7 +20,6 @@ import platform.Foundation.NSURLErrorTimedOut
 import kotlin.test.Test
 
 class NSErrorMappingTest {
-
     private fun urlError(code: Long) = NSError(domain = NSURLErrorDomain, code = code, userInfo = null)
 
     @Test
@@ -73,11 +72,13 @@ class NSErrorMappingTest {
     }
 
     @Test
-    fun `darwin exception thrown by the engine is mapped through its ns error`() = runTest {
-        val client = HttpClientFactory.create(
-            MockEngine { throw DarwinHttpRequestException(urlError(NSURLErrorNotConnectedToInternet)) }
-        )
+    fun `darwin exception thrown by the engine is mapped through its ns error`() =
+        runTest {
+            val client =
+                HttpClientFactory.create(
+                    MockEngine { throw DarwinHttpRequestException(urlError(NSURLErrorNotConnectedToInternet)) },
+                )
 
-        assertThat(client.get<Unit>("/items")).isEqualTo(Result.Error(DataError.Network.NO_INTERNET))
-    }
+            assertThat(client.get<Unit>("/items")).isEqualTo(Result.Error(DataError.Network.NO_INTERNET))
+        }
 }

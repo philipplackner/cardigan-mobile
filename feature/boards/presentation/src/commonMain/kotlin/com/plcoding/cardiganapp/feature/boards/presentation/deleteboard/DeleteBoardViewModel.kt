@@ -11,7 +11,6 @@ import com.plcoding.cardiganapp.core.presentation.toast.ToastType
 import com.plcoding.cardiganapp.core.presentation.util.UiText
 import com.plcoding.cardiganapp.feature.boards.domain.BoardRepository
 import com.plcoding.cardiganapp.feature.boards.presentation.components.findBoard
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 /** Delete board confirmation. A board that is already gone on the server counts as deleted. */
 class DeleteBoardViewModel(
@@ -26,7 +26,6 @@ class DeleteBoardViewModel(
     private val repository: BoardRepository,
     private val toastController: ToastController,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(DeleteBoardState())
     val state: StateFlow<DeleteBoardState> = _state.asStateFlow()
 
@@ -57,11 +56,17 @@ class DeleteBoardViewModel(
         _state.update { it.copy(isDeleting = true) }
         viewModelScope.launch {
             when (repository.deleteBoard(Uuid.parse(boardId))) {
-                is Result.Success -> _events.send(DeleteBoardEvent.Deleted)
+                is Result.Success -> {
+                    _events.send(DeleteBoardEvent.Deleted)
+                }
+
                 is Result.Error -> {
                     _state.update { it.copy(isDeleting = false) }
                     toastController.show(
-                        ToastMessage(UiText.Resource(Res.string.delete_board_failed, arrayOf(boardName)), ToastType.Error),
+                        ToastMessage(
+                            UiText.Resource(Res.string.delete_board_failed, arrayOf(boardName)),
+                            ToastType.Error,
+                        ),
                     )
                 }
             }

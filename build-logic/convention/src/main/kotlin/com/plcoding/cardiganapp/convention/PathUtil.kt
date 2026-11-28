@@ -10,10 +10,11 @@ private const val PACKAGE_ROOT = "com.plcoding.cardiganapp"
  * `:feature:boards:data` → `com.plcoding.cardiganapp.feature.boards.data`.
  */
 fun Project.pathToPackageName(): String {
-    val relativePackageName = path
-        .replace(':', '.')
-        .replace('-', '_')
-        .lowercase()
+    val relativePackageName =
+        path
+            .replace(':', '.')
+            .replace('-', '_')
+            .lowercase()
     return "$PACKAGE_ROOT$relativePackageName"
 }
 

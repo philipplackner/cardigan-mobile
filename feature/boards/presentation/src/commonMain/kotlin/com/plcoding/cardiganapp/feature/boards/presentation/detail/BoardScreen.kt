@@ -74,7 +74,10 @@ internal val DesktopColumnWidth = 276.dp
 private val AddColumnButtonWidth = 220.dp
 
 /** A request from the ViewModel to focus an inline field. [id] makes repeated requests distinct. */
-data class FocusRequest(val target: InlineTarget, val id: Long)
+data class FocusRequest(
+    val target: InlineTarget,
+    val id: Long,
+)
 
 /**
  * The board view's content area. The sidebar and phone menu come from the app shell.
@@ -91,9 +94,10 @@ fun BoardScreen(
 ) {
     val phone = LocalWindowClass.current == WindowClass.Phone
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppTheme.colors.background.app),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(AppTheme.colors.background.app),
     ) {
         ProvideConsumedInsets {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -108,18 +112,30 @@ fun BoardScreen(
 }
 
 @Composable
-private fun PhoneHeader(state: BoardState, onAction: (BoardAction) -> Unit) {
+private fun PhoneHeader(
+    state: BoardState,
+    onAction: (BoardAction) -> Unit,
+) {
     val key = state.headerKey
     val loaded = state.loaded
-    val subtitle = when {
-        key == null -> null
-        loaded != null && loaded.content.cardCount > 0 -> stringResource(
-            Res.string.board_view_phone_subtitle,
-            key,
-            pluralStringResource(Res.plurals.card_count, loaded.content.cardCount, loaded.content.cardCount),
-        )
-        else -> key
-    }
+    val subtitle =
+        when {
+            key == null -> {
+                null
+            }
+
+            loaded != null && loaded.content.cardCount > 0 -> {
+                stringResource(
+                    Res.string.board_view_phone_subtitle,
+                    key,
+                    pluralStringResource(Res.plurals.card_count, loaded.content.cardCount, loaded.content.cardCount),
+                )
+            }
+
+            else -> {
+                key
+            }
+        }
     TitleAppBar(
         title = state.headerName.orEmpty(),
         subtitle = subtitle,
@@ -131,32 +147,41 @@ private fun PhoneHeader(state: BoardState, onAction: (BoardAction) -> Unit) {
                 size = IconButtonSize.Large,
             )
         },
-        actions = if (loaded != null) {
-            { BoardMenuButton(onAction, IconButtonSize.Large, IconButtonStyle.Ghost) }
-        } else {
-            null
-        },
+        actions =
+            if (loaded != null) {
+                { BoardMenuButton(onAction, IconButtonSize.Large, IconButtonStyle.Ghost) }
+            } else {
+                null
+            },
     )
 }
 
 @Composable
-private fun DesktopHeader(state: BoardState, onAction: (BoardAction) -> Unit) {
+private fun DesktopHeader(
+    state: BoardState,
+    onAction: (BoardAction) -> Unit,
+) {
     val loaded = state.loaded
     val count = loaded?.content?.cardCount ?: 0
     PageHeader(
         title = state.headerName.orEmpty(),
         boardKey = state.headerKey,
         meta = if (count > 0) pluralStringResource(Res.plurals.card_count, count, count) else null,
-        actions = if (loaded != null) {
-            { BoardMenuButton(onAction, IconButtonSize.Medium, IconButtonStyle.Boxed) }
-        } else {
-            null
-        },
+        actions =
+            if (loaded != null) {
+                { BoardMenuButton(onAction, IconButtonSize.Medium, IconButtonStyle.Boxed) }
+            } else {
+                null
+            },
     )
 }
 
 @Composable
-private fun BoardMenuButton(onAction: (BoardAction) -> Unit, size: IconButtonSize, style: IconButtonStyle) {
+private fun BoardMenuButton(
+    onAction: (BoardAction) -> Unit,
+    size: IconButtonSize,
+    style: IconButtonStyle,
+) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         CardiganIconButton(
@@ -166,7 +191,7 @@ private fun BoardMenuButton(onAction: (BoardAction) -> Unit, size: IconButtonSiz
             size = size,
             style = style,
             selected = expanded,
-            modifier = Modifier.testTag(BoardTestTags.BoardMenu),
+            modifier = Modifier.testTag(BoardTestTags.BOARD_MENU),
         )
         Menu(expanded = expanded, onDismissRequest = { expanded = false }) {
             MenuItem(
@@ -208,23 +233,29 @@ private fun BoardContent(
     phone: Boolean,
 ) {
     when (val content = state.content) {
-        BoardLoadState.Loading -> SkeletonStrip(phone)
-        BoardLoadState.Error -> CenteredState {
-            EmptyState(
-                icon = CardiganIcons.CloudOff,
-                title = stringResource(Res.string.board_view_load_error_title),
-                description = stringResource(Res.string.board_view_load_error_description),
-                type = EmptyStateType.Error,
-                actions = {
-                    CardiganButton(
-                        text = stringResource(Res.string.board_view_try_again),
-                        onClick = { onAction(BoardAction.Retry) },
-                        style = ButtonStyle.Secondary,
-                        leadingIcon = CardiganIcons.Refresh,
-                    )
-                },
-            )
+        BoardLoadState.Loading -> {
+            SkeletonStrip(phone)
         }
+
+        BoardLoadState.Error -> {
+            CenteredState {
+                EmptyState(
+                    icon = CardiganIcons.CloudOff,
+                    title = stringResource(Res.string.board_view_load_error_title),
+                    description = stringResource(Res.string.board_view_load_error_description),
+                    type = EmptyStateType.Error,
+                    actions = {
+                        CardiganButton(
+                            text = stringResource(Res.string.board_view_try_again),
+                            onClick = { onAction(BoardAction.Retry) },
+                            style = ButtonStyle.Secondary,
+                            leadingIcon = CardiganIcons.Refresh,
+                        )
+                    },
+                )
+            }
+        }
+
         is BoardLoadState.Loaded -> {
             val addColumnOpen = state.inlineField?.target == InlineTarget.AddColumn
             if (content.content.columns.isEmpty() && !addColumnOpen) {
@@ -252,9 +283,10 @@ private fun BoardContent(
 @Composable
 private fun CenteredState(content: @Composable () -> Unit) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(contentInsets()),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(contentInsets()),
         contentAlignment = Alignment.Center,
     ) {
         content()
@@ -263,11 +295,17 @@ private fun CenteredState(content: @Composable () -> Unit) {
 
 /** Strip padding and gaps from Figma (see design.md "Figma values"). */
 @Composable
-internal fun stripPadding(phone: Boolean): PaddingValues = if (phone) {
-    PaddingValues(start = AppTheme.space.s12, end = AppTheme.space.s12, top = AppTheme.space.s8, bottom = AppTheme.space.s12)
-} else {
-    PaddingValues(horizontal = AppTheme.space.s20, vertical = AppTheme.space.s16)
-}
+internal fun stripPadding(phone: Boolean): PaddingValues =
+    if (phone) {
+        PaddingValues(
+            start = AppTheme.space.s12,
+            end = AppTheme.space.s12,
+            top = AppTheme.space.s8,
+            bottom = AppTheme.space.s12,
+        )
+    } else {
+        PaddingValues(horizontal = AppTheme.space.s20, vertical = AppTheme.space.s16)
+    }
 
 @Composable
 internal fun columnGap(phone: Boolean): Dp = if (phone) AppTheme.space.s10 else AppTheme.space.s12
@@ -291,15 +329,17 @@ private fun ColumnStrip(
         val maxColumnHeight = maxHeight - padding.calculateTopPadding() - padding.calculateBottomPadding()
         LazyRow(
             state = stripState,
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) { detectTapGestures { currentOnAction(BoardAction.InlineOutsideTap) } }
-                .testTag(BoardTestTags.Strip),
-            contentPadding = PaddingValues(
-                start = padding.calculateStartPadding(layoutDirection),
-                end = padding.calculateEndPadding(layoutDirection),
-                top = padding.calculateTopPadding(),
-            ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) { detectTapGestures { currentOnAction(BoardAction.InlineOutsideTap) } }
+                    .testTag(BoardTestTags.STRIP),
+            contentPadding =
+                PaddingValues(
+                    start = padding.calculateStartPadding(layoutDirection),
+                    end = padding.calculateEndPadding(layoutDirection),
+                    top = padding.calculateTopPadding(),
+                ),
             horizontalArrangement = Arrangement.spacedBy(columnGap(phone)),
             verticalAlignment = Alignment.Top,
         ) {
@@ -316,9 +356,10 @@ private fun ColumnStrip(
                     focusRequest = focusRequest?.takeIf { it.target == field?.target },
                     isRefreshing = state.isRefreshing && state.refreshingColumnId == column.id,
                     onAction = onAction,
-                    modifier = Modifier
-                        .width(columnWidth)
-                        .heightIn(max = maxColumnHeight.coerceAtLeast(0.dp)),
+                    modifier =
+                        Modifier
+                            .width(columnWidth)
+                            .heightIn(max = maxColumnHeight.coerceAtLeast(0.dp)),
                 )
             }
             item(key = ADD_COLUMN_KEY) {
@@ -334,9 +375,10 @@ private fun ColumnStrip(
                     AddColumnButton(
                         text = stringResource(Res.string.board_view_add_column),
                         onClick = { onAction(BoardAction.OpenAddColumn) },
-                        modifier = Modifier
-                            .width(AddColumnButtonWidth)
-                            .testTag(BoardTestTags.AddColumn),
+                        modifier =
+                            Modifier
+                                .width(AddColumnButtonWidth)
+                                .testTag(BoardTestTags.ADD_COLUMN),
                     )
                 }
             }
@@ -348,12 +390,13 @@ internal const val ADD_COLUMN_KEY = "add_column"
 
 /** Test tags for the board view's containers. */
 object BoardTestTags {
-    const val Strip = "board_strip"
-    const val Skeleton = "board_skeleton"
-    const val BoardMenu = "board_menu_button"
-    const val AddColumn = "board_add_column"
-    const val InlineField = "board_inline_field"
+    const val STRIP = "board_strip"
+    const val SKELETON = "board_skeleton"
+    const val BOARD_MENU = "board_menu_button"
+    const val ADD_COLUMN = "board_add_column"
+    const val INLINE_FIELD = "board_inline_field"
 
     fun column(name: String) = "board_column_$name"
+
     fun columnCards(name: String) = "board_column_cards_$name"
 }

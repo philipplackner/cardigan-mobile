@@ -10,11 +10,16 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.binds
 import org.koin.dsl.module
 
-val appModule = module {
-    singleOf(::AppToastController) binds arrayOf(AppToastController::class, ToastController::class)
-    viewModel { AppViewModel(get(), getAll()) }
-    single<BoardKeyOwnerLookup> {
-        val repository = get<BoardRepository>()
-        BoardKeyOwnerLookup { key -> repository.boards.value?.firstOrNull { it.key == key }?.name }
+val appModule =
+    module {
+        singleOf(::AppToastController) binds arrayOf(AppToastController::class, ToastController::class)
+        viewModel { AppViewModel(get(), getAll()) }
+        single<BoardKeyOwnerLookup> {
+            val repository = get<BoardRepository>()
+            BoardKeyOwnerLookup { key ->
+                repository.boards.value
+                    ?.firstOrNull { it.key == key }
+                    ?.name
+            }
+        }
     }
-}

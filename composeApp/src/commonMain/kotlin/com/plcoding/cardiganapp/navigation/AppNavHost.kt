@@ -8,14 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.plcoding.cardiganapp.core.domain.util.onFailure
+import com.plcoding.cardiganapp.core.presentation.toast.ToastController
 import com.plcoding.cardiganapp.feature.auth.presentation.navigation.authGraph
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListReloader
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.BoardListRoute
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardViewDestination
 import com.plcoding.cardiganapp.feature.boards.presentation.navigation.boardsGraph
 import com.plcoding.cardiganapp.feature.boards.presentation.util.boardsReloadFailedToast
-import com.plcoding.cardiganapp.core.domain.util.onFailure
-import com.plcoding.cardiganapp.core.presentation.toast.ToastController
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.ExportBoardRoute
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.ImportBoardRoute
 import com.plcoding.cardiganapp.feature.transfer.presentation.navigation.transferGraph
@@ -41,7 +41,10 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     reloader: BoardListReloader = koinInject(),
     toastController: ToastController = koinInject(),
-    filePicker: @Composable (onPicked: (PickedFile) -> Unit, onCancelled: () -> Unit) -> FilePicker = { onPicked, onCancelled ->
+    filePicker: @Composable (
+        onPicked: (PickedFile) -> Unit,
+        onCancelled: () -> Unit,
+    ) -> FilePicker = { onPicked, onCancelled ->
         rememberFilePicker(onPicked, onCancelled)
     },
 ) {
@@ -95,6 +98,9 @@ fun NavHostController.navigateToImport() {
 }
 
 /** Opens the export flow for one board. A second tap while it is open doesn't start another one. */
-fun NavHostController.navigateToExport(boardId: String, boardName: String) {
+fun NavHostController.navigateToExport(
+    boardId: String,
+    boardName: String,
+) {
     navigate(ExportBoardRoute(boardId, boardName)) { launchSingleTop = true }
 }

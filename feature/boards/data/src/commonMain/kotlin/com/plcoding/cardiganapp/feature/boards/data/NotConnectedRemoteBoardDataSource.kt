@@ -13,13 +13,21 @@ import kotlin.uuid.Uuid
  * call fails with a network error, so the board list shows its load error state.
  */
 class NotConnectedRemoteBoardDataSource : RemoteBoardDataSource {
-    override suspend fun getBoards(): Result<List<BoardSummary>, DataError.Network> = Result.Error(DataError.Network.UNKNOWN)
+    override suspend fun getBoards(): Result<List<BoardSummary>, DataError.Network> =
+        Result.Error(DataError.Network.UNKNOWN)
 
-    override suspend fun createBoard(name: String, key: String): Result<BoardSummary, BoardSaveError> = failed()
+    override suspend fun createBoard(
+        name: String,
+        key: String,
+    ): Result<BoardSummary, BoardSaveError> = failed()
 
-    override suspend fun renameBoard(id: Uuid, name: String): Result<BoardSummary, BoardSaveError> = failed()
+    override suspend fun renameBoard(
+        id: Uuid,
+        name: String,
+    ): Result<BoardSummary, BoardSaveError> = failed()
 
     override suspend fun deleteBoard(id: Uuid): EmptyResult<BoardSaveError> = failed()
 
-    private fun <T> failed(): Result<T, BoardSaveError> = Result.Error(BoardSaveError.Network(DataError.Network.UNKNOWN))
+    private fun <T> failed(): Result<T, BoardSaveError> =
+        Result.Error(BoardSaveError.Network(DataError.Network.UNKNOWN))
 }

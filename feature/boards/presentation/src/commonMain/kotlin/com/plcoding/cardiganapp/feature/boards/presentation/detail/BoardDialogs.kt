@@ -33,21 +33,36 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun BoardDialogs(state: BoardState, onAction: (BoardAction) -> Unit) {
+internal fun BoardDialogs(
+    state: BoardState,
+    onAction: (BoardAction) -> Unit,
+) {
     when (val dialog = state.dialog) {
-        is BoardDialog.RenameColumn -> RenameColumnDialog(dialog, onAction)
-        is BoardDialog.DeleteColumn -> DeleteColumnDialog(dialog, onAction)
+        is BoardDialog.RenameColumn -> {
+            RenameColumnDialog(dialog, onAction)
+        }
+
+        is BoardDialog.DeleteColumn -> {
+            DeleteColumnDialog(dialog, onAction)
+        }
+
         is BoardDialog.DiscardInlineField -> {
             val open = state.inlineField?.target ?: return
             val columnName = (open as? InlineTarget.QuickAdd)?.let { state.column(it.columnId)?.name }
             DiscardDialog(columnName, onAction)
         }
-        null -> Unit
+
+        null -> {
+            Unit
+        }
     }
 }
 
 @Composable
-private fun RenameColumnDialog(dialog: BoardDialog.RenameColumn, onAction: (BoardAction) -> Unit) {
+private fun RenameColumnDialog(
+    dialog: BoardDialog.RenameColumn,
+    onAction: (BoardAction) -> Unit,
+) {
     val error = dialog.error?.toUiText()?.asString()
     CardiganDialog(
         title = stringResource(Res.string.board_view_rename_column_title),
@@ -86,15 +101,19 @@ private fun RenameColumnDialog(dialog: BoardDialog.RenameColumn, onAction: (Boar
 }
 
 @Composable
-private fun DeleteColumnDialog(dialog: BoardDialog.DeleteColumn, onAction: (BoardAction) -> Unit) {
+private fun DeleteColumnDialog(
+    dialog: BoardDialog.DeleteColumn,
+    onAction: (BoardAction) -> Unit,
+) {
     val count = dialog.cardCount
     CardiganDialog(
         title = stringResource(Res.string.board_view_delete_column_title, dialog.name),
-        description = if (count > 0) {
-            pluralStringResource(Res.plurals.board_view_delete_column_body, count, count)
-        } else {
-            stringResource(Res.string.board_view_delete_column_body_empty)
-        },
+        description =
+            if (count > 0) {
+                pluralStringResource(Res.plurals.board_view_delete_column_body, count, count)
+            } else {
+                stringResource(Res.string.board_view_delete_column_body_empty)
+            },
         onDismissRequest = { onAction(BoardAction.DialogDismiss) },
         actions = {
             CardiganButton(
@@ -105,11 +124,12 @@ private fun DeleteColumnDialog(dialog: BoardDialog.DeleteColumn, onAction: (Boar
                 modifier = if (isTouchSize) Modifier.weight(1f) else Modifier,
             )
             CardiganButton(
-                text = if (count > 0) {
-                    pluralStringResource(Res.plurals.board_view_delete_column_confirm, count, count)
-                } else {
-                    stringResource(Res.string.board_view_delete_column)
-                },
+                text =
+                    if (count > 0) {
+                        pluralStringResource(Res.plurals.board_view_delete_column_confirm, count, count)
+                    } else {
+                        stringResource(Res.string.board_view_delete_column)
+                    },
                 onClick = { onAction(BoardAction.DeleteConfirm) },
                 style = ButtonStyle.Danger,
                 isLoading = dialog.isSaving,
@@ -121,14 +141,18 @@ private fun DeleteColumnDialog(dialog: BoardDialog.DeleteColumn, onAction: (Boar
 
 /** D41, the Card detail "Unsaved changes" pattern. [columnName] is null for the add column field. */
 @Composable
-private fun DiscardDialog(columnName: String?, onAction: (BoardAction) -> Unit) {
+private fun DiscardDialog(
+    columnName: String?,
+    onAction: (BoardAction) -> Unit,
+) {
     CardiganDialog(
         title = stringResource(Res.string.board_view_discard_title),
-        description = if (columnName != null) {
-            stringResource(Res.string.board_view_discard_card_body, columnName)
-        } else {
-            stringResource(Res.string.board_view_discard_column_body)
-        },
+        description =
+            if (columnName != null) {
+                stringResource(Res.string.board_view_discard_card_body, columnName)
+            } else {
+                stringResource(Res.string.board_view_discard_column_body)
+            },
         onDismissRequest = { onAction(BoardAction.DiscardKeepEditing) },
         actions = {
             CardiganButton(

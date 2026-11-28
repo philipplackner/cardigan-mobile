@@ -13,7 +13,6 @@ import kotlinx.serialization.json.JsonPrimitive
  * "Export file identifies its format and version". The server stays the full validator.
  */
 class JsonExportFileChecker : ExportFileChecker {
-
     override fun check(bytes: ByteArray): CheckedFile? {
         val text = decodeUtf8(bytes) ?: return null
         val root = runCatching { Json.parseToJsonElement(text) }.getOrNull() as? JsonObject ?: return null
@@ -28,8 +27,7 @@ class JsonExportFileChecker : ExportFileChecker {
         return runCatching { bytes.decodeToString(start, bytes.size, throwOnInvalidSequence = true) }.getOrNull()
     }
 
-    private fun JsonElement?.stringOrNull(): String? =
-        (this as? JsonPrimitive)?.takeIf { it.isString }?.content
+    private fun JsonElement?.stringOrNull(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content
 
     private fun JsonElement?.isIntegerLiteral(expected: String): Boolean =
         this is JsonPrimitive && !isString && content == expected

@@ -19,7 +19,6 @@ class AppViewModel(
     private val sessionManager: SessionManager,
     private val stores: List<SessionScopedStore>,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(sessionManager.state.value)
     val state: StateFlow<SessionState> = _state.asStateFlow()
 
@@ -38,9 +37,13 @@ class AppViewModel(
         viewModelScope.launch { sessionManager.logout() }
     }
 
-    private fun endsUserData(previous: SessionState, next: SessionState): Boolean = when (next) {
-        is SessionState.SignedOut -> previous !is SessionState.SignedOut
-        is SessionState.SignedIn -> previous is SessionState.SignedIn && previous.email != next.email
-        SessionState.Restoring -> false
-    }
+    private fun endsUserData(
+        previous: SessionState,
+        next: SessionState,
+    ): Boolean =
+        when (next) {
+            is SessionState.SignedOut -> previous !is SessionState.SignedOut
+            is SessionState.SignedIn -> previous is SessionState.SignedIn && previous.email != next.email
+            SessionState.Restoring -> false
+        }
 }
