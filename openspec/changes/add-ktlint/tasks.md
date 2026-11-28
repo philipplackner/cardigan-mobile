@@ -18,9 +18,9 @@
 
 ## 3. One-time reformat
 
-- [ ] 3.1 Run `./gradlew ktlintFormat --continue` and review the diff contains formatting changes only
-- [ ] 3.2 Fix the remaining violations by hand. For a rule that clashes with a project convention, stop and ask the user whether to disable it in `.editorconfig`. For a violation whose only fix changes behavior or a client-visible name, add `@Suppress("ktlint:standard:<rule>")` at that declaration. Verify `./gradlew ktlintCheck --continue` passes with zero violations
-- [ ] 3.3 Run all four gates and `./gradlew -p build-logic :convention:test`, since the reformat touches build-logic, then commit the reformat on its own as `style: reformat code with ktlint`; verify `./gradlew ktlintCheck` still passes on the committed tree
+- [x] 3.1 Run `./gradlew ktlintFormat --continue` and review the diff contains formatting changes only
+- [x] 3.2 Fix the remaining violations by hand. For a rule that clashes with a project convention, stop and ask the user whether to disable it in `.editorconfig`. For a violation whose only fix changes behavior or a client-visible name, add `@Suppress("ktlint:standard:<rule>")` at that declaration. Verify `./gradlew ktlintCheck --continue` passes with zero violations
+- [x] 3.3 Run all four gates and `./gradlew -p build-logic :convention:test`, since the reformat touches build-logic, then commit the reformat on its own as `style: reformat code with ktlint`; verify `./gradlew ktlintCheck` still passes on the committed tree
 
 ## Workflow follow-up
 
