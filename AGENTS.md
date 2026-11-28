@@ -25,7 +25,7 @@ This file is the project's system prompt. The `kmp-*` skills in `.claude/skills/
 | Fonts | Geist and Geist Mono, bundled as compose resources |
 | Time / IDs | `kotlin.time`, kotlinx-datetime, `kotlin.uuid.Uuid`. No `java.*` in common code. |
 | Logging | Kermit, debug builds only |
-| Lint / format | detekt 2.0 (alpha, pinned in the version catalog) with the custom `cardigan` rule set from `:tooling`, and Konsist (beta) for architecture checks. Config overrides in `config/detekt/detekt.yml`. On demand, not a gate. `kotlin.code.style=official` and the IDE formatter. |
+| Lint / format | detekt 2.0 (alpha, pinned in the version catalog) with the custom `cardigan` rule set from `:tooling`, and Konsist (beta) for architecture checks. Config overrides in `config/detekt/detekt.yml`. On demand, not a gate. ktlint 1.8.0 (`ktlint_official`) through the ktlint-gradle plugin for formatting, rule settings and matching IntelliJ formatter keys in the root `.editorconfig`. On demand, not a gate. |
 | Tests | `kotlin.test`, AssertK, Turbine, kotlinx-coroutines-test, Ktor `MockEngine`, Compose `ui-test` (`runComposeUiTest`) |
 | Coverage | Kover, Android host tests only. diff-cover (pinned in the version catalog) through `uvx`. On demand, not a gate. |
 | Mutation testing | PIT (pinned in the version catalog), Android host tests only, run through our own convention plugin. On demand, not a gate. |
@@ -253,6 +253,8 @@ All test types below are expected. See `kmp-unit-testing`, `kmp-integration-test
 | `./gradlew <module>:detekt` | Runs detekt on that module only, for example `./gradlew :feature:boards:data:detekt`. Not a gate. |
 | `./gradlew konsist` | Runs only the Konsist checks in `:tooling`. Fails on a failed check. Not a gate. |
 | `./gradlew staticAnalysis` | Runs `detekt` and `konsist`. A detekt failure doesn't stop the Konsist checks; the run fails at the end if either failed and names the tool. Not a gate. |
+| `./gradlew ktlintCheck` | Runs ktlint on the main and test Kotlin sources of every module that applies `convention.ktlint`, all `*.gradle.kts` scripts and build-logic. `build/` and generated code are left out. Prints violations with file, line and rule, and writes SARIF and Checkstyle reports to `<project>/build/reports/ktlint/`. Fails on any violation. Add `--continue` to list the violations of all modules in one run. Not a gate. |
+| `./gradlew ktlintFormat` | Fixes what ktlint can fix automatically in the same files as `ktlintCheck`, then reports and fails on what's left. Add `--continue` to format all modules in one run. Not a gate. |
 | `./gradlew :tooling:test` | Unit and acceptance tests of the custom detekt rules. Leaves out the Konsist checks. Run it when `tooling/` changes. Not a gate. |
 
 Tasks that don't exist yet get added in the change that sets up the tool.

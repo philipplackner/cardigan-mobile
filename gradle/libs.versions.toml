@@ -28,6 +28,8 @@ kotlin = "2.4.20"
 kotlinx-coroutines = "1.11.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-serialization = "1.13.0"
+ktlint = "1.8.0"
+ktlintGradle = "14.2.0"
 ktor = "3.6.1"
 material3 = "1.12.0-alpha03"
 pitest = "1.30.2"
@@ -41,6 +43,7 @@ composeMultiplatform-gradlePlugin = { module = "org.jetbrains.compose:compose-gr
 buildkonfig-gradlePlugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfig" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 detekt-gradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+ktlint-gradlePlugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlintGradle" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
@@ -114,6 +117,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 
 convention-kmp-library = { id = "com.plcoding.cardiganapp.convention.kmp.library" }
 convention-cmp-library = { id = "com.plcoding.cardiganapp.convention.cmp.library" }
@@ -129,3 +133,4 @@ convention-mutation-root = { id = "com.plcoding.cardiganapp.convention.mutation.
 convention-jvm-library = { id = "com.plcoding.cardiganapp.convention.jvm.library" }
 convention-detekt = { id = "com.plcoding.cardiganapp.convention.detekt" }
 convention-static-analysis-root = { id = "com.plcoding.cardiganapp.convention.static.analysis.root" }
+convention-ktlint = { id = "com.plcoding.cardiganapp.convention.ktlint" }

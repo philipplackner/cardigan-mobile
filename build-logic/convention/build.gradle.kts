@@ -1,8 +1,10 @@
 import dev.detekt.gradle.Detekt
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 group = "com.plcoding.cardiganapp.buildlogic"
@@ -19,6 +21,7 @@ dependencies {
     compileOnly(libs.buildkonfig.gradlePlugin)
     compileOnly(libs.kover.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
+    compileOnly(libs.ktlint.gradlePlugin)
 
     testImplementation(libs.kotlin.test)
     testImplementation(project(":pitest-filters"))
@@ -58,6 +61,31 @@ tasks.named<Detekt>("detekt") {
 
 tasks.named("check") {
     setDependsOn(dependsOn.filterNot { (it as? NamedDomainObjectProvider<*>)?.name?.startsWith("detekt") == true })
+}
+
+// A lambda written directly in the script would capture the script object, which the configuration cache rejects.
+fun ktlintFilesUnder(dir: File): Spec<FileTreeElement> = Spec { it.file.startsWith(dir) }
+val ktlintBuildDirFiles = ktlintFilesUnder(layout.buildDirectory.get().asFile)
+
+// Same settings as KtlintConventionPlugin, which build-logic can't apply to itself.
+ktlint {
+    version.set(libs.versions.ktlint)
+    outputToConsole.set(true)
+    verbose.set(true)
+    ignoreFailures.set(false)
+    reporters {
+        reporter(ReporterType.SARIF)
+        reporter(ReporterType.CHECKSTYLE)
+    }
+    filter {
+        exclude(ktlintBuildDirFiles)
+    }
+}
+
+afterEvaluate {
+    tasks.named("check") {
+        setDependsOn(dependsOn.filterNot { (it as? NamedDomainObjectProvider<*>)?.name?.startsWith("ktlint") == true })
+    }
 }
 
 tasks.validatePlugins {
@@ -122,6 +150,10 @@ gradlePlugin {
         register("staticAnalysisRoot") {
             id = libs.plugins.convention.static.analysis.root.get().pluginId
             implementationClass = "StaticAnalysisRootConventionPlugin"
+        }
+        register("ktlint") {
+            id = libs.plugins.convention.ktlint.get().pluginId
+            implementationClass = "KtlintConventionPlugin"
         }
     }
 }

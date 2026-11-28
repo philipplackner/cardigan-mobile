@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.convention.android.application.compose)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.convention.ktlint)
 }
 
 dependencies {

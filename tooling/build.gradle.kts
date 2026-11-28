@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.convention.jvm.library)
     alias(libs.plugins.convention.detekt)
+    alias(libs.plugins.convention.ktlint)
 }
 
 // Konsist bundles kotlin-compiler-embeddable 2.4.21 and detekt is built on Kotlin 2.4.0, so the two never share a runtime classpath.
